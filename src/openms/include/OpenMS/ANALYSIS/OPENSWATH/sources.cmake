@@ -23,7 +23,6 @@ set(sources_list_h
   OpenSwathWorkflow.h
   SONARScoring.h
   SpectrumAddition.h
-  SpectrumExtractor.h
   SwathMapMassCorrection.h
   SwathWindowLoader.h
   TransitionTSVReader.h
