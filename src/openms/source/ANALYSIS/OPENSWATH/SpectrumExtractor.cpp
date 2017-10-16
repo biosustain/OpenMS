@@ -107,56 +107,6 @@ namespace OpenMS
     return mz_tolerance_units_;
   }
 
-  void SpectrumExtractor::setSGolayFrameLength(const UInt& sgolay_frame_length)
-  {
-    sgolay_frame_length_ = sgolay_frame_length;
-  }
-
-  UInt SpectrumExtractor::getSGolayFrameLength() const
-  {
-    return sgolay_frame_length_;
-  }
-
-  void SpectrumExtractor::setSGolayPolynomialOrder(const UInt& sgolay_polynomial_order)
-  {
-    sgolay_polynomial_order_ = sgolay_polynomial_order;
-  }
-
-  UInt SpectrumExtractor::getSGolayPolynomialOrder() const
-  {
-    return sgolay_polynomial_order_;
-  }
-
-  void SpectrumExtractor::setGaussWidth(const double& gauss_width)
-  {
-    gauss_width_ = gauss_width;
-  }
-
-  double SpectrumExtractor::getGaussWidth() const
-  {
-    return gauss_width_;
-  }
-
-  void SpectrumExtractor::setUseGauss(const bool& use_gauss)
-  {
-    use_gauss_ = use_gauss;
-  }
-
-  bool SpectrumExtractor::getUseGauss() const
-  {
-    return use_gauss_;
-  }
-
-  void SpectrumExtractor::setSignalToNoise(const double& signal_to_noise)
-  {
-    signal_to_noise_ = signal_to_noise;
-  }
-
-  double SpectrumExtractor::getSignalToNoise() const
-  {
-    return signal_to_noise_;
-  }
-
   void SpectrumExtractor::updateMembers_()
   {
     rt_window_ = (double)param_.getValue("rt_window");
@@ -165,12 +115,6 @@ namespace OpenMS
     min_reverse_match_ = (double)param_.getValue("min_reverse_match");
     mz_tolerance_ = (double)param_.getValue("mz_tolerance");
     mz_tolerance_units_ = (String)param_.getValue("mz_tolerance_units");
-
-    sgolay_frame_length_ = (UInt)param_.getValue("sgolay_frame_length");
-    sgolay_polynomial_order_ = (UInt)param_.getValue("sgolay_polynomial_order");
-    gauss_width_ = (double)param_.getValue("gauss_width");
-    use_gauss_ = (bool)param_.getValue("use_gauss").toBool();
-    signal_to_noise_ = (double)param_.getValue("signal_to_noise");
   }
 
   void SpectrumExtractor::getDefaultParameters(Param& params)
