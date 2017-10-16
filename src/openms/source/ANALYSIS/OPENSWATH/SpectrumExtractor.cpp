@@ -198,7 +198,7 @@ namespace OpenMS
 
     params.setValue("sgolay_frame_length", 15, "The number of subsequent data points used for smoothing.\nThis number has to be uneven. If it is not, 1 will be added.");
     params.setValue("sgolay_polynomial_order", 3, "Order of the polynomial that is fitted.");
-    params.setValue("gauss_width", 0.2, "Gaussian width in Da, estimated peak size.");
+    params.setValue("gauss_width", 0.2, "Gaussian width in Da or ppm, estimated peak size.");
     params.setValue("use_gauss", "true", "Use Gaussian filter for smoothing (alternative is Savitzky-Golay filter)");
     params.setValidStrings("use_gauss", ListUtils::create<String>("false,true"));
     params.setValue("signal_to_noise", 1.0, "Signal-to-noise threshold at which a peak will not be extended any more. Note that setting this too high (e.g. 1.0) can lead to peaks whose flanks are not fully captured.");
