@@ -1,32 +1,32 @@
 // --------------------------------------------------------------------------
-//                   OpenMS -- Open-Source Mass Spectrometry               
+//                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
 // ETH Zurich, and Freie Universitaet Berlin 2002-2017.
-// 
+//
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
 //    notice, this list of conditions and the following disclaimer.
 //  * Redistributions in binary form must reproduce the above copyright
 //    notice, this list of conditions and the following disclaimer in the
 //    documentation and/or other materials provided with the distribution.
-//  * Neither the name of any author or any participating institution 
-//    may be used to endorse or promote products derived from this software 
+//  * Neither the name of any author or any participating institution
+//    may be used to endorse or promote products derived from this software
 //    without specific prior written permission.
-// For a full list of authors, refer to the file AUTHORS. 
+// For a full list of authors, refer to the file AUTHORS.
 // --------------------------------------------------------------------------
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL ANY OF THE AUTHORS OR THE CONTRIBUTING 
-// INSTITUTIONS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+// ARE DISCLAIMED. IN NO EVENT SHALL ANY OF THE AUTHORS OR THE CONTRIBUTING
+// INSTITUTIONS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // --------------------------------------------------------------------------
 // $Maintainer: Douglas McCloskey, Pasquale Domenico Colaianni $
 // $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
@@ -36,7 +36,6 @@
 #include <OpenMS/test_config.h>
 
 ///////////////////////////
-#include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SpectrumExtractor.h>
 ///////////////////////////
 
@@ -56,223 +55,224 @@ spectrum.resize(73);
 MSSpectrum::Iterator it = spectrum.begin();
 
 it->setMZ(61.92);
-it->setIntensity(6705.41660838088f);
+it++->setIntensity(6705.41660838088f);
 
-it++->setMZ(68.88);
+it->setMZ(68.88);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(71.4);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(79.56);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(84.6);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(84.72);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(84.84);
+it++->setIntensity(8381.7707604761f);
+
+it->setMZ(84.96);
+it++->setIntensity(53643.332867047f);
+
+it->setMZ(85.08);
+it++->setIntensity(51966.9787149518f);
+
+it->setMZ(85.2);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(85.32);
+it++->setIntensity(8381.7707604761f);
+
+it->setMZ(85.44);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(85.68);
+it++->setIntensity(11734.4790646665f);
+
+it->setMZ(85.8);
+it++->setIntensity(25145.3122814283f);
+
+it->setMZ(85.92);
+it++->setIntensity(68730.520235904f);
+
+it->setMZ(86.04);
+it++->setIntensity(112315.72819038f);
+
+it->setMZ(86.16);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(86.28);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(86.4);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(87.72);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(87.96);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(88.08);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(90.36);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(94.44);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(99.84);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(100.8);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(101.04);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(101.88);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(102);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(102.96);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(110.16);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(110.88);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(111);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(111.12);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(111.24);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(111.84);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(111.96);
+it++->setIntensity(18439.8956730474f);
+
+it->setMZ(112.08);
+it++->setIntensity(20116.2498251426f);
+
+it->setMZ(112.2);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(112.32);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(112.44);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(112.56);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(112.68);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(114);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(128.16);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(128.4);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(128.88);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(129);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(129.12);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(129.84);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(129.96);
+it++->setIntensity(10058.1249125713f);
+
+it->setMZ(130.08);
+it++->setIntensity(31850.7288898092f);
+
+it->setMZ(130.2);
+it++->setIntensity(10058.1249125713f);
+
+it->setMZ(130.32);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(130.44);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(130.56);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(132.12);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(138);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(139.08);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(140.16);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(144.12);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(146.04);
+it++->setIntensity(3352.70830419044f);
+
+it->setMZ(146.16);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(156);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(156.12);
+it++->setIntensity(5029.06245628566f);
+
+it->setMZ(156.36);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(173.76);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(174);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(174.12);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(174.24);
+it++->setIntensity(11734.4790646665f);
+
+it->setMZ(174.36);
+it++->setIntensity(6705.41660838088f);
+
+it->setMZ(174.6);
+it++->setIntensity(1676.35415209522f);
+
+it->setMZ(175.08);
 it->setIntensity(1676.35415209522f);
 
-it++->setMZ(71.4);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(79.56);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(84.6);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(84.72);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(84.84);
-it->setIntensity(8381.7707604761f);
-
-it++->setMZ(84.96);
-it->setIntensity(53643.332867047f);
-
-it++->setMZ(85.08);
-it->setIntensity(51966.9787149518f);
-
-it++->setMZ(85.2);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(85.32);
-it->setIntensity(8381.7707604761f);
-
-it++->setMZ(85.44);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(85.68);
-it->setIntensity(11734.4790646665f);
-
-it++->setMZ(85.8);
-it->setIntensity(25145.3122814283f);
-
-it++->setMZ(85.92);
-it->setIntensity(68730.520235904f);
-
-it++->setMZ(86.04);
-it->setIntensity(112315.72819038f);
-
-it++->setMZ(86.16);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(86.28);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(86.4);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(87.72);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(87.96);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(88.08);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(90.36);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(94.44);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(99.84);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(100.8);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(101.04);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(101.88);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(102);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(102.96);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(110.16);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(110.88);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(111);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(111.12);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(111.24);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(111.84);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(111.96);
-it->setIntensity(18439.8956730474f);
-
-it++->setMZ(112.08);
-it->setIntensity(20116.2498251426f);
-
-it++->setMZ(112.2);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(112.32);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(112.44);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(112.56);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(112.68);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(114);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(128.16);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(128.4);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(128.88);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(129);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(129.12);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(129.84);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(129.96);
-it->setIntensity(10058.1249125713f);
-
-it++->setMZ(130.08);
-it->setIntensity(31850.7288898092f);
-
-it++->setMZ(130.2);
-it->setIntensity(10058.1249125713f);
-
-it++->setMZ(130.32);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(130.44);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(130.56);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(132.12);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(138);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(139.08);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(140.16);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(144.12);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(146.04);
-it->setIntensity(3352.70830419044f);
-
-it++->setMZ(146.16);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(156);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(156.12);
-it->setIntensity(5029.06245628566f);
-
-it++->setMZ(156.36);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(173.76);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(174);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(174.12);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(174.24);
-it->setIntensity(11734.4790646665f);
-
-it++->setMZ(174.36);
-it->setIntensity(6705.41660838088f);
-
-it++->setMZ(174.6);
-it->setIntensity(1676.35415209522f);
-
-it++->setMZ(175.08);
-it->setIntensity(1676.35415209522f);
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -400,12 +400,6 @@ START_SECTION(setSignalToNoise())
 }
 END_SECTION
 
-START_SECTION(getParameters().getValue("rt_window"))
-{
-  TEST_EQUAL(ptr->getParameters().getValue("rt_window"), 50)
-}
-END_SECTION
-
 START_SECTION(getParameters().getDescription("rt_window"))
 {
   TEST_EQUAL(ptr->getParameters().getDescription("rt_window"), "Retention time window in seconds.")
@@ -438,6 +432,147 @@ START_SECTION(pickSpectrum())
     outfile.close();
   }
   else {
+    cout << "Unable to open file to write the spectrum";
+  }
+}
+END_SECTION
+
+START_SECTION(annotateSpectrum())
+{
+  MzMLFile mzml;
+  PeakMap experiment;
+  TargetedExperiment targeted_exp;
+  TransitionTSVReader tsv_reader;
+
+  // targeting a particular mz and rt
+  //double target_mz = 177.0;
+  //double target_rt = 840.0;
+
+  ptr->setRTWindow(30);
+  ptr->setMZTolerance(0.1);
+  ptr->setGaussWidth(0.25);
+  ptr->setUseGauss(true);
+
+  // mzml.getOptions().setRTRange(DRange<1>(target_rt - ptr->getRTWindow() / 2.0, target_rt + ptr->getRTWindow() / 2.0));
+  // mzml.getOptions().setRTRange(DRange<1>(0.0, 856));
+  // mzml.getOptions().setMZRange(DRange<1>(target_mz - ptr->getMZTolerance(), target_mz + ptr->getMZTolerance()));
+  // mzml.getOptions().setMZRange(DRange<1>(0.0, 300.0));
+
+  // TODO remove the following path, use different way to load data
+  mzml.load("/home/pasdom/Downloads/douglas_files/13C1.mzML", experiment);
+  std::vector<MSSpectrum> spectra = experiment.getSpectra();
+  tsv_reader.convertTSVToTargetedExperiment("/home/pasdom/Downloads/douglas_files/13CFlux_TraML.csv", FileTypes::TRAML/*FileTypes::CSV*/, targeted_exp);
+  //tsv_reader.convertTSVToTargetedExperiment("/home/pasdom/Downloads/douglas_files/traML.csv", FileTypes::TRAML/*FileTypes::CSV*/, targeted_exp);
+  std::vector<MSSpectrum> annotated;
+
+  // std::vector<ReactionMonitoringTransition> transitions = targeted_exp.getTransitions();
+  // for (UInt i=0; i<transitions.size(); ++i)
+  // {
+  //   cout << "PrecursorMz " << transitions[i].getPrecursorMZ() << endl;
+  //   cout << "transitions[i].getPeptideRef() " << transitions[i].getPeptideRef() << endl;
+  //   cout << "RetentionTime " << targeted_exp.getPeptideByRef(transitions[i].getPeptideRef()).getRetentionTime() << endl << endl;
+  // }
+
+  ptr->annotateSpectrum(spectra, targeted_exp, annotated);
+
+  ofstream outfile;
+  outfile.open("plots_output.html", ios::out | ios::trunc);
+  if (outfile.is_open())
+  {
+    const string header = ""
+    "<!doctype html>"
+    "<html>"
+    "<head>"
+    "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>"
+    "</head>"
+    "<body>"
+    "  <div id=\"plot-here\" style=\"height: 800px\"></div>"
+    "RT window: " + to_string(ptr->getRTWindow()) + "<br>"
+    "MZ tolerance: " + to_string(ptr->getMZTolerance()) + "<br>"
+    "Gauss width: " + to_string(ptr->getGaussWidth()) + "<br>"
+    "Using Gauss filter: " + to_string(ptr->getUseGauss()) + "<br>"
+    "</body>"
+    "<script>"
+    "const data = [";
+
+    outfile << header;
+    for (UInt j=0; j<annotated.size(); ++j)
+    {
+      MSSpectrum picked;
+      ptr->pickSpectrum(annotated[j], picked);
+      TEST_NOT_EQUAL(annotated[j].size(), picked.size())
+
+      outfile << "  {" << endl <<  "    x: [";
+      for (UInt i=0; i<annotated[j].size(); ++i) {
+        outfile << annotated[j][i].getMZ() << ", ";
+      }
+      outfile << "]," << endl << "    y: [";
+      for (UInt i=0; i<annotated[j].size(); ++i) {
+        outfile << annotated[j][i].getIntensity() << ", ";
+      }
+      outfile << "]," << endl;
+
+      string annotated_trace_ending = ""
+      "    legendgroup: '" + to_string(j) + "',"
+      "    visible: 'legendonly',"
+      "    mode: 'lines+markers',"
+      "    name: '[" + to_string(j) + "] " + picked.getName() + "',"
+      "    type: 'scatter',"
+      "    line: {"
+      "      width: 1"
+      "    },"
+      "    marker: {"
+      "      color: 'green',"
+      "      size: 4"
+      "    }"
+      "  },";
+
+      outfile << annotated_trace_ending << endl << "{" << endl << "    x: [";
+      for (UInt i=0; i<picked.size(); ++i) {
+        outfile << picked[i].getMZ() << ", ";
+      }
+      outfile << "]," << std::endl << "y: [";
+      for (UInt i=0; i<picked.size(); ++i) {
+        outfile << picked[i].getIntensity() << ", ";
+      }
+      outfile << "]," << endl;
+      string picked_trace_ending = ""
+      "    legendgroup: '" + to_string(j) + "',"
+      "    visible: 'legendonly',"
+      "    showlegend: false,"
+      "    mode: 'markers',"
+      "    name: '[" + to_string(j) + "] " + picked.getName() + "',"
+      "    type: 'scatter',"
+      "    marker: {"
+      "      color: 'red',"
+      "      size: 10,"
+      "      symbol: 'square-open-dot'"
+      "    }"
+      "  },";
+      outfile << picked_trace_ending << endl;
+    }
+
+    const string footer = ""
+    "];"
+    "const layout = {"
+    "  title: 'Spectrum',"
+    "  xaxis: {"
+    "    title: 'Mass-to-charge ratio (m/z)'"
+    "  },"
+    "  yaxis: {"
+    "    title: 'Intensity'"
+    "  },"
+    "  hovermode: 'closest'"
+    "};"
+    "Plotly.plot(document.getElementById('plot-here'), data, layout);"
+    "</script>"
+    "</html>";
+
+    outfile << footer;
+    outfile.close();
+  }
+  else
+  {
     cout << "Unable to open file to write the spectrum";
   }
 }

@@ -254,4 +254,44 @@ namespace OpenMS
     pp.pick(smoothed_spectrum, picked_spectrum);
     LOG_DEBUG << "Found " << picked_spectrum.size() << " spectrum peaks." << std::endl;
   }
+
+  void SpectrumExtractor::annotateSpectrum(
+    const std::vector<MSSpectrum>& spectra,
+    const TargetedExperiment& targeted_exp,
+    std::vector<MSSpectrum>& annotated_spectra
+  )
+  {
+    std::vector<ReactionMonitoringTransition> transitions = targeted_exp.getTransitions();
+    // TODO improve "Are target list's RTs in minutes or in seconds?" solution (DIV variable, at the moment)
+    const double DIV = 60.0; // set to 1.0 if target list's RTs are in seconds. Otherwise set to 60.0
+
+    for (UInt i=0; i<spectra.size(); ++i)
+    {
+      MSSpectrum spectrum = spectra[i];
+      const double spectrum_rt = spectrum.getRT() / DIV;
+      const double rt_left_lim = spectrum_rt - getRTWindow() / DIV / 2.0;
+      const double rt_right_lim = spectrum_rt + getRTWindow() / DIV / 2.0;
+      const double spectrum_mz = spectrum.getPrecursors()[0].getMZ();
+      const double mz_left_lim = spectrum_mz - getMZTolerance();
+      const double mz_right_lim = spectrum_mz + getMZTolerance();
+      // TODO remove all printing spam from current method
+      std::cout << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
+
+      for (UInt j=0; j<transitions.size(); ++j)
+      {
+        const double target_rt = targeted_exp.getPeptideByRef(transitions[j].getPeptideRef()).getRetentionTime();
+        const double target_mz = transitions[j].getPrecursorMZ();
+
+        if (target_rt >= rt_left_lim && target_rt <= rt_right_lim && target_mz >= mz_left_lim && target_mz <= mz_right_lim)
+        {
+          std::cout << "target_rt: " << target_rt << "\ttarget_mz: " << target_mz << std::endl;
+          std::cout << "pushed thanks to transition: " << j << " with name: " << transitions[j].getPeptideRef() << std::endl << std::endl;
+          spectrum.setName(transitions[j].getPeptideRef());
+          annotated_spectra.push_back(spectrum);
+          break;
+        }
+      }
+    }
+    std::cout << "the annotated variable has " << annotated_spectra.size() << " elements instead of " << spectra.size() << std::endl;
+  }
 }
