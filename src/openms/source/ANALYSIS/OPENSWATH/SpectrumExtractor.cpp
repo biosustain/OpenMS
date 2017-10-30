@@ -262,15 +262,13 @@ namespace OpenMS
   )
   {
     std::vector<ReactionMonitoringTransition> transitions = targeted_exp.getTransitions();
-    // TODO improve "Are target list's RTs in minutes or in seconds?" solution (DIV variable, at the moment)
-    const double DIV = 60.0; // set to 1.0 if target list's RTs are in seconds. Otherwise set to 60.0
-
     for (UInt i=0; i<spectra.size(); ++i)
     {
       MSSpectrum spectrum = spectra[i];
-      const double spectrum_rt = spectrum.getRT() / DIV;
-      const double rt_left_lim = spectrum_rt - getRTWindow() / DIV / 2.0;
-      const double rt_right_lim = spectrum_rt + getRTWindow() / DIV / 2.0;
+      // It is supposed to have RT in minutes in target list file, therefore we divide by 60.0
+      const double spectrum_rt = spectrum.getRT() / 60.0;
+      const double rt_left_lim = spectrum_rt - getRTWindow() / 60.0 / 2.0;
+      const double rt_right_lim = spectrum_rt + getRTWindow() / 60.0 / 2.0;
       const double spectrum_mz = spectrum.getPrecursors()[0].getMZ();
       const double mz_left_lim = spectrum_mz - getMZTolerance();
       const double mz_right_lim = spectrum_mz + getMZTolerance();
