@@ -107,6 +107,12 @@ public:
       std::vector<MSSpectrum>& annotated_spectra
     );
 
+    void scoreSpectrum(
+      std::vector<MSSpectrum>& annotated,
+      std::vector<MSSpectrum>& picked,
+      std::vector<MSSpectrum>& scored
+    );
+
 protected:
     /// overridden function from DefaultParamHandler to keep members up to date, when a parameter is changed
     void updateMembers_();

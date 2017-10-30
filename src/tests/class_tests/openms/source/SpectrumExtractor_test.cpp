@@ -37,6 +37,7 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/SpectrumExtractor.h>
+#include <map>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -574,6 +575,77 @@ START_SECTION(annotateSpectrum())
   else
   {
     cout << "Unable to open file to write the spectrum";
+  }
+}
+END_SECTION
+
+START_SECTION(scoreSpectrum())
+{
+  MzMLFile mzml;
+  PeakMap experiment;
+  TargetedExperiment targeted_exp;
+  TransitionTSVReader tsv_reader;
+
+  ptr->setRTWindow(30);
+  ptr->setMZTolerance(0.1);
+  ptr->setGaussWidth(0.25);
+  ptr->setUseGauss(true);
+
+  mzml.load("/home/pasdom/Downloads/douglas_files/13C1.mzML", experiment);
+  std::vector<MSSpectrum> spectra = experiment.getSpectra();
+  tsv_reader.convertTSVToTargetedExperiment("/home/pasdom/Downloads/douglas_files/13CFlux_TraML.csv", FileTypes::TRAML, targeted_exp);
+  std::vector<MSSpectrum> annotated;
+
+  ptr->annotateSpectrum(spectra, targeted_exp, annotated);
+  std::vector<MSSpectrum> picked;
+  picked.resize(annotated.size());
+
+  for (UInt j=0; j<annotated.size(); ++j)
+  {
+    ptr->pickSpectrum(annotated[j], picked[j]);
+  }
+
+  std::vector<MSSpectrum> scored;
+  ptr->scoreSpectrum(annotated, picked, scored);
+
+  // std::sort(scored.begin(), scored.end(), [](MSSpectrum a, MSSpectrum b)
+  // {
+  //   return a.getFloatDataArrays()[1][0] > b.getFloatDataArrays()[1][0];
+  // });
+  std::sort(scored.begin(), scored.end(), [](MSSpectrum a, MSSpectrum b)
+  {
+    return a.getName().compare(b.getName()) < 0;
+  });
+
+  for (auto a : scored)
+  {
+    cout << a.getName()
+    << "\tscore: " << a.getFloatDataArrays()[1][0]
+    << "\tlog10_tic: " << a.getFloatDataArrays()[2][0]
+    << "\t1/fwhm: " << a.getFloatDataArrays()[3][0]
+    << "\tSNR: " << a.getFloatDataArrays()[4][0] << endl;
+  }
+
+  map<string,MSSpectrum> transition_best_spec;
+  for (auto a : scored)
+  {
+    String transition_name = a.getName();
+    map<string,MSSpectrum>::const_iterator it = transition_best_spec.find(transition_name);
+    if (it == transition_best_spec.end())
+    {
+      transition_best_spec.insert({transition_name, a});
+    }
+    else if (it->second.getFloatDataArrays()[1][0] < a.getFloatDataArrays()[1][0])
+    {
+      transition_best_spec.erase(transition_name);
+      transition_best_spec.insert({transition_name, a});
+    }
+  }
+
+  cout << endl << "Printing mapping of transition -> best spectrum:" << endl;
+  for (auto it = transition_best_spec.cbegin(); it!=transition_best_spec.cend(); ++it)
+  {
+    cout << it->first << "\t" << it->second.getFloatDataArrays()[1][0] << endl;
   }
 }
 END_SECTION

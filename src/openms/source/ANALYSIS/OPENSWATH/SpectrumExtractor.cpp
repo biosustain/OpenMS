@@ -248,6 +248,8 @@ namespace OpenMS
     // disable spacing constraints, since we're dealing with spectrum
     pepi_param.setValue("spacing_difference", 0.0);
     pepi_param.setValue("spacing_difference_gap", 0.0);
+    pepi_param.setValue("report_FWHM", "true");
+    pepi_param.setValue("report_FWHM_unit", "absolute");
     picked_spectrum.clear(true);
     PeakPickerHiRes pp;
     pp.setParameters(pepi_param);
@@ -274,8 +276,6 @@ namespace OpenMS
       const double spectrum_mz = spectrum.getPrecursors()[0].getMZ();
       const double mz_left_lim = spectrum_mz - getMZTolerance();
       const double mz_right_lim = spectrum_mz + getMZTolerance();
-      // TODO remove all printing spam from current method
-      std::cout << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
 
       for (UInt j=0; j<transitions.size(); ++j)
       {
@@ -284,14 +284,67 @@ namespace OpenMS
 
         if (target_rt >= rt_left_lim && target_rt <= rt_right_lim && target_mz >= mz_left_lim && target_mz <= mz_right_lim)
         {
-          std::cout << "target_rt: " << target_rt << "\ttarget_mz: " << target_mz << std::endl;
-          std::cout << "pushed thanks to transition: " << j << " with name: " << transitions[j].getPeptideRef() << std::endl << std::endl;
           spectrum.setName(transitions[j].getPeptideRef());
           annotated_spectra.push_back(spectrum);
           break;
         }
       }
     }
-    std::cout << "the annotated variable has " << annotated_spectra.size() << " elements instead of " << spectra.size() << std::endl;
+  }
+
+  void SpectrumExtractor::scoreSpectrum(
+    std::vector<MSSpectrum>& annotated,
+    std::vector<MSSpectrum>& picked,
+    std::vector<MSSpectrum>& scored
+  )
+  {
+    std::vector<double> scores(annotated.size());
+    for (UInt i=0; i<annotated.size(); ++i)
+    {
+      double total_tic = 0;
+      for (UInt j=0; j<annotated[i].size(); ++j)
+      {
+        total_tic += annotated[i][j].getIntensity();
+      }
+
+      double avgFWHM = 0;
+      for (UInt j=0; j<picked[i].getFloatDataArrays()[0].size(); ++j)
+      {
+        avgFWHM += picked[i].getFloatDataArrays()[0][j];
+      }
+      avgFWHM /= picked[i].getFloatDataArrays()[0].size();
+
+      SignalToNoiseEstimatorMedian<MSSpectrum> sne;
+      Param p;
+      p.setValue("win_len", 40.0);
+      p.setValue("noise_for_empty_window", 2.0);
+      p.setValue("min_required_elements", 10);
+      sne.setParameters(p);
+      MSSpectrum::const_iterator it;
+      sne.init(annotated[i].begin(),annotated[i].end());
+      double avgSNR = 0.0;
+      for (it=annotated[i].begin(); it!=annotated[i].end(); ++it)
+      {
+        avgSNR += sne.getSignalToNoise(it);
+      }
+      avgSNR /= annotated[i].size();
+
+      double log10_total_tic = log10(total_tic);
+      double one_over_avgFWHM = 1.0/avgFWHM;
+      double score = log10_total_tic + one_over_avgFWHM + avgSNR;
+
+      MSSpectrum spectrum = annotated[i];
+      spectrum.getFloatDataArrays().resize(5); //TODO update this .resize() in case we remove the tic/fwhm/snr infos
+      spectrum.getFloatDataArrays()[1].setName("score");
+      spectrum.getFloatDataArrays()[1].push_back(score);
+      //TODO should we remove the following info?
+      spectrum.getFloatDataArrays()[2].setName("log10_total_tic");
+      spectrum.getFloatDataArrays()[2].push_back(log10_total_tic);
+      spectrum.getFloatDataArrays()[3].setName("one_over_avgFWHM");
+      spectrum.getFloatDataArrays()[3].push_back(one_over_avgFWHM);
+      spectrum.getFloatDataArrays()[4].setName("avgSNR");
+      spectrum.getFloatDataArrays()[4].push_back(avgSNR);
+      scored.push_back(spectrum);
+    }
   }
 }
