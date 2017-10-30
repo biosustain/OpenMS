@@ -274,6 +274,20 @@ it++->setIntensity(1676.35415209522f);
 it->setMZ(175.08);
 it->setIntensity(1676.35415209522f);
 
+START_SECTION(getMZ())
+{
+  TEST_EQUAL(spectrum[0].getMZ(), 61.92)
+  TEST_EQUAL(spectrum[0].getIntensity(), 6705.41660838088f)
+  TEST_EQUAL(spectrum[1].getMZ(), 68.88)
+  TEST_EQUAL(spectrum[1].getIntensity(), 1676.35415209522f)
+  TEST_EQUAL(spectrum[6].getMZ(), 84.84)
+  TEST_EQUAL(spectrum[6].getIntensity(), 8381.7707604761f)
+  TEST_EQUAL(spectrum[71].getMZ(), 174.6)
+  TEST_EQUAL(spectrum[71].getIntensity(), 1676.35415209522f)
+  TEST_EQUAL(spectrum[72].getMZ(), 175.08)
+  TEST_EQUAL(spectrum[72].getIntensity(), 1676.35415209522f)
+}
+END_SECTION
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -419,7 +433,10 @@ START_SECTION(pickSpectrum())
   ptr->pickSpectrum(spectrum, picked);
   TEST_NOT_EQUAL(spectrum.size(), picked.size())
   ofstream outfile;
-  outfile.open("plot_output.txt", ios::out | ios::trunc);
+  outfile.open(
+    OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_plot_output.txt"),
+    ios::out | ios::trunc
+  );
   if (outfile.is_open()) {
     outfile << "Fill plotly data with this:" << std::endl << "x: [";
     for (UInt i=0; i<picked.size(); ++i) {
@@ -445,39 +462,27 @@ START_SECTION(annotateSpectrum())
   TargetedExperiment targeted_exp;
   TransitionTSVReader tsv_reader;
 
-  // targeting a particular mz and rt
-  //double target_mz = 177.0;
-  //double target_rt = 840.0;
-
   ptr->setRTWindow(30);
   ptr->setMZTolerance(0.1);
   ptr->setGaussWidth(0.25);
   ptr->setUseGauss(true);
 
-  // mzml.getOptions().setRTRange(DRange<1>(target_rt - ptr->getRTWindow() / 2.0, target_rt + ptr->getRTWindow() / 2.0));
-  // mzml.getOptions().setRTRange(DRange<1>(0.0, 856));
-  // mzml.getOptions().setMZRange(DRange<1>(target_mz - ptr->getMZTolerance(), target_mz + ptr->getMZTolerance()));
-  // mzml.getOptions().setMZRange(DRange<1>(0.0, 300.0));
-
-  // TODO remove the following path, use different way to load data
-  mzml.load("/home/pasdom/Downloads/douglas_files/13C1.mzML", experiment);
+  mzml.load(OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13C1.mzML"), experiment);
   std::vector<MSSpectrum> spectra = experiment.getSpectra();
-  tsv_reader.convertTSVToTargetedExperiment("/home/pasdom/Downloads/douglas_files/13CFlux_TraML.csv", FileTypes::TRAML/*FileTypes::CSV*/, targeted_exp);
-  //tsv_reader.convertTSVToTargetedExperiment("/home/pasdom/Downloads/douglas_files/traML.csv", FileTypes::TRAML/*FileTypes::CSV*/, targeted_exp);
+  tsv_reader.convertTSVToTargetedExperiment(
+    OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13CFlux_TraML.csv"),
+    FileTypes::CSV,
+    targeted_exp
+  );
   std::vector<MSSpectrum> annotated;
-
-  // std::vector<ReactionMonitoringTransition> transitions = targeted_exp.getTransitions();
-  // for (UInt i=0; i<transitions.size(); ++i)
-  // {
-  //   cout << "PrecursorMz " << transitions[i].getPrecursorMZ() << endl;
-  //   cout << "transitions[i].getPeptideRef() " << transitions[i].getPeptideRef() << endl;
-  //   cout << "RetentionTime " << targeted_exp.getPeptideByRef(transitions[i].getPeptideRef()).getRetentionTime() << endl << endl;
-  // }
 
   ptr->annotateSpectrum(spectra, targeted_exp, annotated);
 
   ofstream outfile;
-  outfile.open("plots_output.html", ios::out | ios::trunc);
+  outfile.open(
+    OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_plots_output.html"),
+    ios::out | ios::trunc
+  );
   if (outfile.is_open())
   {
     const string header = ""
@@ -591,9 +596,9 @@ START_SECTION(scoreSpectrum())
   ptr->setGaussWidth(0.25);
   ptr->setUseGauss(true);
 
-  mzml.load("/home/pasdom/Downloads/douglas_files/13C1.mzML", experiment);
+  mzml.load(OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13C1.mzML"), experiment);
   std::vector<MSSpectrum> spectra = experiment.getSpectra();
-  tsv_reader.convertTSVToTargetedExperiment("/home/pasdom/Downloads/douglas_files/13CFlux_TraML.csv", FileTypes::TRAML, targeted_exp);
+  tsv_reader.convertTSVToTargetedExperiment(OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13CFlux_TraML.csv"), FileTypes::CSV, targeted_exp);
   std::vector<MSSpectrum> annotated;
 
   ptr->annotateSpectrum(spectra, targeted_exp, annotated);
