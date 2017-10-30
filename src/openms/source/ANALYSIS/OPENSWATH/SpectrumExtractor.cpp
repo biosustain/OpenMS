@@ -269,11 +269,17 @@ namespace OpenMS
       const double spectrum_rt = spectrum.getRT() / 60.0;
       const double rt_left_lim = spectrum_rt - getRTWindow() / 60.0 / 2.0;
       const double rt_right_lim = spectrum_rt + getRTWindow() / 60.0 / 2.0;
-      const double spectrum_mz = spectrum.getPrecursors()[0].getMZ();
+      std::vector<Precursor> precursors = spectrum.getPrecursors();
+      if (precursors.size() < 1)
+      {
+        throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+                                         "Spectrum does not contain precursor info.");
+      }
+      const double spectrum_mz = precursors[0].getMZ();
       const double mz_left_lim = spectrum_mz - getMZTolerance();
       const double mz_right_lim = spectrum_mz + getMZTolerance();
-      // TODO remove all printing spam from current method
-      std::cout << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
+
+      LOG_DEBUG << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
 
       for (UInt j=0; j<transitions.size(); ++j)
       {
@@ -282,14 +288,14 @@ namespace OpenMS
 
         if (target_rt >= rt_left_lim && target_rt <= rt_right_lim && target_mz >= mz_left_lim && target_mz <= mz_right_lim)
         {
-          std::cout << "target_rt: " << target_rt << "\ttarget_mz: " << target_mz << std::endl;
-          std::cout << "pushed thanks to transition: " << j << " with name: " << transitions[j].getPeptideRef() << std::endl << std::endl;
+          LOG_DEBUG << "target_rt: " << target_rt << "\ttarget_mz: " << target_mz << std::endl;
+          LOG_DEBUG << "pushed thanks to transition: " << j << " with name: " << transitions[j].getPeptideRef() << std::endl << std::endl;
           spectrum.setName(transitions[j].getPeptideRef());
           annotated_spectra.push_back(spectrum);
           break;
         }
       }
     }
-    std::cout << "the annotated variable has " << annotated_spectra.size() << " elements instead of " << spectra.size() << std::endl;
+    LOG_DEBUG << "the annotated variable has " << annotated_spectra.size() << " elements instead of " << spectra.size() << std::endl;
   }
 }
