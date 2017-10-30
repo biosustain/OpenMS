@@ -273,6 +273,20 @@ it++->setIntensity(1676.35415209522f);
 it->setMZ(175.08);
 it->setIntensity(1676.35415209522f);
 
+START_SECTION(getMZ())
+{
+  TEST_EQUAL(spectrum[0].getMZ(), 61.92)
+  TEST_EQUAL(spectrum[0].getIntensity(), 6705.41660838088f)
+  TEST_EQUAL(spectrum[1].getMZ(), 68.88)
+  TEST_EQUAL(spectrum[1].getIntensity(), 1676.35415209522f)
+  TEST_EQUAL(spectrum[6].getMZ(), 84.84)
+  TEST_EQUAL(spectrum[6].getIntensity(), 8381.7707604761f)
+  TEST_EQUAL(spectrum[71].getMZ(), 174.6)
+  TEST_EQUAL(spectrum[71].getIntensity(), 1676.35415209522f)
+  TEST_EQUAL(spectrum[72].getMZ(), 175.08)
+  TEST_EQUAL(spectrum[72].getIntensity(), 1676.35415209522f)
+}
+END_SECTION
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
