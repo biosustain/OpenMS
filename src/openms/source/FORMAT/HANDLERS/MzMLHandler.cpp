@@ -1385,7 +1385,7 @@ namespace OpenMS
         }
         else if (accession == "MS:1000806") //absorption spectrum
         {
-          spec_.getInstrumentSettings().setScanMode(InstrumentSettings::ABSORBTION);
+          spec_.getInstrumentSettings().setScanMode(InstrumentSettings::ABSORPTION);
         }
         else if (accession == "MS:1000325") //constant neutral gain spectrum
         {
@@ -3456,7 +3456,10 @@ namespace OpenMS
       //--------------------------------------------------------------------------------------------
       //isolation window (optional)
       //--------------------------------------------------------------------------------------------
-      if (precursor.getMZ() > 0.0)
+
+      // Note that TPP parsers break when the isolation window is written out
+      // in mzML files and the precursorMZ gets set to zero.
+      if (precursor.getMZ() > 0.0 && !options_.getForceTPPCompatability() )
       {
         os << "\t\t\t\t\t\t<isolationWindow>\n";
         os << "\t\t\t\t\t\t\t<cvParam cvRef=\"MS\" accession=\"MS:1000827\" name=\"isolation window target m/z\" value=\"" << precursor.getMZ() << "\" unitAccession=\"MS:1000040\" unitName=\"m/z\" unitCvRef=\"MS\" />\n";
@@ -3740,7 +3743,7 @@ namespace OpenMS
       {
         os << "\t\t\t<cvParam cvRef=\"MS\" accession=\"MS:1000805\" name=\"emission spectrum\" />\n";
       }
-      if (file_content.has(InstrumentSettings::ABSORBTION))
+      if (file_content.has(InstrumentSettings::ABSORPTION))
       {
         os << "\t\t\t<cvParam cvRef=\"MS\" accession=\"MS:1000806\" name=\"absorption spectrum\" />\n";
       }
@@ -4707,7 +4710,7 @@ namespace OpenMS
       {
         os << "\t\t\t<cvParam cvRef=\"MS\" accession=\"MS:1000805\" name=\"emission spectrum\" />\n";
       }
-      else if (spec.getInstrumentSettings().getScanMode() == InstrumentSettings::ABSORBTION)
+      else if (spec.getInstrumentSettings().getScanMode() == InstrumentSettings::ABSORPTION)
       {
         os << "\t\t\t<cvParam cvRef=\"MS\" accession=\"MS:1000806\" name=\"absorption spectrum\" />\n";
       }
