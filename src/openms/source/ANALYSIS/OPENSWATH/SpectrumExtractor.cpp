@@ -396,4 +396,53 @@ namespace OpenMS
       scored.push_back(spectrum);
     }
   }
+
+  void SpectrumExtractor::extractSpectrum(
+    const String& experiment_path,
+    const String& target_list_path,
+    std::map<std::string,MSSpectrum>& transition_best_spec
+  )
+  {
+    MzMLFile mzml;
+    PeakMap experiment;
+    TransitionTSVReader tsv_reader;
+    TargetedExperiment targeted_exp;
+
+    // load files into variables
+    mzml.load(experiment_path, experiment);
+    std::vector<MSSpectrum> spectra = experiment.getSpectra();
+    tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
+
+    // annotate spectra
+    std::vector<MSSpectrum> annotated;
+    annotateSpectrum(spectra, targeted_exp, annotated);
+
+    // pick peaks from annotate spectra
+    std::vector<MSSpectrum> picked(annotated.size());
+    for (UInt i=0; i<annotated.size(); ++i)
+    {
+      pickSpectrum(annotated[i], picked[i]);
+    }
+
+    // score spectra
+    std::vector<MSSpectrum> scored;
+    scoreSpectrum(annotated, picked, scored);
+
+    // select the best spectrum for each transition of the target list
+    transition_best_spec.clear();
+    for (auto spectrum : scored)
+    {
+      String transition_name = spectrum.getName();
+      std::map<std::string,MSSpectrum>::const_iterator it = transition_best_spec.find(transition_name);
+      if (it == transition_best_spec.end())
+      {
+        transition_best_spec.insert({transition_name, spectrum});
+      }
+      else if (it->second.getFloatDataArrays()[1][0] < spectrum.getFloatDataArrays()[1][0])
+      {
+        transition_best_spec.erase(transition_name);
+        transition_best_spec.insert({transition_name, spectrum});
+      }
+    }
+  }
 }
