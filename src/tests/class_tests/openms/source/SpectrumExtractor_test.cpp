@@ -323,6 +323,9 @@ START_SECTION(getParameters())
   TEST_EQUAL(params.getValue("gauss_width"), 0.2)
   TEST_EQUAL(params.getValue("use_gauss"), "true")
   TEST_EQUAL(params.getValue("signal_to_noise"), 1.0)
+  TEST_EQUAL(params.getValue("tic_weight"), 1.0)
+  TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
+  TEST_EQUAL(params.getValue("snr_weight"), 1.0)
 }
 END_SECTION
 
@@ -418,6 +421,30 @@ END_SECTION
 START_SECTION(getParameters().getDescription("rt_window"))
 {
   TEST_EQUAL(ptr->getParameters().getDescription("rt_window"), "Retention time window in seconds.")
+}
+END_SECTION
+
+START_SECTION(setTICWeight())
+{
+  TEST_EQUAL(ptr->getTICWeight(), 1.0)
+  ptr->setTICWeight(2.0);
+  TEST_EQUAL(ptr->getTICWeight(), 2.0)
+}
+END_SECTION
+
+START_SECTION(setFWHMWeight())
+{
+  TEST_EQUAL(ptr->getFWHMWeight(), 1.0)
+  ptr->setFWHMWeight(2.0);
+  TEST_EQUAL(ptr->getFWHMWeight(), 2.0)
+}
+END_SECTION
+
+START_SECTION(setSNRWeight())
+{
+  TEST_EQUAL(ptr->getSNRWeight(), 1.0)
+  ptr->setSNRWeight(2.0);
+  TEST_EQUAL(ptr->getSNRWeight(), 2.0)
 }
 END_SECTION
 
@@ -610,6 +637,9 @@ START_SECTION(scoreSpectrum())
     ptr->pickSpectrum(annotated[j], picked[j]);
   }
 
+  ptr->setTICWeight(1.0);
+  ptr->setFWHMWeight(1.0);
+  ptr->setSNRWeight(1.0);
   std::vector<MSSpectrum> scored;
   ptr->scoreSpectrum(annotated, picked, scored);
 
