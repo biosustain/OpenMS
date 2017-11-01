@@ -446,7 +446,7 @@ START_SECTION(setSNRWeight())
   TEST_EQUAL(ptr->getSNRWeight(), 2.0)
 }
 END_SECTION
-
+/*
 START_SECTION(pickSpectrum())
 {
   // TODO replace and improve this test
@@ -664,7 +664,7 @@ START_SECTION(scoreSpectrum())
   }
 }
 END_SECTION
-
+*/
 START_SECTION(extractSpectrum())
 {
   const String experiment_path = OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13C1.mzML");
@@ -687,15 +687,16 @@ START_SECTION(extractSpectrum())
   ptr->setFWHMWeight(1.0);
   ptr->setSNRWeight(1.0);
 
-  map<string,MSSpectrum> transition_best_spec;
-  ptr->extractSpectrum(experiment, targeted_exp, transition_best_spec);
+  std::vector<MSSpectrum> extracted_spectra;
+  FeatureMap extracted_features;
+  ptr->extractSpectrum(experiment, targeted_exp, extracted_spectra, extracted_features);
 
-  TEST_NOT_EQUAL(transition_best_spec.size(), 0)
+  TEST_EQUAL(extracted_spectra.size(), extracted_features.size())
 
   cout << endl << "Printing mapping of transition -> best spectrum:" << endl;
-  for (auto it = transition_best_spec.cbegin(); it!=transition_best_spec.cend(); ++it)
+  for (UInt i=0; i<extracted_spectra.size(); ++i)
   {
-    cout << it->first << "\t" << it->second.getFloatDataArrays()[1][0] << endl;
+    cout << extracted_spectra[i].getName() << "\t" << extracted_features[i].getIntensity() << endl;
   }
 }
 END_SECTION
