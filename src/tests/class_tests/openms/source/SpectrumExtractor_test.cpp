@@ -670,6 +670,15 @@ START_SECTION(extractSpectrum())
   const String experiment_path = OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13C1.mzML");
   const String target_list_path = OPENMS_GET_TEST_DATA_PATH("SpectrumExtractor_13CFlux_TraML.csv");
 
+  MzMLFile mzml;
+  PeakMap experiment;
+  TransitionTSVReader tsv_reader;
+  TargetedExperiment targeted_exp;
+
+  // load files into variables
+  mzml.load(experiment_path, experiment);
+  tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
+
   ptr->setRTWindow(30);
   ptr->setMZTolerance(0.1);
   ptr->setGaussWidth(0.25);
@@ -679,7 +688,7 @@ START_SECTION(extractSpectrum())
   ptr->setSNRWeight(1.0);
 
   map<string,MSSpectrum> transition_best_spec;
-  ptr->extractSpectrum(experiment_path, target_list_path, transition_best_spec);
+  ptr->extractSpectrum(experiment, targeted_exp, transition_best_spec);
 
   TEST_NOT_EQUAL(transition_best_spec.size(), 0)
 

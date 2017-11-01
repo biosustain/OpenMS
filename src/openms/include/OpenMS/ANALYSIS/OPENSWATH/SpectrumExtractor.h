@@ -123,8 +123,8 @@ public:
     );
 
     void extractSpectrum(
-      const String& experiment_path,
-      const String& target_list_path,
+      const PeakMap& experiment,
+      const TargetedExperiment& targeted_exp,
       std::map<std::string,MSSpectrum>& transition_best_spec
     );
 

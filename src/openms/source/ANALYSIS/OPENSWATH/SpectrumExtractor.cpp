@@ -398,20 +398,13 @@ namespace OpenMS
   }
 
   void SpectrumExtractor::extractSpectrum(
-    const String& experiment_path,
-    const String& target_list_path,
+    const PeakMap& experiment,
+    const TargetedExperiment& targeted_exp,
     std::map<std::string,MSSpectrum>& transition_best_spec
   )
   {
-    MzMLFile mzml;
-    PeakMap experiment;
-    TransitionTSVReader tsv_reader;
-    TargetedExperiment targeted_exp;
-
-    // load files into variables
-    mzml.load(experiment_path, experiment);
+    // get the spectra from the experiment
     std::vector<MSSpectrum> spectra = experiment.getSpectra();
-    tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
 
     // annotate spectra
     std::vector<MSSpectrum> annotated;
