@@ -339,6 +339,7 @@ namespace OpenMS
           Feature feature;
           feature.setRT(spectrum_rt);
           feature.setMZ(spectrum_mz);
+          feature.setMetaValue("transition_name", transitions[j].getPeptideRef());
           features.push_back(feature);
           break;
         }
