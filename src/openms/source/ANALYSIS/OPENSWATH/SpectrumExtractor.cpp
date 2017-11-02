@@ -395,10 +395,14 @@ namespace OpenMS
       features[i].setIntensity(score); // The intensity of a feature is (proportional to) its total ion count. http://ftp.mi.fu-berlin.de/pub/OpenMS/develop-documentation/html/classOpenMS_1_1Feature.html
       spectrum.getFloatDataArrays()[2].setName("log10_total_tic");
       spectrum.getFloatDataArrays()[2].push_back(log10_total_tic);
+      features[i].setMetaValue("log10_total_tic", log10_total_tic);
       spectrum.getFloatDataArrays()[3].setName("inverse_avgFWHM");
       spectrum.getFloatDataArrays()[3].push_back(inverse_avgFWHM);
+      features[i].setMetaValue("inverse_avgFWHM", inverse_avgFWHM);
+      features[i].setMetaValue("avgFWHM", avgFWHM);
       spectrum.getFloatDataArrays()[4].setName("avgSNR");
       spectrum.getFloatDataArrays()[4].push_back(avgSNR);
+      features[i].setMetaValue("avgSNR", avgSNR);
       scored.push_back(spectrum);
 
       std::vector<Feature> subordinates;
@@ -478,25 +482,8 @@ namespace OpenMS
     std::vector<MSSpectrum>& selected_spectra
   )
   {
-    std::unordered_map<std::string,UInt> transition_best_spec;
-    for (UInt i=0; i<scored_spectra.size(); ++i)
-    {
-      String transition_name = scored_spectra[i].getName();
-      std::unordered_map<std::string,UInt>::const_iterator it = transition_best_spec.find(transition_name);
-      if (it == transition_best_spec.end())
-      {
-        transition_best_spec.insert({transition_name, i});
-      }
-      else if (scored_spectra[it->second].getFloatDataArrays()[1][0] < scored_spectra[i].getFloatDataArrays()[1][0])
-      {
-        transition_best_spec.erase(transition_name);
-        transition_best_spec.insert({transition_name, i});
-      }
-    }
-
-    for (auto it = transition_best_spec.cbegin(); it!=transition_best_spec.cend(); ++it)
-    {
-      selected_spectra.push_back(scored_spectra[it->second]);
-    }
+    FeatureMap features;
+    FeatureMap extracted_features;
+    selectSpectra(scored_spectra, selected_spectra, features, extracted_features);
   }
 }
