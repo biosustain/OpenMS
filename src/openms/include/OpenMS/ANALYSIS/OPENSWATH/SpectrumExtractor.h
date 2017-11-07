@@ -52,12 +52,20 @@
 namespace OpenMS
 {
   /**
-  @brief TODO BRIEF EXPLANATION HERE
+    @brief This class implements algorithms that, given an experiment and a target
+    list in input, help selecting a list of spectra that match the transitions in
+    the target list.
 
-  TODO MULTILINE
-  EXPLANATION
-  HERE
+    The input experiment is expected to be a standard .mzML file.
+    The input target list is expected to be a standard TraML formatted .csv file.
 
+    The class deals with filtering and annotating only those spectra that reflect
+    the characteristics described by the target list.
+    The filtering is done based on the transition_name, PrecursorMz and RetentionTime.
+    The spectra are smoothed and peaks are picked for each spectrum.
+    The spectra are then scored based on total TIC, FWHM and SNR.
+    One spectrum is chosen for each of those transitions for which at least one
+    valid spectrum was found and matched.
   */
   class OPENMS_DLLAPI SpectrumExtractor :
     public DefaultParamHandler
@@ -110,8 +118,30 @@ public:
 
     void getDefaultParameters(Param& params);
 
+    /**
+      Picks a spectrum's peaks and saves them in picked_spectrum.
+      The spectrum is first smoothed with a Gaussian filter (default) or using the
+      Savitzky-Golay method.
+      For these filters it is possible to set parameters like gauss_width_,
+      sgolay_frame_length_ and sgolay_polynomial_order_ through their setters.
+      The peak picking is executed with PeakPickerHiRes. It's possible to set the
+      signal_to_noise_ parameter.
+      @param[in] spectrum The input spectrum
+      @param[out] picked_spectrum A spectrum containing only the picked peaks
+    */
     void pickSpectrum(const MSSpectrum& spectrum, MSSpectrum& picked_spectrum);
 
+    /**
+      Filters and annotates those spectra that could potentially match the transitions
+      of the target list.
+      The spectra taken into account are those that fall within the precursor RT
+      window and MZ tolerance set by the user through the setRTWindows() and
+      setMZTolerance setters. Default values are provided for both parameters.
+      @param[in] spectra The spectra to filter
+      @param[in] targeted_exp The target list
+      @param[out] annotated_spectra The spectra annotated with the related transition's name
+      @param[out] features A FeatureMap which will contain informations about the name, precursor RT and precursor MZ of the matched transition
+    */
     void annotateSpectra(
       const std::vector<MSSpectrum>& spectra,
       const TargetedExperiment& targeted_exp,
@@ -119,13 +149,41 @@ public:
       FeatureMap& features
     );
 
+    /**
+      Assigns a score to the spectra given in input and saves them in scored_spectra.
+      Also add the informations to the FeatureMap first constructed in annotateSpectra().
+      The scores are based on total TIC, SNR and FWHM. It is possible to assign
+      weight to these parameters with the provided setters:
+      setTICWeight()
+      setFWHMWeight()
+      setSNRWeight()
+      For each spectrum, the TIC and the SNR are computed on the entire spectrum.
+      The FWHMs are computed only on picked peaks. Both SNR and FWHM are averaged values.
+      The informations are added as FloatDataArray in scored_spectra and as MetaValue in features.
+      @param[in] annotated_spectra The annotated spectra to score (for TIC and SNR)
+      @param[in] picked_spectra The picked peaks found on each of the annotated spectra (for FWHM)
+      @param[out] scored_spectra The scored spectra. Basically a copy of annotated_spectra with the added score informations
+      @param[out] features The score informations are also added to this FeatureMap. Picked peaks' FWHMs are saved in features' subordinates.
+    */
     void scoreSpectra(
-      const std::vector<MSSpectrum>& annotated,
-      const std::vector<MSSpectrum>& picked,
-      std::vector<MSSpectrum>& scored,
+      const std::vector<MSSpectrum>& annotated_spectra,
+      const std::vector<MSSpectrum>& picked_spectra,
+      std::vector<MSSpectrum>& scored_spectra,
       FeatureMap& features
     );
 
+    /**
+      Combines the functionalities given by all the other methods implemented in
+      this class. The method expects an experiment and a target list in input,
+      and constructs the extracted spectra and features.
+      For each transition of the target list, the method tries to find its best
+      spectrum match. A FeatureMap is also filled with informations about the
+      extracted spectra.
+      @param[in] experiment The input experiment
+      @param[in] targeted_exp The target list
+      @param[out] extracted_spectra The spectra related to the transitions
+      @param[out] extracted_features The features related to the output spectra
+    */
     void extractSpectra(
       const PeakMap& experiment,
       const TargetedExperiment& targeted_exp,
@@ -133,6 +191,15 @@ public:
       FeatureMap& extracted_features
     );
 
+    /**
+      Given a list of spectra, it selects one spectrum for each possible annotation (transition name).
+      The choice is based on the spectrum's score.
+      Also the related features get filtered.
+      @param[in] scored_spectra Input annotated and scored spectra
+      @param[out] selected_spectra Output selected spectra
+      @param[in] features Input features
+      @param[out] selected_features Output selected features
+    */
     void selectSpectra(
       const std::vector<MSSpectrum>& scored_spectra,
       std::vector<MSSpectrum>& selected_spectra,
@@ -140,34 +207,40 @@ public:
       FeatureMap& selected_features
     );
 
+    /**
+      Given a list of spectra, it selects one spectrum for each possible annotation (transition name).
+      The choice is based on the spectrum's score.
+      @param[in] scored_spectra Input annotated and scored spectra
+      @param[out] selected_spectra Output selected spectra
+    */
     void selectSpectra(
       const std::vector<MSSpectrum>& scored_spectra,
       std::vector<MSSpectrum>& selected_spectra
     );
 
 protected:
-    /// overridden function from DefaultParamHandler to keep members up to date, when a parameter is changed
+    /// Overridden function from DefaultParamHandler to keep members up to date, when a parameter is changed
     void updateMembers_();
 
 private:
-    double rt_window_;
-    double min_score_;
+    double rt_window_; /**< Precursor Retention Time window used during the annotation phase */
+    double min_score_; /**< The minimum score a spectrum must have to be assignable to a transition */
     double min_forward_match_;
     double min_reverse_match_;
-    double mz_tolerance_;
-    String mz_tolerance_units_;
+    double mz_tolerance_; /**< Precursor MZ tolerance used during the annotation phase */
+    String mz_tolerance_units_; /**< MZ tolerance unit to use: Da or ppm */
 
-    // filter
-    UInt sgolay_frame_length_;
-    UInt sgolay_polynomial_order_;
-    double gauss_width_;
-    bool use_gauss_;
-    double signal_to_noise_;
+    // filters
+    UInt sgolay_frame_length_; /**< The number of subsequent data points used for smoothing */
+    UInt sgolay_polynomial_order_; /**< Order or the polynomial that is fitted */
+    double gauss_width_; /**< Use a gaussian filter width which has approximately the same width as your mass peaks (FWHM in m/z) */
+    bool use_gauss_; /**< Set to false if you want to use the Savitzky-Golay filtering method */
+    double signal_to_noise_; /**< Minimal signal-to-noise ratio for a peak to be picked (0.0 disables SNT estimation!) */
 
-    // score
-    double tic_weight_;
-    double fwhm_weight_;
-    double snr_weight_;
+    // scoring
+    double tic_weight_; /**< Total TIC's weight when computing a spectrum's score */
+    double fwhm_weight_; /**< FWHM's weight when computing a spectrum's score */
+    double snr_weight_; /**< SNR's weight when computing a spectrum's score */
   };
 }
 
