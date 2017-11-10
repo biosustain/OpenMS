@@ -273,7 +273,7 @@ namespace OpenMS
 
     params.setValue("peak_height_min", 0.0, "Minimum picked peak's height.");
     params.setMinFloat("peak_height_min", 0.0);
-    params.setValue("peak_height_max", 1000000.0, "Maximum picked peak's height.");
+    params.setValue("peak_height_max", 4e6, "Maximum picked peak's height.");
     params.setMinFloat("peak_height_max", 0.0);
     params.setValue("fwhm_threshold", 0.0, "Picked peak's FWHM threshold.");
     params.setMinFloat("fwhm_threshold", 0.0);

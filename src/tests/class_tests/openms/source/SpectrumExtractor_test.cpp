@@ -326,7 +326,7 @@ START_SECTION(getParameters())
   TEST_EQUAL(params.getValue("use_gauss"), "true")
   TEST_EQUAL(params.getValue("signal_to_noise"), 1.0)
   TEST_EQUAL(params.getValue("peak_height_min"), 0.0)
-  TEST_EQUAL(params.getValue("peak_height_max"), 1000000.0)
+  TEST_EQUAL(params.getValue("peak_height_max"), 4e6)
   TEST_EQUAL(params.getValue("fwhm_threshold"), 0.0)
   TEST_EQUAL(params.getValue("tic_weight"), 1.0)
   TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
@@ -433,7 +433,7 @@ END_SECTION
 
 START_SECTION(getPeakHeightMax())
 {
-  TEST_EQUAL(ptr->getPeakHeightMax(), 1000000.0)
+  TEST_EQUAL(ptr->getPeakHeightMax(), 4e6)
   ptr->setPeakHeightMax(150000.0);
   TEST_EQUAL(ptr->getPeakHeightMax(), 150000.0)
 }
