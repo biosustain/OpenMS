@@ -2056,7 +2056,14 @@ namespace OpenMS
         {
           for (vector<CVTerm>::const_iterator cv = cvs->second.begin(); cv != cvs->second.end(); ++cv)
           {
-            hit.setMetaValue(cvs->first, cv->getValue().toString().toDouble());
+            if (cvs->first == "MS:1002540")
+            {
+              hit.setMetaValue(cvs->first, cv->getValue().toString());
+            }
+            else
+            {
+              hit.setMetaValue(cvs->first, cv->getValue().toString().toDouble());
+            }
           }
         }
         for (map<String, DataValue>::const_iterator up = params.second.begin(); up != params.second.end(); ++up)
@@ -2505,7 +2512,6 @@ namespace OpenMS
                     const Residue& residue = aas[index-1];
                     // String residue_name = residue.getOneLetterCode() + "[" + mod + "]";
                     String residue_name = "[" + mod + "]";
-                    std::cout << " internal mod " << aas << " with residue name  " << residue_name << std::endl;
 
                     if (!mod_db->has(residue_name))
                     {
