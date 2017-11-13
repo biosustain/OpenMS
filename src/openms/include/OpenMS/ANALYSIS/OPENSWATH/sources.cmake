@@ -16,6 +16,7 @@ set(sources_list_h
   MRMFeatureFinderScoring.h
   MRMRTNormalizer.h
   MRMTransitionGroupPicker.h
+  MasstraceCorrelator.h
   OpenSwathHelper.h
   OpenSwathScoring.h
   OpenSwathTSVWriter.h
@@ -23,7 +24,6 @@ set(sources_list_h
   OpenSwathWorkflow.h
   SONARScoring.h
   SpectrumAddition.h
-  SpectrumExtractor.h
   SwathMapMassCorrection.h
   SwathWindowLoader.h
   TransitionTSVReader.h

@@ -18,13 +18,13 @@ OpenSwathWorkflow.cpp
 ChromatogramExtractor.cpp
 ChromatogramExtractorAlgorithm.cpp
 SpectrumAddition.cpp
-SpectrumExtractor.cpp
 MRMTransitionGroupPicker.cpp
 DIAHelper.cpp
 DIAScoring.cpp
 SONARScoring.cpp
 DIAPrescoring.cpp
 MRMFeatureFinderScoring.cpp
+MasstraceCorrelator.cpp
 ConfidenceScoring.cpp
 PeakPickerMRM.cpp
 SwathWindowLoader.cpp
