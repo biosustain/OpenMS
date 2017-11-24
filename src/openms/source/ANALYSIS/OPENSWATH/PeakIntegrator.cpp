@@ -61,19 +61,17 @@ namespace OpenMS
     for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right); ++it, ++n_points)
       ;
 
-    if (getIntegrationType() == "intensity_sum")
+    if (getIntegrationType() == "trapezoid")
     {
-      double intensity_sum = 0.0;
-      for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right); ++it)
+      for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right)-1; ++it)
       {
-        intensity_sum += it->getIntensity();
+        peak_area += ((it+1)->getRT() - it->getRT()) * ((it->getIntensity() + (it+1)->getIntensity()) / 2.0);
         if (peak_height < it->getIntensity())
         {
           peak_height = it->getIntensity();
           peak_apex_pos = it->getRT();
         }
       }
-      peak_area = intensity_sum / n_points;
     }
     else if (getIntegrationType() == "simpson")
     {
@@ -99,15 +97,18 @@ namespace OpenMS
     }
     else
     {
-      for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right)-1; ++it)
+      std::cout << std::endl << "WARNING: intensity_sum method is being used." << std::endl;
+      double intensity_sum = 0.0;
+      for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right); ++it)
       {
-        peak_area += ((it+1)->getRT() - it->getRT()) * ((it->getIntensity() + (it+1)->getIntensity()) / 2.0);
+        intensity_sum += it->getIntensity();
         if (peak_height < it->getIntensity())
         {
           peak_height = it->getIntensity();
           peak_apex_pos = it->getRT();
         }
       }
+      peak_area = intensity_sum / n_points;
     }
   }
 
