@@ -38,6 +38,7 @@
 #include <OpenMS/config.h> // OPENMS_DLLAPI
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
+#include <OpenMS/KERNEL/MSChromatogram.h>
 
 namespace OpenMS
 {
@@ -47,6 +48,12 @@ namespace OpenMS
 public:
     PeakIntegrator();
     virtual ~PeakIntegrator();
+
+    double estimateBackground(
+      const MSChromatogram& chromatogram,
+      const double& left,
+      const double& right
+    );
 
     void setIntegrationType(const String& integration_type);
     String getIntegrationType() const;

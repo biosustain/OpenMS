@@ -45,6 +45,26 @@ namespace OpenMS
 
   PeakIntegrator::~PeakIntegrator() {}
 
+  double PeakIntegrator::estimateBackground(
+    const MSChromatogram& chromatogram,
+    const double& left,
+    const double& right
+  )
+  {
+    const double intensity_l = chromatogram.RTBegin(left)->getIntensity();
+    const double intensity_r = (chromatogram.RTEnd(right)-1)->getIntensity();
+    const double delta_int = intensity_r - intensity_l; // sign will determine line direction
+    const double delta_input_rt = right - left;
+    double background = 0.0;
+    for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right); ++it)
+    {
+      // calculate the background using the formula
+      // y = mx + b where x = retention time, m = slope, b = left intensity
+      background += delta_int / delta_input_rt * (it->getRT() - left) + intensity_l;
+    }
+    return background;
+  }
+
   void PeakIntegrator::setIntegrationType(const String& integration_type)
   {
     integration_type_ = integration_type;
