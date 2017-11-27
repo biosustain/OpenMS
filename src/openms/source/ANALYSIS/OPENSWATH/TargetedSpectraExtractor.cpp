@@ -142,8 +142,9 @@ namespace OpenMS
                                          "Spectrum does not contain precursor info.");
       }
       const double spectrum_mz = precursors[0].getMZ();
-      const double mz_left_lim = spectrum_mz - mz_tolerance_;
-      const double mz_right_lim = spectrum_mz + mz_tolerance_;
+      const double mz_tolerance = mz_unit_is_Da_ ? mz_tolerance_ : mz_tolerance_ / 1e6;
+      const double mz_left_lim = spectrum_mz - mz_tolerance;
+      const double mz_right_lim = spectrum_mz + mz_tolerance;
 
       LOG_DEBUG << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
 
