@@ -36,6 +36,7 @@
 #define OPENMS_ANALYSIS_OPENSWATH_PEAKINTEGRATOR_H
 
 #include <OpenMS/config.h> // OPENMS_DLLAPI
+#include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/KERNEL/MSChromatogram.h>
@@ -53,6 +54,15 @@ public:
       const MSChromatogram& chromatogram,
       const double& left,
       const double& right
+    );
+
+    void integratePeak(
+      const MSChromatogram& chromatogram,
+      const double& left,
+      const double& right,
+      double& peak_area,
+      double& peak_height,
+      double& peak_apex_pos
     );
 
     void setIntegrationType(const String& integration_type);
