@@ -109,18 +109,19 @@ namespace OpenMS
     }
     else if (getIntegrationType() == "simpson")
     {
-      if (n_points < 3 || !(n_points % 2))
+      if (n_points < 3)
       {
-        LOG_DEBUG << std::endl << "Error in integratePeak: number of points must be >=3 and odd for Simpson's rule" << std::endl;
+        LOG_DEBUG << std::endl << "Error in integratePeak: number of points must be >=3 for Simpson's rule" << std::endl;
         return;
       }
-      for (auto it=chromatogram.RTBegin(left); it<chromatogram.RTEnd(right)-2; it=it+2)
+      const size_t last_pos = n_points % 2 ? 2 : 1;
+      for (auto it=chromatogram.RTBegin(left); it<chromatogram.RTEnd(right)-last_pos; it=it+2)
       {
-        double h = (it+1)->getRT() - it->getRT();
-        double k = (it+2)->getRT() - (it+1)->getRT();
-        double y_h = it->getIntensity();
-        double y_0 = (it+1)->getIntensity();
-        double y_k = (it+2)->getIntensity();
+        const double h = (it+1)->getRT() - it->getRT();
+        const double k = (it+2)->getRT() - (it+1)->getRT();
+        const double y_h = it->getIntensity();
+        const double y_0 = (it+1)->getIntensity();
+        const double y_k = (it+2)->getIntensity();
         peak_area += (1.0/6.0) * (h+k) * ((2.0-k/h)*y_h + (pow(h+k,2)/(h*k))*y_0 + (2.0-h/k)*y_k);
         if (peak_height < it->getIntensity())
         {
