@@ -89,7 +89,13 @@ namespace OpenMS
     peak_apex_pos_ = -1.0;
     UInt n_points = 0;
     for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right); ++it, ++n_points)
-      ;
+    {
+      if (peak_height_ < it->getIntensity())
+      {
+        peak_height_ = it->getIntensity();
+        peak_apex_pos_ = it->getRT();
+      }
+    }
 
     if (getIntegrationType() == "trapezoid")
     {
@@ -133,15 +139,6 @@ namespace OpenMS
         intensity_sum += it->getIntensity();
       }
       peak_area_ = intensity_sum / n_points;
-    }
-
-    for (auto it=chromatogram.RTBegin(left); it!=chromatogram.RTEnd(right); ++it)
-    {
-      if (peak_height_ < it->getIntensity())
-      {
-        peak_height_ = it->getIntensity();
-        peak_apex_pos_ = it->getRT();
-      }
     }
   }
 
