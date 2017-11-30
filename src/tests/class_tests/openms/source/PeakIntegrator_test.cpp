@@ -198,6 +198,14 @@ START_SECTION(integratePeak())
   TEST_REAL_SIMILAR(peak_height, 966489.0)
   TEST_REAL_SIMILAR(peak_apex_pos, 2.7045)
 
+  right = 3.011416667;
+  ptr->setIntegrationType("simpson");
+  ptr->integratePeak(chromatogram, left, right, peak_area, peak_height, peak_apex_pos);
+  cout << "simpson (even number of points): " << endl;
+  TEST_REAL_SIMILAR(peak_area, 71720.443144994)
+  TEST_REAL_SIMILAR(peak_height, 966489.0)
+  TEST_REAL_SIMILAR(peak_apex_pos, 2.7045)
+
   // ofstream outfile;
   // outfile.open(
   //   OPENMS_GET_TEST_DATA_PATH("PeakIntegrator_integratePeak_output.html"),
