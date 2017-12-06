@@ -45,38 +45,22 @@ namespace OpenMS
 
   PeakIntegrator::~PeakIntegrator() {}
 
-  void PeakIntegrator::estimateBackground(
-    const MSChromatogram& chromatogram,
-    const double& left,
-    const double& right
-  )
+  void PeakIntegrator::estimateBackground(const MSChromatogram& chromatogram, const double& left, const double& right)
   {
     estimateBackground_(chromatogram, left, right);
   }
 
-  void PeakIntegrator::estimateBackground(
-    const MSSpectrum& spectrum,
-    const double& left,
-    const double& right
-  )
+  void PeakIntegrator::estimateBackground(const MSSpectrum& spectrum, const double& left, const double& right)
   {
     estimateBackground_(spectrum, left, right);
   }
 
-  void PeakIntegrator::integratePeak(
-    const MSChromatogram& chromatogram,
-    const double& left,
-    const double& right
-  )
+  void PeakIntegrator::integratePeak(const MSChromatogram& chromatogram, const double& left, const double& right)
   {
     integratePeak_(chromatogram, left, right);
   }
 
-  void PeakIntegrator::integratePeak(
-    const MSSpectrum& spectrum,
-    const double& left,
-    const double& right
-  )
+  void PeakIntegrator::integratePeak(const MSSpectrum& spectrum, const double& left, const double& right)
   {
     integratePeak_(spectrum, left, right);
   }
@@ -91,50 +75,37 @@ namespace OpenMS
     return simpson_(it_begin, it_end);
   }
 
-  void PeakIntegrator::calculatePeakShapeMetrics(
-    const MSChromatogram& chromatogram,
-    const double& left,
-    const double& right,
-    PeakShapeMetrics_& peakShapeMetrics
-  )
+  void PeakIntegrator::calculatePeakShapeMetrics(const MSChromatogram& chromatogram, const double& left, const double& right)
   {
-    calculatePeakShapeMetrics_(chromatogram, left, right, peakShapeMetrics);
+    calculatePeakShapeMetrics_(chromatogram, left, right);
   }
 
-  void PeakIntegrator::calculatePeakShapeMetrics(
-    const MSSpectrum& spectrum,
-    const double& left,
-    const double& right,
-    PeakShapeMetrics_& peakShapeMetrics
-  )
+  void PeakIntegrator::calculatePeakShapeMetrics(const MSSpectrum& spectrum, const double& left, const double& right)
   {
-    calculatePeakShapeMetrics_(spectrum, left, right, peakShapeMetrics);
+    calculatePeakShapeMetrics_(spectrum, left, right);
   }
 
-  double PeakIntegrator::getPeakArea() const
-  {
-    return peak_area_;
-  }
-
-  double PeakIntegrator::getPeakHeight() const
-  {
-    return peak_height_;
-  }
-
-  double PeakIntegrator::getPeakApexRT() const
-  {
-    return peak_apex_rt_;
-  }
-
-  double PeakIntegrator::getBackgroundHeight() const
-  {
-    return background_height_;
-  }
-
-  double PeakIntegrator::getBackgroundArea() const
-  {
-    return background_area_;
-  }
+  double PeakIntegrator::getPeakArea() const { return peak_area_; }
+  double PeakIntegrator::getPeakHeight() const { return peak_height_; }
+  double PeakIntegrator::getPeakApexRT() const { return peak_apex_rt_; }
+  double PeakIntegrator::getBackgroundHeight() const { return background_height_; }
+  double PeakIntegrator::getBackgroundArea() const { return background_area_; }
+  double PeakIntegrator::getWidthAt5() const { return width_at_5_; }
+  double PeakIntegrator::getWidthAt10() const { return width_at_10_; }
+  double PeakIntegrator::getWidthAt50() const { return width_at_50_; }
+  double PeakIntegrator::getStartTimeAt5() const { return start_time_at_5_; }
+  double PeakIntegrator::getStartTimeAt10() const { return start_time_at_10_; }
+  double PeakIntegrator::getStartTimeAt50() const { return start_time_at_50_; }
+  double PeakIntegrator::getEndTimeAt5() const { return end_time_at_5_; }
+  double PeakIntegrator::getEndTimeAt10() const { return end_time_at_10_; }
+  double PeakIntegrator::getEndTimeAt50() const { return end_time_at_50_; }
+  double PeakIntegrator::getTotalWidth() const { return total_width_; }
+  double PeakIntegrator::getTailingFactor() const { return tailing_factor_; }
+  double PeakIntegrator::getAsymmetryFactor() const { return asymmetry_factor_; }
+  double PeakIntegrator::getBaselineDeltaToHeight() const { return baseline_delta_2_height_; }
+  double PeakIntegrator::getSlopeOfBaseline() const { return slope_of_baseline_; }
+  UInt PeakIntegrator::getPointsAcrossBaseline() const { return points_across_baseline_; }
+  UInt PeakIntegrator::getPointsAcrossHalfHeight() const { return points_across_half_height_; }
 
   void PeakIntegrator::getDefaultParameters(Param& params)
   {

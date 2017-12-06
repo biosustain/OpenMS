@@ -215,43 +215,41 @@ END_SECTION
 
 START_SECTION(calculatePeakShapeMetrics())
 {
-  PeakIntegrator::PeakShapeMetrics_ peakShapeMetrics;
+  ptr->calculatePeakShapeMetrics(chromatogram, left, right);
+  TEST_REAL_SIMILAR(ptr->getWidthAt5(), 0.231263425125414);
+  TEST_REAL_SIMILAR(ptr->getWidthAt10(), 0.134762234301732);
+  TEST_REAL_SIMILAR(ptr->getWidthAt50(), 0.0595791540757924);
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt5(), 2.51268515480125);
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt10(), 2.63222565817823);
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt50(), 2.65391757114759);
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt5(), 2.74394857992666);
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt10(), 2.76698789247996);
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt50(), 2.71349672522338);
+  TEST_REAL_SIMILAR(ptr->getTotalWidth(), 0.540983333);
+  TEST_REAL_SIMILAR(ptr->getTailingFactor(), 5.86240177860251);
+  TEST_REAL_SIMILAR(ptr->getAsymmetryFactor(), 0.864593034054243);
+  TEST_REAL_SIMILAR(ptr->getBaselineDeltaToHeight(), 0.002151537878);
+  TEST_REAL_SIMILAR(ptr->getSlopeOfBaseline(), 2077);
+  TEST_EQUAL(ptr->getPointsAcrossBaseline(), 57);
+  TEST_EQUAL(ptr->getPointsAcrossHalfHeight(), 6);
 
-  ptr->calculatePeakShapeMetrics(chromatogram, left, right, peakShapeMetrics);
-  TEST_REAL_SIMILAR(peakShapeMetrics.width_at_5, 0.231263425125414);
-  TEST_REAL_SIMILAR(peakShapeMetrics.width_at_10, 0.134762234301732);
-  TEST_REAL_SIMILAR(peakShapeMetrics.width_at_50, 0.0595791540757924);
-  TEST_REAL_SIMILAR(peakShapeMetrics.start_time_at_5, 2.51268515480125);
-  TEST_REAL_SIMILAR(peakShapeMetrics.start_time_at_10, 2.63222565817823);
-  TEST_REAL_SIMILAR(peakShapeMetrics.start_time_at_50, 2.65391757114759);
-  TEST_REAL_SIMILAR(peakShapeMetrics.end_time_at_5, 2.74394857992666);
-  TEST_REAL_SIMILAR(peakShapeMetrics.end_time_at_10, 2.76698789247996);
-  TEST_REAL_SIMILAR(peakShapeMetrics.end_time_at_50, 2.71349672522338);
-  TEST_REAL_SIMILAR(peakShapeMetrics.total_width, 0.540983333);
-  TEST_REAL_SIMILAR(peakShapeMetrics.tailing_factor, 5.86240177860251);
-  TEST_REAL_SIMILAR(peakShapeMetrics.asymmetry_factor, 0.864593034054243);
-  TEST_REAL_SIMILAR(peakShapeMetrics.baseline_delta_2_height, 0.002151537878);
-  TEST_REAL_SIMILAR(peakShapeMetrics.slope_of_baseline, 2077);
-  TEST_EQUAL(peakShapeMetrics.points_across_baseline, 57);
-  TEST_EQUAL(peakShapeMetrics.points_across_half_height, 6);
-
-  ptr->calculatePeakShapeMetrics(spectrum, left, right, peakShapeMetrics);
-  TEST_REAL_SIMILAR(peakShapeMetrics.width_at_5, 0.231263425125414);
-  TEST_REAL_SIMILAR(peakShapeMetrics.width_at_10, 0.134762234301732);
-  TEST_REAL_SIMILAR(peakShapeMetrics.width_at_50, 0.0595791540757924);
-  TEST_REAL_SIMILAR(peakShapeMetrics.start_time_at_5, 2.51268515480125);
-  TEST_REAL_SIMILAR(peakShapeMetrics.start_time_at_10, 2.63222565817823);
-  TEST_REAL_SIMILAR(peakShapeMetrics.start_time_at_50, 2.65391757114759);
-  TEST_REAL_SIMILAR(peakShapeMetrics.end_time_at_5, 2.74394857992666);
-  TEST_REAL_SIMILAR(peakShapeMetrics.end_time_at_10, 2.76698789247996);
-  TEST_REAL_SIMILAR(peakShapeMetrics.end_time_at_50, 2.71349672522338);
-  TEST_REAL_SIMILAR(peakShapeMetrics.total_width, 0.540983333);
-  TEST_REAL_SIMILAR(peakShapeMetrics.tailing_factor, 5.86240177860251);
-  TEST_REAL_SIMILAR(peakShapeMetrics.asymmetry_factor, 0.864593034054243);
-  TEST_REAL_SIMILAR(peakShapeMetrics.baseline_delta_2_height, 0.002151537878);
-  TEST_REAL_SIMILAR(peakShapeMetrics.slope_of_baseline, 2077);
-  TEST_EQUAL(peakShapeMetrics.points_across_baseline, 57);
-  TEST_EQUAL(peakShapeMetrics.points_across_half_height, 6);
+  ptr->calculatePeakShapeMetrics(spectrum, left, right);
+  TEST_REAL_SIMILAR(ptr->getWidthAt5(), 0.231263425125414);
+  TEST_REAL_SIMILAR(ptr->getWidthAt10(), 0.134762234301732);
+  TEST_REAL_SIMILAR(ptr->getWidthAt50(), 0.0595791540757924);
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt5(), 2.51268515480125);
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt10(), 2.63222565817823);
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt50(), 2.65391757114759);
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt5(), 2.74394857992666);
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt10(), 2.76698789247996);
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt50(), 2.71349672522338);
+  TEST_REAL_SIMILAR(ptr->getTotalWidth(), 0.540983333);
+  TEST_REAL_SIMILAR(ptr->getTailingFactor(), 5.86240177860251);
+  TEST_REAL_SIMILAR(ptr->getAsymmetryFactor(), 0.864593034054243);
+  TEST_REAL_SIMILAR(ptr->getBaselineDeltaToHeight(), 0.002151537878);
+  TEST_REAL_SIMILAR(ptr->getSlopeOfBaseline(), 2077);
+  TEST_EQUAL(ptr->getPointsAcrossBaseline(), 57);
+  TEST_EQUAL(ptr->getPointsAcrossHalfHeight(), 6);
 }
 END_SECTION
 

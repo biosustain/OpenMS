@@ -51,99 +51,36 @@ public:
     PeakIntegrator();
     virtual ~PeakIntegrator();
 
-    void estimateBackground(
-      const MSChromatogram& chromatogram,
-      const double& left,
-      const double& right
-    );
+    void estimateBackground(const MSChromatogram& chromatogram, const double& left, const double& right);
+    void estimateBackground(const MSSpectrum& spectrum, const double& left, const double& right);
 
-    void estimateBackground(
-      const MSSpectrum& spectrum,
-      const double& left,
-      const double& right
-    );
+    void integratePeak(const MSChromatogram& chromatogram, const double& left, const double& right);
+    void integratePeak(const MSSpectrum& spectrum, const double& left, const double& right);
 
-    void integratePeak(
-      const MSChromatogram& chromatogram,
-      const double& left,
-      const double& right
-    );
-
-    void integratePeak(
-      const MSSpectrum& spectrum,
-      const double& left,
-      const double& right
-    );
-
-    // internal structure to represent various peak shape metrics
-    struct PeakShapeMetrics_ {
-      double width_at_5 = 0.0;
-      double width_at_10 = 0.0;
-      double width_at_50 = 0.0;
-      double start_time_at_10 = 0.0;
-      double start_time_at_5 = 0.0;
-      double start_time_at_50 = 0.0;
-      double end_time_at_10 = 0.0;
-      double end_time_at_5 = 0.0;
-      double end_time_at_50 = 0.0;
-      double total_width = 0.0;
-      /**
-        The tailing factor is a measure of peak tailing.
-        It is defined as the distance from the front slope of the peak to the back slope
-        divided by twice the distance from the center line of the peak to the front slope,
-        with all measurements made at 5% of the maximum peak height.
-        tailing_factor = Tf = W0.05/2a
-        where W0.05 is peak width at 5% max peak height
-        a = min width to peak maximum at 5% max peak height
-        b = max width to peak maximum at 5% max peak height
-        0.9 < Tf < 1.2
-        front Tf < 0.9
-        tailing Tf > 1.2
-      */
-      double tailing_factor = 0.0;
-      /**
-        The asymmetry factor is a measure of peak tailing.
-        It is defined as the distance from the center line of the peak to the back slope
-        divided by the distance from the center line of the peak to the front slope,
-        with all measurements made at 10% of the maximum peak height.
-        asymmetry_factor = As = b/a
-        where a is min width to peak maximum at 10% max peak height
-        b is max width to peak maximum at 10% max peak height
-      */
-      double asymmetry_factor = 0.0;
-      /**
-        The change in baseline divided by the height is
-        a way of comparing the influence of the change of baseline on the peak height.
-      */
-      double baseline_delta_2_height = 0.0;
-      /**
-        The slope of the baseline is a measure of slope change.
-        It is approximated as the difference in baselines between the peak start and peak end.
-      */
-      double slope_of_baseline = 0.0;
-      int points_across_baseline = 0;
-      int points_across_half_height = 0;
-    };
-
-    void calculatePeakShapeMetrics(
-      const MSChromatogram& chromatogram,
-      const double& left,
-      const double& right,
-      PeakShapeMetrics_& peakShapeMetrics
-    );
-
-    void calculatePeakShapeMetrics(
-      const MSSpectrum& spectrum,
-      const double& left,
-      const double& right,
-      PeakShapeMetrics_& peakShapeMetrics
-    );
+    void calculatePeakShapeMetrics(const MSChromatogram& chromatogram, const double& left, const double& right);
+    void calculatePeakShapeMetrics(const MSSpectrum& spectrum, const double& left, const double& right);
 
     double getPeakArea() const;
     double getPeakHeight() const;
     double getPeakApexRT() const;
     double getBackgroundHeight() const;
     double getBackgroundArea() const;
+    double getWidthAt5() const;
+    double getWidthAt10() const;
+    double getWidthAt50() const;
+    double getStartTimeAt5() const;
+    double getStartTimeAt10() const;
+    double getStartTimeAt50() const;
+    double getEndTimeAt5() const;
+    double getEndTimeAt10() const;
+    double getEndTimeAt50() const;
+    double getTotalWidth() const;
+    double getTailingFactor() const;
+    double getAsymmetryFactor() const;
+    double getBaselineDeltaToHeight() const;
+    double getSlopeOfBaseline() const;
+    UInt getPointsAcrossBaseline() const;
+    UInt getPointsAcrossHalfHeight() const;
 
     void getDefaultParameters(Param& params);
 
@@ -151,11 +88,7 @@ protected:
     void updateMembers_();
 
     template<class PeakContainerT>
-    void estimateBackground_(
-      const PeakContainerT& p,
-      const double& left,
-      const double& right
-    )
+    void estimateBackground_(const PeakContainerT& p, const double& left, const double& right)
     {
       const double int_l = p.PosBegin(left)->getIntensity();
       const double int_r = (p.PosEnd(right)-1)->getIntensity();
@@ -290,15 +223,10 @@ protected:
     }
 
     template<class PeakContainerT>
-    void calculatePeakShapeMetrics_(
-      const PeakContainerT& p,
-      const double& left,
-      const double& right,
-      PeakShapeMetrics_& peakShapeMetrics
-    )
+    void calculatePeakShapeMetrics_(const PeakContainerT& p, const double& left, const double& right)
     {
-      peakShapeMetrics.points_across_baseline = 0;
-      peakShapeMetrics.points_across_half_height = 0;
+      points_across_baseline_ = 0;
+      points_across_half_height_ = 0;
       double start_intensity(0), end_intensity(0);
       double delta_rt, delta_int, height_5, height_10, height_50;
 
@@ -329,32 +257,32 @@ protected:
             // start_time_at_5
             if (intensity >= 0.05*peak_height_ &&
               intensity_prev < 0.05*peak_height_ &&
-              peakShapeMetrics.points_across_baseline > 1)
+              points_across_baseline_ > 1)
             {
               delta_rt = retention_time - retention_time_prev;
               delta_int = intensity - intensity_prev;
               height_5 = intensity - 0.05*peak_height_;
-              peakShapeMetrics.start_time_at_5 = retention_time - delta_int*delta_rt/height_5;
+              start_time_at_5_ = retention_time - delta_int*delta_rt/height_5;
             }
             // start_time_at_10
             if (intensity >= 0.1*peak_height_ &&
               intensity_prev < 0.1*peak_height_ &&
-              peakShapeMetrics.points_across_baseline > 1)
+              points_across_baseline_ > 1)
             {
               delta_rt = retention_time - retention_time_prev;
               delta_int = intensity - intensity_prev;
               height_10 = intensity - 0.1*peak_height_;
-              peakShapeMetrics.start_time_at_10 = retention_time - delta_int*delta_rt/height_10;
+              start_time_at_10_ = retention_time - delta_int*delta_rt/height_10;
             }
             // start_time_at_50
             if (intensity >= 0.5*peak_height_ &&
               intensity_prev < 0.5*peak_height_ &&
-              peakShapeMetrics.points_across_baseline > 1)
+              points_across_baseline_ > 1)
             {
               delta_rt = retention_time - retention_time_prev;
               delta_int = intensity - intensity_prev;
               height_50 = intensity - 0.5*peak_height_;
-              peakShapeMetrics.start_time_at_50 = retention_time - delta_int*delta_rt/height_50;
+              start_time_at_50_ = retention_time - delta_int*delta_rt/height_50;
             }
           }
           else if (retention_time > peak_apex_rt_)
@@ -366,7 +294,7 @@ protected:
               delta_rt = retention_time - retention_time_prev;
               delta_int = intensity_prev - intensity;
               height_5 = 0.05*peak_height_ - intensity;
-              peakShapeMetrics.end_time_at_5 = retention_time - delta_int*delta_rt/height_5;
+              end_time_at_5_ = retention_time - delta_int*delta_rt/height_5;
             }
             // start_time_at_10
             if (intensity <= 0.1*peak_height_ &&
@@ -375,7 +303,7 @@ protected:
               delta_rt = retention_time - retention_time_prev;
               delta_int = intensity_prev - intensity;
               height_10 = 0.1*peak_height_ - intensity;
-              peakShapeMetrics.end_time_at_10 = retention_time - delta_int*delta_rt/height_10;
+              end_time_at_10_ = retention_time - delta_int*delta_rt/height_10;
             }
             // end_time_at_50
             if (intensity <= 0.5*peak_height_ &&
@@ -384,30 +312,30 @@ protected:
               delta_rt = retention_time - retention_time_prev;
               delta_int = intensity_prev - intensity;
               height_50 = 0.5*peak_height_ - intensity;
-              peakShapeMetrics.end_time_at_50 = retention_time - delta_int*delta_rt/height_50;
+              end_time_at_50_ = retention_time - delta_int*delta_rt/height_50;
             }
           }
 
           // points across the peak
-          peakShapeMetrics.points_across_baseline ++;
+          points_across_baseline_++;
           if (intensity >= 0.5*peak_height_)
           {
-            peakShapeMetrics.points_across_half_height ++;
+            points_across_half_height_++;
           }
         }
       }
 
       // peak widths
-      peakShapeMetrics.width_at_5 = peakShapeMetrics.end_time_at_5 - peakShapeMetrics.start_time_at_5;
-      peakShapeMetrics.width_at_10 = peakShapeMetrics.end_time_at_10 - peakShapeMetrics.start_time_at_10;
-      peakShapeMetrics.width_at_50 = peakShapeMetrics.end_time_at_50 - peakShapeMetrics.start_time_at_50;
-      peakShapeMetrics.total_width = right - left;
-      peakShapeMetrics.slope_of_baseline = end_intensity - start_intensity;
-      peakShapeMetrics.baseline_delta_2_height = peakShapeMetrics.slope_of_baseline / peak_height_;
+      width_at_5_ = end_time_at_5_ - start_time_at_5_;
+      width_at_10_ = end_time_at_10_ - start_time_at_10_;
+      width_at_50_ = end_time_at_50_ - start_time_at_50_;
+      total_width_ = right - left;
+      slope_of_baseline_ = end_intensity - start_intensity;
+      baseline_delta_2_height_ = slope_of_baseline_ / peak_height_;
 
       // other
-      peakShapeMetrics.tailing_factor = peakShapeMetrics.width_at_5 / std::min(peak_apex_rt_ - peakShapeMetrics.start_time_at_5, peakShapeMetrics.end_time_at_5 - peak_apex_rt_);
-      peakShapeMetrics.asymmetry_factor = std::min(peak_apex_rt_ - peakShapeMetrics.start_time_at_10, peakShapeMetrics.end_time_at_10 - peak_apex_rt_) / std::max(peak_apex_rt_ - peakShapeMetrics.start_time_at_10, peakShapeMetrics.end_time_at_10 - peak_apex_rt_);
+      tailing_factor_ = width_at_5_ / std::min(peak_apex_rt_ - start_time_at_5_, end_time_at_5_ - peak_apex_rt_);
+      asymmetry_factor_ = std::min(peak_apex_rt_ - start_time_at_10_, end_time_at_10_ - peak_apex_rt_) / std::max(peak_apex_rt_ - start_time_at_10_, end_time_at_10_ - peak_apex_rt_);
     }
 
 private:
@@ -422,6 +350,52 @@ private:
     double peak_apex_rt_ = -1.0;
     double background_height_ = 0.0;
     double background_area_ = 0.0;
+    double width_at_5_ = 0.0;
+    double width_at_10_ = 0.0;
+    double width_at_50_ = 0.0;
+    double start_time_at_5_ = 0.0;
+    double start_time_at_10_ = 0.0;
+    double start_time_at_50_ = 0.0;
+    double end_time_at_5_ = 0.0;
+    double end_time_at_10_ = 0.0;
+    double end_time_at_50_ = 0.0;
+    double total_width_ = 0.0;
+    /**
+      The tailing factor is a measure of peak tailing.
+      It is defined as the distance from the front slope of the peak to the back slope
+      divided by twice the distance from the center line of the peak to the front slope,
+      with all measurements made at 5% of the maximum peak height.
+      tailing_factor = Tf = W0.05/2a
+      where W0.05 is peak width at 5% max peak height
+      a = min width to peak maximum at 5% max peak height
+      b = max width to peak maximum at 5% max peak height
+      0.9 < Tf < 1.2
+      front Tf < 0.9
+      tailing Tf > 1.2
+    */
+    double tailing_factor_ = 0.0;
+    /**
+      The asymmetry factor is a measure of peak tailing.
+      It is defined as the distance from the center line of the peak to the back slope
+      divided by the distance from the center line of the peak to the front slope,
+      with all measurements made at 10% of the maximum peak height.
+      asymmetry_factor = As = b/a
+      where a is min width to peak maximum at 10% max peak height
+      b is max width to peak maximum at 10% max peak height
+    */
+    double asymmetry_factor_ = 0.0;
+    /**
+      The change in baseline divided by the height is
+      a way of comparing the influence of the change of baseline on the peak height.
+    */
+    double baseline_delta_2_height_ = 0.0;
+    /**
+      The slope of the baseline is a measure of slope change.
+      It is approximated as the difference in baselines between the peak start and peak end.
+    */
+    double slope_of_baseline_ = 0.0;
+    UInt points_across_baseline_ = 0;
+    UInt points_across_half_height_ = 0;
 
     // helpers
     double simpson(MSChromatogram::ConstIterator it_begin, MSChromatogram::ConstIterator it_end) const;
