@@ -116,6 +116,154 @@ START_SECTION(getParameters())
 }
 END_SECTION
 
+START_SECTION(getPeakArea())
+{
+  TEST_REAL_SIMILAR(ptr->getPeakArea(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getPeakHeight())
+{
+  TEST_REAL_SIMILAR(ptr->getPeakHeight(), -1.0)
+}
+END_SECTION
+
+START_SECTION(getPeakApexRT())
+{
+  TEST_REAL_SIMILAR(ptr->getPeakApexRT(), -1.0)
+}
+END_SECTION
+
+START_SECTION(getBackgroundHeight())
+{
+  TEST_REAL_SIMILAR(ptr->getBackgroundHeight(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getBackgroundArea())
+{
+  TEST_REAL_SIMILAR(ptr->getBackgroundArea(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getWidthAt5())
+{
+  TEST_REAL_SIMILAR(ptr->getWidthAt5(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getWidthAt10())
+{
+  TEST_REAL_SIMILAR(ptr->getWidthAt10(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getWidthAt50())
+{
+  TEST_REAL_SIMILAR(ptr->getWidthAt50(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getStartTimeAt5())
+{
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt5(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getStartTimeAt10())
+{
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt10(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getStartTimeAt50())
+{
+  TEST_REAL_SIMILAR(ptr->getStartTimeAt50(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getEndTimeAt5())
+{
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt5(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getEndTimeAt10())
+{
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt10(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getEndTimeAt50())
+{
+  TEST_REAL_SIMILAR(ptr->getEndTimeAt50(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getTotalWidth())
+{
+  TEST_REAL_SIMILAR(ptr->getTotalWidth(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getTailingFactor())
+{
+  TEST_REAL_SIMILAR(ptr->getTailingFactor(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getAsymmetryFactor())
+{
+  TEST_REAL_SIMILAR(ptr->getAsymmetryFactor(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getBaselineDeltaToHeight())
+{
+  TEST_REAL_SIMILAR(ptr->getBaselineDeltaToHeight(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getSlopeOfBaseline())
+{
+  TEST_REAL_SIMILAR(ptr->getSlopeOfBaseline(), 0.0)
+}
+END_SECTION
+
+START_SECTION(getPointsAcrossBaseline())
+{
+  TEST_EQUAL(ptr->getPointsAcrossBaseline(), 0)
+}
+END_SECTION
+
+START_SECTION(getPointsAcrossHalfHeight())
+{
+  TEST_EQUAL(ptr->getPointsAcrossHalfHeight(), 0)
+}
+END_SECTION
+
+START_SECTION(getPeakShapeMetrics())
+{
+  std::map<String, double> m = ptr->getPeakShapeMetrics();
+  TEST_REAL_SIMILAR(m.at("width_at_5"), 0.0)
+  TEST_REAL_SIMILAR(m.at("width_at_10"), 0.0)
+  TEST_REAL_SIMILAR(m.at("width_at_50"), 0.0)
+  TEST_REAL_SIMILAR(m.at("start_time_at_5"), 0.0)
+  TEST_REAL_SIMILAR(m.at("start_time_at_10"), 0.0)
+  TEST_REAL_SIMILAR(m.at("start_time_at_50"), 0.0)
+  TEST_REAL_SIMILAR(m.at("end_time_at_5"), 0.0)
+  TEST_REAL_SIMILAR(m.at("end_time_at_10"), 0.0)
+  TEST_REAL_SIMILAR(m.at("end_time_at_50"), 0.0)
+  TEST_REAL_SIMILAR(m.at("total_width"), 0.0)
+  TEST_REAL_SIMILAR(m.at("tailing_factor"), 0.0)
+  TEST_REAL_SIMILAR(m.at("asymmetry_factor"), 0.0)
+  TEST_REAL_SIMILAR(m.at("baseline_delta_to_height"), 0.0)
+  TEST_REAL_SIMILAR(m.at("slope_of_baseline"), 0.0)
+  TEST_EQUAL(m.at("points_across_baseline"), 0)
+  TEST_EQUAL(m.at("points_across_half_height"), 0)
+}
+END_SECTION
+
 START_SECTION(estimateBackground())
 {
   Param params = ptr->getParameters();

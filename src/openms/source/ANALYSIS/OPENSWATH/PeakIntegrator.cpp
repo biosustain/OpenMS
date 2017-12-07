@@ -104,8 +104,32 @@ namespace OpenMS
   double PeakIntegrator::getAsymmetryFactor() const { return asymmetry_factor_; }
   double PeakIntegrator::getBaselineDeltaToHeight() const { return baseline_delta_2_height_; }
   double PeakIntegrator::getSlopeOfBaseline() const { return slope_of_baseline_; }
-  UInt PeakIntegrator::getPointsAcrossBaseline() const { return points_across_baseline_; }
-  UInt PeakIntegrator::getPointsAcrossHalfHeight() const { return points_across_half_height_; }
+  Int PeakIntegrator::getPointsAcrossBaseline() const { return points_across_baseline_; }
+  Int PeakIntegrator::getPointsAcrossHalfHeight() const { return points_across_half_height_; }
+
+  const std::map<String, double> PeakIntegrator::getPeakShapeMetrics() const
+  {
+    std::map<String, double> m
+    {
+      { "width_at_5", width_at_5_ },
+      { "width_at_10", width_at_10_ },
+      { "width_at_50", width_at_50_ },
+      { "start_time_at_5", start_time_at_5_ },
+      { "start_time_at_10", start_time_at_10_ },
+      { "start_time_at_50", start_time_at_50_ },
+      { "end_time_at_5", end_time_at_5_ },
+      { "end_time_at_10", end_time_at_10_ },
+      { "end_time_at_50", end_time_at_50_ },
+      { "total_width", total_width_ },
+      { "tailing_factor", tailing_factor_ },
+      { "asymmetry_factor", asymmetry_factor_ },
+      { "baseline_delta_to_height", baseline_delta_2_height_ },
+      { "slope_of_baseline", slope_of_baseline_ },
+      { "points_across_baseline", points_across_baseline_ },
+      { "points_across_half_height", points_across_half_height_ },
+    };
+    return m;
+  }
 
   void PeakIntegrator::getDefaultParameters(Param& params)
   {

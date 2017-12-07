@@ -79,8 +79,10 @@ public:
     double getAsymmetryFactor() const;
     double getBaselineDeltaToHeight() const;
     double getSlopeOfBaseline() const;
-    UInt getPointsAcrossBaseline() const;
-    UInt getPointsAcrossHalfHeight() const;
+    Int getPointsAcrossBaseline() const;
+    Int getPointsAcrossHalfHeight() const;
+
+    const std::map<String, double> getPeakShapeMetrics() const;
 
     void getDefaultParameters(Param& params);
 
@@ -394,8 +396,8 @@ private:
       It is approximated as the difference in baselines between the peak start and peak end.
     */
     double slope_of_baseline_ = 0.0;
-    UInt points_across_baseline_ = 0;
-    UInt points_across_half_height_ = 0;
+    Int points_across_baseline_ = 0;
+    Int points_across_half_height_ = 0;
 
     // helpers
     double simpson(MSChromatogram::ConstIterator it_begin, MSChromatogram::ConstIterator it_end) const;

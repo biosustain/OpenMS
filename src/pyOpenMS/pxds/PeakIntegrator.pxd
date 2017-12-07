@@ -2,6 +2,9 @@ from DefaultParamHandler cimport *
 from String cimport *
 from MSChromatogram cimport *
 from MSSpectrum cimport *
+from Types cimport *
+from libcpp.map cimport map as libcpp_map
+from String cimport *
 
 cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/PeakIntegrator.h>" namespace "OpenMS":
 
@@ -42,5 +45,7 @@ cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/PeakIntegrator.h>" namespace "OpenM
         double getAsymmetryFactor() nogil except +
         double getBaselineDeltaToHeight() nogil except +
         double getSlopeOfBaseline() nogil except +
-        UInt getPointsAcrossBaseline() nogil except +
-        UInt getPointsAcrossHalfHeight() nogil except +
+        Int getPointsAcrossBaseline() nogil except +
+        Int getPointsAcrossHalfHeight() nogil except +
+
+        libcpp_map[ String, double ] getPeakShapeMetrics() nogil except +
