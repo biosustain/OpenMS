@@ -372,6 +372,48 @@ public:
     Iterator MZBegin(Iterator begin, CoordinateType mz, Iterator end);
 
     /**
+      @brief Binary search for peak range end (returns the past-the-end iterator)
+
+      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
+    */
+    Iterator MZEnd(CoordinateType mz);
+
+    /**
+      @brief Binary search for peak range end (returns the past-the-end iterator)
+
+      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
+    */
+    Iterator MZEnd(Iterator begin, CoordinateType mz, Iterator end);
+
+    /**
+      @brief Binary search for peak range begin
+
+      @note Make sure the spectrum is sorted with respect to m/z! Otherwise the result is undefined.
+    */
+    ConstIterator MZBegin(CoordinateType mz) const;
+
+    /**
+      @brief Binary search for peak range begin
+
+      @note Make sure the spectrum is sorted with respect to m/z! Otherwise the result is undefined.
+    */
+    ConstIterator MZBegin(ConstIterator begin, CoordinateType mz, ConstIterator end) const;
+
+    /**
+      @brief Binary search for peak range end (returns the past-the-end iterator)
+
+      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
+    */
+    ConstIterator MZEnd(CoordinateType mz) const;
+
+    /**
+      @brief Binary search for peak range end (returns the past-the-end iterator)
+
+      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
+    */
+    ConstIterator MZEnd(ConstIterator begin, CoordinateType mz, ConstIterator end) const;
+
+    /**
       @brief Binary search for peak range begin
 
       Alias for MZBegin()
@@ -388,52 +430,6 @@ public:
       @note Make sure the spectrum is sorted with respect to m/z! Otherwise the result is undefined.
     */
     Iterator PosBegin(Iterator begin, CoordinateType mz, Iterator end);
-
-    /**
-      @brief Binary search for peak range end (returns the past-the-end iterator)
-
-      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
-    */
-    Iterator MZEnd(CoordinateType mz);
-
-    /**
-      @brief Binary search for peak range end (returns the past-the-end iterator)
-
-      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
-    */
-    Iterator MZEnd(Iterator begin, CoordinateType mz, Iterator end);
-
-    /**
-      @brief Binary search for peak range end (returns the past-the-end iterator)
-
-      Alias for MZEnd()
-
-      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
-    */
-    Iterator PosEnd(CoordinateType mz);
-
-    /**
-      @brief Binary search for peak range end (returns the past-the-end iterator)
-
-      Alias for MZEnd()
-
-      @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
-    */
-    Iterator PosEnd(Iterator begin, CoordinateType mz, Iterator end);
-
-    /**
-      @brief Binary search for peak range begin
-
-      @note Make sure the spectrum is sorted with respect to m/z! Otherwise the result is undefined.
-    */
-    ConstIterator MZBegin(CoordinateType mz) const;
-
-    /**
-      @brief Binary search for peak range begin
-
-      @note Make sure the spectrum is sorted with respect to m/z! Otherwise the result is undefined.
-    */
-    ConstIterator MZBegin(ConstIterator begin, CoordinateType mz, ConstIterator end) const;
 
     /**
       @brief Binary search for peak range begin
@@ -456,16 +452,20 @@ public:
     /**
       @brief Binary search for peak range end (returns the past-the-end iterator)
 
+      Alias for MZEnd()
+
       @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
     */
-    ConstIterator MZEnd(CoordinateType mz) const;
+    Iterator PosEnd(CoordinateType mz);
 
     /**
       @brief Binary search for peak range end (returns the past-the-end iterator)
 
+      Alias for MZEnd()
+
       @note Make sure the spectrum is sorted with respect to m/z. Otherwise the result is undefined.
     */
-    ConstIterator MZEnd(ConstIterator begin, CoordinateType mz, ConstIterator end) const;
+    Iterator PosEnd(Iterator begin, CoordinateType mz, Iterator end);
 
     /**
       @brief Binary search for peak range end (returns the past-the-end iterator)
