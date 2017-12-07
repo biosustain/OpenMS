@@ -29,6 +29,8 @@ ConfidenceScoring.cpp
 PeakPickerMRM.cpp
 PeakIntegrator.cpp
 SwathWindowLoader.cpp
+MRMFeatureFilter.cpp
+MRMFeatureQC.cpp
 )
 
 ### add path to the filenames
