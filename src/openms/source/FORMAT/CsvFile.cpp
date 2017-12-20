@@ -69,9 +69,30 @@ namespace OpenMS
     store(filename);
   }
 
+  void CsvFile::addRow(const StringList& list)
+  {
+    StringList elements = list;
+    if (itemenclosed_)
+    {
+      for (Size i = 0; i < elements.size(); ++i)
+      {
+        elements[i].quote('"', String::NONE);
+      }
+    }
+    String line;
+    line.concatenate(elements.begin(), elements.end(), itemseperator_);
+    addLine(line);
+  }
+
+  void CsvFile::clearBuffer()
+  {
+    buffer_.clear();
+  }
+
   bool CsvFile::getRow(Size row, StringList& list)
   {
-    if (row > TextFile::buffer_.size())
+    // it is assumed that the value to be casted won't be so large to overflow an int
+    if (static_cast<int>(row) > static_cast<int>(TextFile::buffer_.size()) - 1)
     {
       throw Exception::InvalidIterator(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
     }
