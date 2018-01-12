@@ -28,34 +28,63 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Douglas McCloskey $
-// $Authors: Douglas McCloskey $
+// $Maintainer: Douglas McCloskey, Pasquale Domenico Colaianni $
+// $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 
 #include <OpenMS/METADATA/AbsoluteQuantitationStandards.h>
 
-#include <cstddef> // for size_t & ptrdiff_t
-#include <vector>
-#include <string>
-
 namespace OpenMS
 {
-    
-    AbsoluteQuantitationStandards::AbsoluteQuantitationStandards()
-    {
-    }
-    
-    AbsoluteQuantitationStandards::~AbsoluteQuantitationStandards()
-    {
-    }
+  bool AbsoluteQuantitationStandards::findComponentFeature_(
+    const FeatureMap& feature_map,
+    const String& component_name,
+    Feature& feature_found
+  ) const
+  {
+    for (const Feature& feature : feature_map)
+      for (const Feature& subordinate : feature.getSubordinates())
+        if (subordinate.metaValueExists("native_id") && subordinate.getMetaValue("native_id") == component_name)
+        {
+          feature_found = subordinate;
+          return true;
+        }
+    return false;
+  }
 
-    // void AbsoluteQuantitationStandards::mapConcentrationsToComponents(
-    //   const std::vector<runConcentration> & run_concentrations,
-    //   const std::vector<FeatureMap> & features,
-    //   std::map<String,std::vector<featureConcentration>> components_to_concentrations)
-    // {
-    //     //todo
-    // }
-
+  void AbsoluteQuantitationStandards::mapComponentsToConcentrations(
+    const std::vector<AbsoluteQuantitationStandards::runConcentration>& run_concentrations,
+    const std::vector<FeatureMap>& feature_maps,
+    std::map<String, AbsoluteQuantitationStandards::featureConcentration>& components_to_concentrations
+  ) const
+  {
+    components_to_concentrations.clear();
+    for (const AbsoluteQuantitationStandards::runConcentration& run : run_concentrations)
+    {
+      if (run.sample_name == "" || run.component_name == "")
+        continue;
+      for (const FeatureMap& fmap : feature_maps) // not all elements are necessarily processed (break; is present inside the loop)
+      {
+        AbsoluteQuantitationStandards::featureConcentration fc;
+        if (!fmap.metaValueExists("sample_name") || fmap.getMetaValue("sample_name") != run.sample_name) // if the FeatureMap doesn't have a sample_name, or if it is not the one we're looking for: skip.
+          continue;
+        if (!findComponentFeature_(fmap, run.component_name, fc.feature)) // if there was no match (empty feature is given in output): skip.
+          continue;
+        if (run.IS_component_name != "")
+          findComponentFeature_(fmap, run.IS_component_name, fc.IS_feature);
+        // fill the rest of the information from the current runConcentration
+        fc.actual_concentration = run.actual_concentration;
+        fc.IS_actual_concentration = run.IS_actual_concentration;
+        fc.concentration_units = run.concentration_units;
+        fc.dilution_factor = run.dilution_factor;
+        // add to the map
+        std::pair<std::map<String, AbsoluteQuantitationStandards::featureConcentration>::const_iterator, bool> p;
+        p = components_to_concentrations.insert({run.component_name, fc});
+        if (p.second == false) // check that the key was not already present
+          throw Exception::InvalidParameter(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Key '" + run.component_name + "' was already present.");
+        break;
+      }
+    }
+  }
 } // namespace
 
