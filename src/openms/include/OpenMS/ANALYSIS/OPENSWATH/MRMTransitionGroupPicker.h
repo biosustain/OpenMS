@@ -40,6 +40,7 @@
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/MSChromatogram.h>
 #include <OpenMS/KERNEL/ChromatogramPeak.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/PeakIntegrator.h>
 
 #include <OpenMS/ANALYSIS/OPENSWATH/PeakPickerMRM.h>
 #include <OpenMS/FILTERING/TRANSFORMERS/LinearResamplerAlign.h>
