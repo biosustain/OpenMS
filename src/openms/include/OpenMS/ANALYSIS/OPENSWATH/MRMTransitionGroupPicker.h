@@ -306,9 +306,9 @@ public:
         f.setOverallQuality(quality);
 
         PeakIntegrator::PeakArea pa = pi_.integratePeak(used_chromatogram, best_left, best_right);
-        double intensity_sum = pa.area; // TODO: rename intensity_sum, it doesn't really describe the type of area calculated
+        double peak_integral = pa.area;
         double peak_apex_int = pa.height;
-        peak_apex = pa.apex_pos; // TODO: should I update this value?
+        f.setMetaValue("peak_apex_position", pa.apex_pos);
         double background(0), avg_noise_level(0);
         if (background_subtraction_ != "none")
         {
@@ -319,18 +319,18 @@ public:
           }
           else
           {
-            PeakIntegrator::PeakBackground pb = pi_.estimateBackground(used_chromatogram, best_left, best_right, peak_apex);
+            PeakIntegrator::PeakBackground pb = pi_.estimateBackground(used_chromatogram, best_left, best_right, pa.apex_pos);
             background = pb.area;
             avg_noise_level = pb.height;
           }
-          intensity_sum -= background;
+          peak_integral -= background;
           peak_apex_int -= avg_noise_level;
-          if (intensity_sum < 0) {intensity_sum = 0;}
+          if (peak_integral < 0) {peak_integral = 0;}
           if (peak_apex_int < 0) {peak_apex_int = 0;}
         }
 
         f.setRT(picked_chroms[chr_idx][peak_idx].getMZ());
-        f.setIntensity(intensity_sum);
+        f.setIntensity(peak_integral);
         ConvexHull2D hull;
         hull.setHullPoints(pa.hull_points);
         f.getConvexHulls().push_back(hull);
@@ -353,7 +353,7 @@ public:
 
         if (transition_group.getTransitions()[k].isDetectingTransition())
         {
-          total_intensity += intensity_sum;
+          total_intensity += peak_integral;
           total_peak_apices += peak_apex_int;
         }
 
@@ -361,16 +361,16 @@ public:
         // Calculate peak shape metrics that will be used for later QC
         if (compute_peak_shape_metrics_)
         {
-          PeakIntegrator::PeakShapeMetrics psm = pi_.calculatePeakShapeMetrics(used_chromatogram, best_left, best_right, peak_apex_int, peak_apex);
+          PeakIntegrator::PeakShapeMetrics psm = pi_.calculatePeakShapeMetrics(used_chromatogram, best_left, best_right, peak_apex_int, pa.apex_pos);
           f.setMetaValue("width_at_5", psm.width_at_5);
           f.setMetaValue("width_at_10", psm.width_at_10);
           f.setMetaValue("width_at_50", psm.width_at_50);
-          f.setMetaValue("start_time_at_5", psm.start_position_at_5);
-          f.setMetaValue("start_time_at_10", psm.start_position_at_10);
-          f.setMetaValue("start_time_at_50", psm.start_position_at_50);
-          f.setMetaValue("end_time_at_5", psm.end_position_at_5);
-          f.setMetaValue("end_time_at_10", psm.end_position_at_10);
-          f.setMetaValue("end_time_at_50", psm.end_position_at_50);
+          f.setMetaValue("start_position_at_5", psm.start_position_at_5);
+          f.setMetaValue("start_position_at_10", psm.start_position_at_10);
+          f.setMetaValue("start_position_at_50", psm.start_position_at_50);
+          f.setMetaValue("end_position_at_5", psm.end_position_at_5);
+          f.setMetaValue("end_position_at_10", psm.end_position_at_10);
+          f.setMetaValue("end_position_at_50", psm.end_position_at_50);
           f.setMetaValue("total_width", psm.total_width);
           f.setMetaValue("tailing_factor", psm.tailing_factor);
           f.setMetaValue("asymmetry_factor", psm.asymmetry_factor);
