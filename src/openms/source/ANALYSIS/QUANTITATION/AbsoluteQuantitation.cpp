@@ -28,8 +28,8 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Douglas McCloskey $
-// $Authors: Douglas McCloskey $
+// $Maintainer: Douglas McCloskey, Pasquale Domenico Colaianni $
+// $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 
 #include <OpenMS/ANALYSIS/QUANTITATION/AbsoluteQuantitation.h>
@@ -641,5 +641,58 @@ namespace OpenMS
     }
   } 
 
-} // namespace
+  void AbsoluteQuantitation::getOptimizedCalibrationCurve(
+    const String& component_name,
+    std::vector<AbsoluteQuantitationStandards::featureConcentration>& component_concentrations
+  )
+  {
+    std::sort(component_concentrations.begin(), component_concentrations.end(),
+      [](AbsoluteQuantitationStandards::featureConcentration lhs, AbsoluteQuantitationStandards::featureConcentration rhs)
+      {
+        return lhs.actual_concentration < rhs.actual_concentration; //ascending order
+      }
+    );
+    std::map<String, AbsoluteQuantitationMethod>::iterator qm = quant_methods_.find(component_name);
+    if (qm == quant_methods_.end())
+    {
+      LOG_INFO << "Warning: Standards not found for component " << component_name << ".";
+      return;
+    }
+    if (optimization_method_ == "iterative")
+    {
+      // optimize the calibration curve for the component
+      Param optimized_params;
+      optimizeCalibrationCurveIterative(
+        component_concentrations,
+        qm->second.getFeatureName(),
+        qm->second.getTransformationModel(),
+        qm->second.getTransformationModelParams(),
+        optimized_params
+      );
 
+      // calculate the R2 and bias
+      std::vector<double> biases;
+      double correlation_coefficient = 0.0;
+      calculateBiasAndR(
+        component_concentrations,
+        qm->second.getFeatureName(),
+        qm->second.getTransformationModel(),
+        optimized_params,
+        biases,
+        correlation_coefficient
+      );
+
+      // record the updated information
+      qm->second.setCorrelationCoefficient(correlation_coefficient);
+      qm->second.setLLOQ(component_concentrations[0].actual_concentration); //due to ascending sort
+      qm->second.setULOQ(component_concentrations[component_concentrations.size()-1].actual_concentration); //due to ascending sort
+      qm->second.setTransformationModelParams(optimized_params);
+      qm->second.setNPoints(component_concentrations.size());
+    }
+    else if (optimization_method_ != "iterative")
+    {
+      throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+        "Unsupported calibration curve optimization method '" + optimization_method_ + "'.");
+    }
+  }
+} // namespace
