@@ -169,6 +169,12 @@ private:
 
     /// flag or filter (i.e., remove) features that do not pass the QC
     String flag_or_filter_;
+    /// Decide whether to compute the transitions' score
+    bool compute_score_ = true;
+    /// The number of QC metrics for a single component
+    Size N_C_QC_METRICS = 4;
+    /// The number of QC metrics for a component group
+    Size N_CG_QC_METRICS = 7;
     /// include the data points for the extracted ion chromatogram (XIC) in the attachment
     bool report_xic_;
     /// include the data points for the total ion chromatogram (TIC) in the attachment
