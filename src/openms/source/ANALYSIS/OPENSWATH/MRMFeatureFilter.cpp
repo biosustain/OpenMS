@@ -77,7 +77,7 @@ namespace OpenMS
       std::map<String, Int> n_lbl_trans_type = countLabelsAndTransitionTypes(f, transitions);
       // initialize the new feature and subordinates
       std::vector<Feature> subordinates_filtered;
-      std::vector<bool> cg_qc_passes(N_CG_QC_METRICS, true);
+      std::vector<bool> cg_qc_pass(N_CG_QC_METRICS, true);
       std::vector<String> cg_qc_fail_message_vec;
       // iterate through each component/sub-feature
       for (Feature& subordinate : f.getSubordinates())
@@ -93,32 +93,32 @@ namespace OpenMS
             // labels and transition counts QC
             if (!isWithinRange(n_lbl_trans_type["n_heavy"], cg_cq.n_heavy_l, cg_cq.n_heavy_u))
             {
-              cg_qc_passes[CG_Metrics::HEAVY] = false;
+              cg_qc_pass[CG_Metrics::HEAVY] = false;
               cg_qc_fail_message_vec.push_back("n_heavy");
             }
             if (!isWithinRange(n_lbl_trans_type["n_light"], cg_cq.n_light_l, cg_cq.n_light_u))
             {
-              cg_qc_passes[CG_Metrics::LIGHT] = false;
+              cg_qc_pass[CG_Metrics::LIGHT] = false;
               cg_qc_fail_message_vec.push_back("n_light");
             }
             if (!isWithinRange(n_lbl_trans_type["n_detecting"], cg_cq.n_detecting_l, cg_cq.n_detecting_u))
             {
-              cg_qc_passes[CG_Metrics::DETECTING] = false;
+              cg_qc_pass[CG_Metrics::DETECTING] = false;
               cg_qc_fail_message_vec.push_back("n_detecting");
             }
             if (!isWithinRange(n_lbl_trans_type["n_quantifying"], cg_cq.n_quantifying_l, cg_cq.n_quantifying_u))
             {
-              cg_qc_passes[CG_Metrics::QUANTIFYING] = false;
+              cg_qc_pass[CG_Metrics::QUANTIFYING] = false;
               cg_qc_fail_message_vec.push_back("n_quantifying");
             }
             if (!isWithinRange(n_lbl_trans_type["n_identifying"], cg_cq.n_identifying_l, cg_cq.n_identifying_u))
             {
-              cg_qc_passes[CG_Metrics::IDENTIFYING] = false;
+              cg_qc_pass[CG_Metrics::IDENTIFYING] = false;
               cg_qc_fail_message_vec.push_back("n_identifying");
             }
             if (!isWithinRange(n_lbl_trans_type["n_transitions"], cg_cq.n_transitions_l, cg_cq.n_transitions_u))
             {
-              cg_qc_passes[CG_Metrics::TRANSITIONS] = false;
+              cg_qc_pass[CG_Metrics::TRANSITIONS] = false;
               cg_qc_fail_message_vec.push_back("n_transitions");
             }
 
@@ -137,14 +137,14 @@ namespace OpenMS
                 const double ion_ratio = calculateIonRatio(subordinate, s, cg_cq.ion_ratio_feature_name);
                 if (!isWithinRange(ion_ratio, cg_cq.ion_ratio_l, cg_cq.ion_ratio_u))
                 {
-                  cg_qc_passes[CG_Metrics::ION] = false;
+                  cg_qc_pass[CG_Metrics::ION] = false;
                   cg_qc_fail_message_vec.push_back("ion_ratio_pair[" + component_name + "/" + component_name2 + "]");
                 }
               }
             }
           }
         }
-        std::vector<bool> c_qc_passes(N_C_QC_METRICS, true);
+        std::vector<bool> c_qc_pass(N_C_QC_METRICS, true);
         // iterate through feature/sub-feature QCs/filters
         for (const MRMFeatureQC::ComponentQCs& c_qc : filter_criteria.component_qcs)
         {
@@ -152,24 +152,24 @@ namespace OpenMS
           {
             if (!isWithinRange((double)subordinate.getRT(), c_qc.retention_time_l, c_qc.retention_time_u))
             {
-              c_qc_passes[C_Metrics::RT] = false;
+              c_qc_pass[C_Metrics::RT] = false;
               c_qc_fail_message_vec.push_back("retention_time");
             }
             if (!isWithinRange((double)subordinate.getIntensity(), c_qc.intensity_l, c_qc.intensity_u))
             {
-              c_qc_passes[C_Metrics::INTENSITY] = false;
+              c_qc_pass[C_Metrics::INTENSITY] = false;
               c_qc_fail_message_vec.push_back("intensity");
             }
             if (!isWithinRange((double)subordinate.getOverallQuality(), c_qc.overall_quality_l, c_qc.overall_quality_u))
             {
-              c_qc_passes[C_Metrics::QUALITY] = false;
+              c_qc_pass[C_Metrics::QUALITY] = false;
               c_qc_fail_message_vec.push_back("overall_quality");
             }
             for (const std::pair<String, std::pair<double,double>>& kv : c_qc.meta_value_qc)
             {
               if (!checkMetaValue(subordinate, kv.first, kv.second.first, kv.second.second))
               {
-                c_qc_passes[C_Metrics::METAVALUE] = false;
+                c_qc_pass[C_Metrics::METAVALUE] = false;
                 c_qc_fail_message_vec.push_back("metaValue[" + kv.first + "]");
               }
             }
@@ -178,14 +178,14 @@ namespace OpenMS
         // Copy or Flag passing/failing subordinates
         if (flag_or_filter_ == "filter")
         {
-          if (allQCMetricsPass(c_qc_passes))
+          if (allQCMetricsPass(c_qc_pass))
           {
             subordinates_filtered.push_back(subordinate);
           }
         }
         else if (flag_or_filter_ == "flag")
         {
-          if (allQCMetricsPass(c_qc_passes))
+          if (allQCMetricsPass(c_qc_pass))
           {
             subordinate.setMetaValue("QC_transition_pass", true);
             subordinate.setMetaValue("QC_transition_message", "");
@@ -197,13 +197,13 @@ namespace OpenMS
             subordinate.setMetaValue("QC_transition_message", c_qc_fail_message);
           }
         }
-        subordinate.setMetaValue("QC_transition_score", computeScore(c_qc_passes));
+        subordinate.setMetaValue("QC_transition_score", computeScore(c_qc_pass));
       }
 
       // Copy or Flag passing/failing Features
       if (flag_or_filter_ == "filter")
       {
-        if (allQCMetricsPass(cg_qc_passes) && subordinates_filtered.size())
+        if (allQCMetricsPass(cg_qc_pass) && subordinates_filtered.size())
         {
           Feature feature_filtered(f);
           feature_filtered.setSubordinates(subordinates_filtered);
@@ -212,7 +212,7 @@ namespace OpenMS
       }
       else if (flag_or_filter_ == "flag")
       {
-        if (allQCMetricsPass(cg_qc_passes))
+        if (allQCMetricsPass(cg_qc_pass))
         {
           f.setMetaValue("QC_transition_group_pass", true);
           f.setMetaValue("QC_transition_group_message", "");
@@ -224,7 +224,7 @@ namespace OpenMS
           f.setMetaValue("QC_transition_group_message", cg_qc_fail_message);
         }
       }
-      f.setMetaValue("QC_transition_group_score", computeScore(cg_qc_passes));
+      f.setMetaValue("QC_transition_group_score", computeScore(cg_qc_pass));
     }
 
     // replace with the filtered featureMap
