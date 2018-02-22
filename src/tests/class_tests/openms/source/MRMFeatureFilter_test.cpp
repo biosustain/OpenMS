@@ -28,8 +28,8 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // --------------------------------------------------------------------------
-// $Maintainer: Douglas McCloskey $
-// $Authors: Douglas McCloskey $
+// $Maintainer: Douglas McCloskey, Pasquale Domenico Colaianni $
+// $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 #include <OpenMS/CONCEPT/ClassTest.h>
 #include <OpenMS/test_config.h>
@@ -834,12 +834,12 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   subordinates.clear();
   mrmff.FilterFeatureMap(components, qc_criteria, transitions);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_pass"), false);
-  TEST_EQUAL(components[0].getMetaValue("QC_transition_group_score"), 0.857142857142857);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 0.857142857142857);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_message"), "n_transitions");
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
-  TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
-  TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
   
   // ion_ratio_pair
@@ -874,14 +874,14 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   subordinates.clear();
   mrmff.FilterFeatureMap(components, qc_criteria, transitions);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_pass"), false);
-  TEST_EQUAL(components[0].getMetaValue("QC_transition_group_score"), 0.857142857142857);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 0.857142857142857);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_message"), "ion_ratio_pair[component1.1.Light/component1.2.Light]");
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
-  TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
-  TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), true);
-  TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
 
 }
