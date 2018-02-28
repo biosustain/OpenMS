@@ -91,32 +91,32 @@ namespace OpenMS
           if (cg_cq.component_group_name == component_group_name)
           {
             // labels and transition counts QC
-            if (!isWithinRange(n_lbl_trans_type["n_heavy"], cg_cq.n_heavy_l, cg_cq.n_heavy_u))
+            if (!isValueWithinRange(n_lbl_trans_type["n_heavy"], cg_cq.n_heavy_l, cg_cq.n_heavy_u))
             {
               cg_qc_pass[CG_Metrics::HEAVY] = false;
               cg_qc_fail_message_vec.push_back("n_heavy");
             }
-            if (!isWithinRange(n_lbl_trans_type["n_light"], cg_cq.n_light_l, cg_cq.n_light_u))
+            if (!isValueWithinRange(n_lbl_trans_type["n_light"], cg_cq.n_light_l, cg_cq.n_light_u))
             {
               cg_qc_pass[CG_Metrics::LIGHT] = false;
               cg_qc_fail_message_vec.push_back("n_light");
             }
-            if (!isWithinRange(n_lbl_trans_type["n_detecting"], cg_cq.n_detecting_l, cg_cq.n_detecting_u))
+            if (!isValueWithinRange(n_lbl_trans_type["n_detecting"], cg_cq.n_detecting_l, cg_cq.n_detecting_u))
             {
               cg_qc_pass[CG_Metrics::DETECTING] = false;
               cg_qc_fail_message_vec.push_back("n_detecting");
             }
-            if (!isWithinRange(n_lbl_trans_type["n_quantifying"], cg_cq.n_quantifying_l, cg_cq.n_quantifying_u))
+            if (!isValueWithinRange(n_lbl_trans_type["n_quantifying"], cg_cq.n_quantifying_l, cg_cq.n_quantifying_u))
             {
               cg_qc_pass[CG_Metrics::QUANTIFYING] = false;
               cg_qc_fail_message_vec.push_back("n_quantifying");
             }
-            if (!isWithinRange(n_lbl_trans_type["n_identifying"], cg_cq.n_identifying_l, cg_cq.n_identifying_u))
+            if (!isValueWithinRange(n_lbl_trans_type["n_identifying"], cg_cq.n_identifying_l, cg_cq.n_identifying_u))
             {
               cg_qc_pass[CG_Metrics::IDENTIFYING] = false;
               cg_qc_fail_message_vec.push_back("n_identifying");
             }
-            if (!isWithinRange(n_lbl_trans_type["n_transitions"], cg_cq.n_transitions_l, cg_cq.n_transitions_u))
+            if (!isValueWithinRange(n_lbl_trans_type["n_transitions"], cg_cq.n_transitions_l, cg_cq.n_transitions_u))
             {
               cg_qc_pass[CG_Metrics::TRANSITIONS] = false;
               cg_qc_fail_message_vec.push_back("n_transitions");
@@ -135,7 +135,7 @@ namespace OpenMS
               )
               {
                 const double ion_ratio = calculateIonRatio(subordinate, s, cg_cq.ion_ratio_feature_name);
-                if (!isWithinRange(ion_ratio, cg_cq.ion_ratio_l, cg_cq.ion_ratio_u))
+                if (!isValueWithinRange(ion_ratio, cg_cq.ion_ratio_l, cg_cq.ion_ratio_u))
                 {
                   cg_qc_pass[CG_Metrics::ION] = false;
                   cg_qc_fail_message_vec.push_back("ion_ratio_pair[" + component_name + "/" + component_name2 + "]");
@@ -150,17 +150,17 @@ namespace OpenMS
         {
           if (c_qc.component_name == component_name)
           {
-            if (!isWithinRange((double)subordinate.getRT(), c_qc.retention_time_l, c_qc.retention_time_u))
+            if (!isValueWithinRange((double)subordinate.getRT(), c_qc.retention_time_l, c_qc.retention_time_u))
             {
               c_qc_pass[C_Metrics::RT] = false;
               c_qc_fail_message_vec.push_back("retention_time");
             }
-            if (!isWithinRange((double)subordinate.getIntensity(), c_qc.intensity_l, c_qc.intensity_u))
+            if (!isValueWithinRange((double)subordinate.getIntensity(), c_qc.intensity_l, c_qc.intensity_u))
             {
               c_qc_pass[C_Metrics::INTENSITY] = false;
               c_qc_fail_message_vec.push_back("intensity");
             }
-            if (!isWithinRange((double)subordinate.getOverallQuality(), c_qc.overall_quality_l, c_qc.overall_quality_u))
+            if (!isValueWithinRange((double)subordinate.getOverallQuality(), c_qc.overall_quality_l, c_qc.overall_quality_u))
             {
               c_qc_pass[C_Metrics::QUALITY] = false;
               c_qc_fail_message_vec.push_back("overall_quality");
@@ -310,7 +310,7 @@ namespace OpenMS
     bool check = true;
     if (component.metaValueExists(meta_value_key))
     {
-      check = isWithinRange((double)component.getMetaValue(meta_value_key), meta_value_l, meta_value_u);
+      check = isValueWithinRange((double)component.getMetaValue(meta_value_key), meta_value_l, meta_value_u);
     }
     else
     {
@@ -339,7 +339,7 @@ namespace OpenMS
   }
 
   template <typename T>
-  bool MRMFeatureFilter::isWithinRange(const T& value, const T& value_l, const T& value_u) const
+  bool MRMFeatureFilter::isValueWithinRange(const T& value, const T& value_l, const T& value_u) const
   {
     return value >= value_l && value <= value_u;
   }

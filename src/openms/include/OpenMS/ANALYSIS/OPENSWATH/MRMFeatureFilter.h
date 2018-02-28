@@ -178,7 +178,7 @@ public:
       `false` otherwise.
     */
     template <typename T>
-    bool isWithinRange(const T& value, const T& value_l, const T& value_u) const;
+    bool isValueWithinRange(const T& value, const T& value_l, const T& value_u) const;
 
 protected:
     /// The number of QC metrics for a single component
