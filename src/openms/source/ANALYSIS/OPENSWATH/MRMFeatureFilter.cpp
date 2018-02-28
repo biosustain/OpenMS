@@ -277,7 +277,16 @@ namespace OpenMS
     double ratio{0};
     if (component_1.metaValueExists(feature_name) && component_2.metaValueExists(feature_name))
     {
-      ratio = (double)component_1.getMetaValue(feature_name) / (double)component_2.getMetaValue(feature_name);
+      double feature_1 = component_1.getMetaValue(feature_name);
+      double feature_2 = component_2.getMetaValue(feature_name);
+      ratio = feature_1/feature_2;
+      
+    }
+    else if (feature_name == "intensity")
+    {
+      const double feature_1 = component_1.getIntensity();
+      const double feature_2 = component_2.getIntensity();
+      ratio = feature_1 / feature_2;
     }
     else if (component_1.metaValueExists(feature_name))
     {
