@@ -43,14 +43,4 @@
 
 namespace OpenMS
 {
-
-  MRMFeatureQC::MRMFeatureQC()
-  {
-  }
-
-  MRMFeatureQC::~MRMFeatureQC()
-  {
-  }
-
 } // namespace OpenMS
-
