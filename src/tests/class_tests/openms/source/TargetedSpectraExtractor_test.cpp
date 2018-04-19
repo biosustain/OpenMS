@@ -37,6 +37,7 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
+#include <OpenMS/FORMAT/MSPTSEFile.h>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -104,6 +105,8 @@ TargetedSpectraExtractor* ptr = 0;
 TargetedSpectraExtractor* null_ptr = 0;
 const String experiment_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_13C1_spectra0to100.mzML");
 const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_13CFlux_TraML.csv");
+const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_mainLib.MSP");
+const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_GCMS_fullScan.mzML");
 MzMLFile mzml;
 MSExperiment experiment;
 TransitionTSVFile tsv_reader;
@@ -496,6 +499,44 @@ START_SECTION(extractSpectra())
   for (Size i=0; i<extracted_spectra.size(); ++i)
   {
     STATUS(extracted_spectra[i].getName() << "\t" << extracted_features[i].getIntensity())
+  }
+}
+END_SECTION
+
+START_SECTION(matchSpectrum())
+{
+  Param params = ptr->getParameters();
+  params.setValue("min_score", 15.0);
+  params.setValue("GaussFilter:gaussian_width", 0.25);
+  params.setValue("peak_height_min", 15000.0);
+  params.setValue("peak_height_max", 110000.0);
+  params.setValue("fwhm_threshold", 0.23);
+  ptr->setParameters(params);
+
+  vector<MSSpectrum> extracted_spectra;
+  FeatureMap extracted_features;
+  ptr->extractSpectra(experiment, targeted_exp, extracted_spectra, extracted_features);
+
+  const String input_filepath = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_mainLib.MSP");
+  MSExperiment experiment;
+  MSPTSEFile mse(input_filepath, experiment);
+  TEST_EQUAL(experiment.getSpectra().size(), 2378)
+  std::vector<std::pair<String,double>> matches;
+
+  ptr->matchSpectrum(extracted_spectra[0], experiment, matches);
+  cout << endl << "Input spectrum: " << extracted_spectra[0].getName() << endl;
+  for (std::pair<String, double> const & match : matches)
+  {
+    cout << "Name: " << match.first << endl;
+    cout << "Score: " << match.second << endl << endl;
+  }
+
+  ptr->matchSpectrum(extracted_spectra[1], experiment, matches);
+  cout << endl << "Input spectrum: " << extracted_spectra[1].getName() << endl;
+  for (std::pair<String, double> const & match : matches)
+  {
+    cout << "Name: " << match.first << endl;
+    cout << "Score: " << match.second << endl << endl;
   }
 }
 END_SECTION

@@ -33,8 +33,8 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
-
-#include <boost/unordered_map.hpp> 
+#include <OpenMS/COMPARISON/SPECTRA/BinnedSpectralContrastAngle.h>
+#include <boost/unordered_map.hpp>
 
 namespace OpenMS
 {
@@ -71,6 +71,7 @@ namespace OpenMS
     tic_weight_ = (double)param_.getValue("tic_weight");
     fwhm_weight_ = (double)param_.getValue("fwhm_weight");
     snr_weight_ = (double)param_.getValue("snr_weight");
+    similarity_function_ = (String)param_.getValue("similarity_function");
   }
 
   void TargetedSpectraExtractor::getDefaultParameters(Param& params)
@@ -126,6 +127,14 @@ namespace OpenMS
     params.setMinFloat("fwhm_weight", 0.0);
     params.setValue("snr_weight", 1.0, "SNR weight when scoring spectra.");
     params.setMinFloat("snr_weight", 0.0);
+
+    params.setValue(
+      "similarity_function",
+      BINNED_SPECTRAL_CONTRAST_ANGLE,
+      "Similarity function to use when comparing the input spectrum against "
+      "spectra present in a library."
+    );
+    params.setValidStrings("similarity_function", ListUtils::create<String>(BINNED_SPECTRAL_CONTRAST_ANGLE));
   }
 
   void TargetedSpectraExtractor::annotateSpectra(
@@ -425,5 +434,52 @@ namespace OpenMS
     scoreSpectra(annotated, picked, features, scored);
 
     selectSpectra(scored, features, extracted_spectra, extracted_features);
+  }
+
+  void TargetedSpectraExtractor::matchSpectrum(
+    const MSSpectrum& input_spectrum,
+    const MSExperiment& experiment,
+    std::vector<std::pair<String,double>>& matches
+  ) const
+  {
+    matches.clear();
+    std::map<String,double> scores_map;
+    for (const MSSpectrum& s : experiment.getSpectra())
+    {
+      if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
+      {
+        const double bin_size = (s.back().getPos() - s.front().getPos()) / s.size() / 4.0; // NOTE: magic value
+        const BinnedSpectrum bs1 (input_spectrum, bin_size, false, 2); // NOTE: magic value
+        const BinnedSpectrum bs2 (s, bin_size, false, 2); // NOTE: magic value
+        BinnedSpectralContrastAngle cmp;
+        scores_map.insert( {s.getName(), cmp(bs1, bs2)} );
+      }
+    }
+
+    std::vector<std::pair<String,double>> scores_vec;
+
+    // Convert from map to vector, so that we can sort the matches by their score
+    std::for_each(
+      scores_map.cbegin(),
+      scores_map.cend(),
+      [&scores_vec](const std::pair<String,double>& p)
+      {
+        scores_vec.push_back(p);
+      }
+    );
+
+    // Sort the vector of scores
+    std::sort(
+      scores_vec.begin(),
+      scores_vec.end(),
+      [](const std::pair<String,double> a, const std::pair<String,double> b)
+      {
+        return a.second > b.second;
+      }
+    );
+
+    // Output best N matches
+    const Size N { 5 };
+    matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + N);
   }
 }
