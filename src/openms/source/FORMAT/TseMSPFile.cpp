@@ -33,18 +33,18 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/CONCEPT/LogStream.h>
-#include <OpenMS/FORMAT/MSPTSEFile.h>
+#include <OpenMS/FORMAT/TseMSPFile.h>
 #include <fstream>
 #include <regex>
 
 namespace OpenMS
 {
-  MSPTSEFile::MSPTSEFile(const String& filename, MSExperiment& experiment)
+  TseMSPFile::TseMSPFile(const String& filename, MSExperiment& experiment)
   {
     load(filename, experiment);
   }
 
-  void MSPTSEFile::load(const String& filename, MSExperiment& experiment) const
+  void TseMSPFile::load(const String& filename, MSExperiment& experiment) const
   {
     std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())

@@ -37,7 +37,7 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
-#include <OpenMS/FORMAT/MSPTSEFile.h>
+#include <OpenMS/FORMAT/TseMSPFile.h>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -531,7 +531,7 @@ START_SECTION(matchSpectrum())
   tse.extractSpectra(experiment1, targeted_exp, extracted_spectra, extracted_features);
 
   MSExperiment experiment2;
-  MSPTSEFile mse(msp_path, experiment2);
+  TseMSPFile mse(msp_path, experiment2);
   TEST_EQUAL(experiment2.getSpectra().size(), 2378)
   std::vector<std::pair<String,double>> matches;
 

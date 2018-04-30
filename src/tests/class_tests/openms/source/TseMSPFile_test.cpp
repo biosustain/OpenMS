@@ -36,30 +36,30 @@
 #include <OpenMS/test_config.h>
 
 ///////////////////////////
-#include <OpenMS/FORMAT/MSPTSEFile.h>
+#include <OpenMS/FORMAT/TseMSPFile.h>
 #include <regex>
 ///////////////////////////
 
 using namespace OpenMS;
 using namespace std;
 
-START_TEST(MSPTSEFile, "$Id$")
+START_TEST(TseMSPFile, "$Id$")
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-MSPTSEFile* ptr = nullptr;
-MSPTSEFile* null_ptr = nullptr;
-const String input_filepath = OPENMS_GET_TEST_DATA_PATH("MSPTSEFile_input.msp");
+TseMSPFile* ptr = nullptr;
+TseMSPFile* null_ptr = nullptr;
+const String input_filepath = OPENMS_GET_TEST_DATA_PATH("TseMSPFile_input.msp");
 
-START_SECTION(MSPTSEFile())
+START_SECTION(TseMSPFile())
 {
-  ptr = new MSPTSEFile();
+  ptr = new TseMSPFile();
   TEST_NOT_EQUAL(ptr, null_ptr)
 }
 END_SECTION
 
-START_SECTION(~MSPTSEFile())
+START_SECTION(~TseMSPFile())
 {
   delete ptr;
 }
@@ -67,7 +67,7 @@ END_SECTION
 
 START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
 {
-  MSPTSEFile mse;
+  TseMSPFile mse;
   MSExperiment experiment;
   mse.load(input_filepath, experiment);
   const vector<MSSpectrum>& spectra = experiment.getSpectra();

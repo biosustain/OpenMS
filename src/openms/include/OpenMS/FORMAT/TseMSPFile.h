@@ -49,17 +49,17 @@ namespace OpenMS
     > 66 203; 67 68; 68 77; 82 63; 83 240; 
     > 136 350; 
   */
-  class OPENMS_DLLAPI MSPTSEFile
+  class OPENMS_DLLAPI TseMSPFile
   {
 public:
     /// Default constructor
-    MSPTSEFile() = default;
+    TseMSPFile() = default;
 
     /// Constructor with filename and output experiment
-    MSPTSEFile(const String& filename, MSExperiment& experiment);
+    TseMSPFile(const String& filename, MSExperiment& experiment);
 
     /// Destructor
-    ~MSPTSEFile() = default;
+    ~TseMSPFile() = default;
 
     /**
       @brief Load the file's data and metadata, and save it into a `MSExperiment`.
