@@ -105,8 +105,6 @@ TargetedSpectraExtractor* ptr = 0;
 TargetedSpectraExtractor* null_ptr = 0;
 const String experiment_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_13C1_spectra0to100.mzML");
 const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_13CFlux_TraML.csv");
-const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_mainLib.MSP");
-const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_GCMS_fullScan.mzML");
 MzMLFile mzml;
 MSExperiment experiment;
 TransitionTSVFile tsv_reader;
@@ -150,6 +148,8 @@ START_SECTION(getParameters())
   TEST_EQUAL(params.getValue("tic_weight"), 1.0)
   TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
   TEST_EQUAL(params.getValue("snr_weight"), 1.0)
+  TEST_EQUAL(params.getValue("similarity_function"), "BinnedSpectralContrastAngle")
+  TEST_EQUAL(params.getValue("top_matches_to_report"), 5)
 }
 END_SECTION
 
@@ -505,25 +505,37 @@ END_SECTION
 
 START_SECTION(matchSpectrum())
 {
-  Param params = ptr->getParameters();
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS_fullScan.mzML");
+  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
+  MzMLFile mzml;
+  MSExperiment experiment1;
+  TransitionTSVFile tsv_reader;
+  TargetedExperiment targeted_exp;
+  mzml.load(gcms_fullscan_path, experiment1);
+  Param tsv_params = tsv_reader.getParameters();
+  tsv_params.setValue("retentionTimeInterpretation", "seconds");
+  tsv_reader.setParameters(tsv_params);
+  tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
+  TargetedSpectraExtractor tse;
+  Param params = tse.getParameters();
   params.setValue("min_score", 15.0);
   params.setValue("GaussFilter:gaussian_width", 0.25);
   params.setValue("peak_height_min", 15000.0);
   params.setValue("peak_height_max", 110000.0);
   params.setValue("fwhm_threshold", 0.23);
-  ptr->setParameters(params);
+  tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
   FeatureMap extracted_features;
-  ptr->extractSpectra(experiment, targeted_exp, extracted_spectra, extracted_features);
+  tse.extractSpectra(experiment1, targeted_exp, extracted_spectra, extracted_features);
 
-  const String input_filepath = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_mainLib.MSP");
-  MSExperiment experiment;
-  MSPTSEFile mse(input_filepath, experiment);
-  TEST_EQUAL(experiment.getSpectra().size(), 2378)
+  MSExperiment experiment2;
+  MSPTSEFile mse(msp_path, experiment2);
+  TEST_EQUAL(experiment2.getSpectra().size(), 2378)
   std::vector<std::pair<String,double>> matches;
 
-  ptr->matchSpectrum(extracted_spectra[0], experiment, matches);
+  tse.matchSpectrum(extracted_spectra[0], experiment2, matches);
   cout << endl << "Input spectrum: " << extracted_spectra[0].getName() << endl;
   for (std::pair<String, double> const & match : matches)
   {
@@ -531,7 +543,7 @@ START_SECTION(matchSpectrum())
     cout << "Score: " << match.second << endl << endl;
   }
 
-  ptr->matchSpectrum(extracted_spectra[1], experiment, matches);
+  tse.matchSpectrum(extracted_spectra[1], experiment2, matches);
   cout << endl << "Input spectrum: " << extracted_spectra[1].getName() << endl;
   for (std::pair<String, double> const & match : matches)
   {

@@ -37,6 +37,7 @@
 
 ///////////////////////////
 #include <OpenMS/FORMAT/MSPTSEFile.h>
+#include <regex>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -49,7 +50,6 @@ START_TEST(MSPTSEFile, "$Id$")
 
 MSPTSEFile* ptr = nullptr;
 MSPTSEFile* null_ptr = nullptr;
-// const String input_filepath = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_mainLib.MSP");
 const String input_filepath = OPENMS_GET_TEST_DATA_PATH("MSPTSEFile_input.msp");
 
 START_SECTION(MSPTSEFile())

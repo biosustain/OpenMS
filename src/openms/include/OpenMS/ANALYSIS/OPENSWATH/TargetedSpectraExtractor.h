@@ -83,7 +83,7 @@ public:
         Constants expressions used throughout the code and tests.
     */
     ///@{
-    /// Integration type: intensity sum
+    /// Similarity function: binned spectral contrast angle
     static constexpr const char* BINNED_SPECTRAL_CONTRAST_ANGLE = "BinnedSpectralContrastAngle";
     ///@}
 
@@ -201,8 +201,8 @@ public:
     );
 
     /**
-      @brief Searches for the best matches for the input spectrum, against a library
-      of spectra.
+      @brief Searches the spectral library for the top scoring candidates that
+      match the input spectrum.
 
       @param[in] input_spectrum The input spectrum for which a match is desired
       @param[in] experiment The library with spectra information
@@ -281,6 +281,12 @@ private:
 
     /// Similarity function to compare spectra in `matchSpectrum()`
     String similarity_function_;
+
+    /**
+      The number of matches to output from `matchSpectrum()`.
+      These will be the matches of highest scores, sorted in descending order.
+    */
+    Size top_matches_to_report_;
   };
 }
 

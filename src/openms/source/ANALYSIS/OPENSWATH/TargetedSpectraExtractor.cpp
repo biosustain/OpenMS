@@ -34,7 +34,6 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
 #include <OpenMS/COMPARISON/SPECTRA/BinnedSpectralContrastAngle.h>
-#include <boost/unordered_map.hpp>
 
 namespace OpenMS
 {
@@ -72,6 +71,7 @@ namespace OpenMS
     fwhm_weight_ = (double)param_.getValue("fwhm_weight");
     snr_weight_ = (double)param_.getValue("snr_weight");
     similarity_function_ = (String)param_.getValue("similarity_function");
+    top_matches_to_report_ = (Size)param_.getValue("top_matches_to_report");
   }
 
   void TargetedSpectraExtractor::getDefaultParameters(Param& params)
@@ -135,6 +135,14 @@ namespace OpenMS
       "spectra present in a library."
     );
     params.setValidStrings("similarity_function", ListUtils::create<String>(BINNED_SPECTRAL_CONTRAST_ANGLE));
+
+    params.setValue(
+      "top_matches_to_report",
+      5,
+      "The number of matches to output from `matchSpectrum()`. "
+      "These will be the matches of highest scores, sorted in descending order."
+    );
+    params.setMinInt("top_matches_to_report", 1);
   }
 
   void TargetedSpectraExtractor::annotateSpectra(
@@ -478,8 +486,7 @@ namespace OpenMS
       }
     );
 
-    // Output best N matches
-    const Size N { 5 };
-    matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + N);
+    // Output the best matches
+    matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + top_matches_to_report_);
   }
 }

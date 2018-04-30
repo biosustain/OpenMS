@@ -32,10 +32,10 @@
 // $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/FORMAT/MSPTSEFile.h>
-#include <boost/regex.hpp>
-#include <fstream>
 #include <OpenMS/CONCEPT/LogStream.h>
+#include <OpenMS/FORMAT/MSPTSEFile.h>
+#include <fstream>
+#include <regex>
 
 namespace OpenMS
 {
@@ -56,21 +56,21 @@ namespace OpenMS
     experiment.clear(true);
     MSSpectrum spectrum;
     bool adding_spectrum { false }; // to avoid calling `.addSpectrum()` on empty/invalid spectra
-    boost::cmatch m;
-    boost::regex re_name("^Name: (.+)", boost::regex::no_mod_s);
-    boost::regex re_synon("^Synon: (.+)", boost::regex::no_mod_s);
-    boost::regex re_formula("^Formula: (.+)", boost::regex::no_mod_s);
-    boost::regex re_mw("^MW: (.+)", boost::regex::no_mod_s);
-    boost::regex re_cas_nist("^CAS#: (.+);  NIST#: (.+)", boost::regex::no_mod_s);
-    boost::regex re_db("^DB#: (.+)", boost::regex::no_mod_s);
-    boost::regex re_comments("^Comments: (.+)", boost::regex::no_mod_s);
-    // boost::regex re_num_peaks("^Num Peaks: .+", boost::regex::no_mod_s);
-    boost::regex re_points_line("^(?:\\d+ \\d+; )+$", boost::regex::no_mod_s);
-    boost::regex re_point("(\\d+) (\\d+); ", boost::regex::no_mod_s);
+    std::cmatch m;
+    std::regex re_name("^Name: (.+)");
+    std::regex re_synon("^Synon: (.+)");
+    std::regex re_formula("^Formula: (.+)");
+    std::regex re_mw("^MW: (.+)");
+    std::regex re_cas_nist("^CAS#: (.+);  NIST#: (.+)");
+    std::regex re_db("^DB#: (.+)");
+    std::regex re_comments("^Comments: (.+)");
+    // std::regex re_num_peaks("^Num Peaks: .+");
+    std::regex re_points_line("^(?:\\d+ \\d+; ?)+");
+    std::regex re_point("(\\d+) (\\d+); ");
     while (!ifs.eof())
     {
       ifs.getline(line, BUFSIZE);
-      if (boost::regex_search(line, m, re_name))
+      if (std::regex_search(line, m, re_name))
       {
         LOG_DEBUG << std::endl << std::endl << "re_name ";
         spectrum.clear(true);
@@ -79,6 +79,8 @@ namespace OpenMS
         MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
         SDAs.resize(7);
         // TODO: part of this info could be saved as integer instead of string
+        // TODO: this number of metadata entries could vary between spectra libraries,
+        //       probably will need to make these headers not hardcoded
         SDAs[0].setName("Synon");
         SDAs[1].setName("Formula");
         SDAs[2].setName("MW");
@@ -88,41 +90,41 @@ namespace OpenMS
         SDAs[6].setName("Comments");
         adding_spectrum = true;
       }
-      else if (boost::regex_search(line, m, re_synon))
+      else if (std::regex_search(line, m, re_synon))
       {
         LOG_DEBUG << "Synon: " << m[1] << std::endl;
         spectrum.getStringDataArrayByName("Synon").push_back( std::string(m[1]) );
       }
-      else if (boost::regex_search(line, m, re_formula))
+      else if (std::regex_search(line, m, re_formula))
       {
         LOG_DEBUG << "Formula: " << m[1] << std::endl;
         spectrum.getStringDataArrayByName("Formula").push_back( std::string(m[1]) );
       }
-      else if (boost::regex_search(line, m, re_mw))
+      else if (std::regex_search(line, m, re_mw))
       {
         LOG_DEBUG << "MW: " << m[1] << std::endl;
         spectrum.getStringDataArrayByName("MW").push_back( std::string(m[1]) );
       }
-      else if (boost::regex_search(line, m, re_cas_nist))
+      else if (std::regex_search(line, m, re_cas_nist))
       {
         LOG_DEBUG << "CAS#: " << m[1] << ";  NIST#: " << m[2] << std::endl;
         spectrum.getStringDataArrayByName("CAS#").push_back( std::string(m[1]) );
         spectrum.getStringDataArrayByName("NIST#").push_back( std::string(m[2]) );
       }
-      else if (boost::regex_search(line, m, re_db))
+      else if (std::regex_search(line, m, re_db))
       {
         LOG_DEBUG << "DB#: " << m[1] << std::endl;
         spectrum.getStringDataArrayByName("DB#").push_back( std::string(m[1]) );
       }
-      else if (boost::regex_search(line, m, re_comments))
+      else if (std::regex_search(line, m, re_comments))
       {
         LOG_DEBUG << "Comments: " << m[1] << std::endl;
         spectrum.getStringDataArrayByName("Comments").push_back( std::string(m[1]) );
       }
-      else if (boost::regex_search(line, m, re_points_line))
+      else if (std::regex_search(line, m, re_points_line))
       {
         LOG_DEBUG << "re_points_line" << std::endl;
-        boost::regex_search(line, m, re_point);
+        std::regex_search(line, m, re_point);
         do
         {
           LOG_DEBUG << "re_point ";
@@ -130,11 +132,11 @@ namespace OpenMS
           const double intensity { std::stod(m[2]) };
           spectrum.push_back( Peak1D(position, intensity) );
           LOG_DEBUG << spectrum.back().getPos() << " " << spectrum.back().getIntensity() << "; ";
-        } while ( boost::regex_search(m[0].second, m, re_point) );
+        } while ( std::regex_search(m[0].second, m, re_point) );
       }
       else if (line[0] == '\r' || line[0] == '\n')
       {
-        LOG_DEBUG << std::endl << "re_empty_line" << std::endl;
+        LOG_DEBUG << std::endl << "empty_line" << std::endl;
         LOG_DEBUG << "line: " << line << std::endl;
         if (adding_spectrum)
         {
