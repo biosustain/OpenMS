@@ -147,8 +147,8 @@ namespace OpenMS
       const std::vector<Precursor> precursors = spectrum.getPrecursors();
       const double spectrum_mz = precursors.empty() ? 0.0 : precursors.front().getMZ();
       const double mz_tolerance = mz_unit_is_Da_ ? mz_tolerance_ : mz_tolerance_ / 1e6;
-      const double mz_left_lim = spectrum_mz - mz_tolerance;
-      const double mz_right_lim = spectrum_mz + mz_tolerance;
+      const double mz_left_lim = spectrum_mz ? spectrum_mz - mz_tolerance : std::numeric_limits<double>::min();
+      const double mz_right_lim = spectrum_mz ? spectrum_mz + mz_tolerance : std::numeric_limits<double>::max();
 
       LOG_DEBUG << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
 
