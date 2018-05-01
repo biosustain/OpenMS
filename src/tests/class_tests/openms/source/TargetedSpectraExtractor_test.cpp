@@ -519,36 +519,31 @@ START_SECTION(matchSpectrum())
   tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
-  params.setValue("min_score", 15.0);
+  params.setValue("min_score", 0.1);
   params.setValue("GaussFilter:gaussian_width", 0.25);
-  params.setValue("peak_height_min", 15000.0);
-  params.setValue("peak_height_max", 110000.0);
-  params.setValue("fwhm_threshold", 0.23);
+  params.setValue("peak_height_min", 0.0);
+  params.setValue("peak_height_max", 9e10);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
   FeatureMap extracted_features;
   tse.extractSpectra(experiment1, targeted_exp, extracted_spectra, extracted_features);
 
-  MSExperiment experiment2;
-  TseMSPFile mse(msp_path, experiment2);
-  TEST_EQUAL(experiment2.getSpectra().size(), 2378)
+  TEST_EQUAL(extracted_spectra.size(), 18)
+
+  MSExperiment library;
+  TseMSPFile mse(msp_path, library);
+  TEST_EQUAL(library.getSpectra().size(), 2378)
   std::vector<std::pair<String,double>> matches;
 
-  tse.matchSpectrum(extracted_spectra[0], experiment2, matches);
-  cout << endl << "Input spectrum: " << extracted_spectra[0].getName() << endl;
-  for (std::pair<String, double> const & match : matches)
+  for (const MSSpectrum & spectrum : extracted_spectra)
   {
-    cout << "Name: " << match.first << endl;
-    cout << "Score: " << match.second << endl << endl;
-  }
-
-  tse.matchSpectrum(extracted_spectra[1], experiment2, matches);
-  cout << endl << "Input spectrum: " << extracted_spectra[1].getName() << endl;
-  for (std::pair<String, double> const & match : matches)
-  {
-    cout << "Name: " << match.first << endl;
-    cout << "Score: " << match.second << endl << endl;
+    tse.matchSpectrum(spectrum, library, matches);
+    cout << endl << "Extracted spectrum: " << spectrum.getName() << "\nMatches:" << endl;
+    for (std::pair<String, double> const & match : matches)
+    {
+      cout << match.first << " \t " << match.second << endl;
+    }
   }
 }
 END_SECTION
