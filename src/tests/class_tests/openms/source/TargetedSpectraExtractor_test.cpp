@@ -520,7 +520,8 @@ START_SECTION(matchSpectrum())
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
   params.setValue("min_score", 0.1);
-  params.setValue("GaussFilter:gaussian_width", 0.25);
+  params.setValue("GaussFilter:gaussian_width", 0.1);
+  params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
   params.setValue("peak_height_max", 9e10);
   tse.setParameters(params);
