@@ -18,7 +18,21 @@ Formula: A44B55C666
 MW: 589
 CAS#: 3210-45-6;  NIST#: 789564
 DB#: 2
-Comments: Some comment
+Comments: Some other comment
+Num Peaks: 15
+27 29; 38 7; 39 86; 41 13; 50 62; 
+260 41; 261 8; 274 24; 275 261; 276 40; 
+290 168; 291 37; 307 264; 308 36; 
+310 20; 
+
+Name: name1 of second
+Synon: name2 of 2nd
+Synon: name3 of seconddd
+Formula: A44B55C666
+MW: 589
+CAS#: 3210-45-6;  NIST#: 789564
+DB#: 2
+Comments: This spectrum won't be loaded because its Name is a duplicate
 Num Peaks: 15
 27 29; 38 7; 39 86; 41 13; 50 62; 
 260 41; 261 8; 274 24; 275 261; 276 40; 

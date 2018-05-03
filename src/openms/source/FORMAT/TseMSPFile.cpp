@@ -32,8 +32,8 @@
 // $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/FORMAT/TseMSPFile.h>
+#include <OpenMS/CONCEPT/LogStream.h>
 #include <fstream>
 #include <regex>
 
@@ -64,20 +64,46 @@ namespace OpenMS
     std::regex re_cas_nist("^CAS#: (.+);  NIST#: (.+)");
     std::regex re_db("^DB#: (.+)");
     std::regex re_comments("^Comments: (.+)");
-    // std::regex re_num_peaks("^Num Peaks: .+");
+    std::regex re_num_peaks("^Num Peaks: (.+)");
     std::regex re_points_line("^(?:\\d+ \\d+; ?)+");
     std::regex re_point("(\\d+) (\\d+); ");
+    std::vector<String> loaded_spectra_names;
+    std::function<void(void)> add_spectrum_to_experiment =
+    [&experiment, &spectrum, &adding_spectrum, &loaded_spectra_names] ()
+    {
+      const bool loaded_in_library = std::find(
+        loaded_spectra_names.cbegin(),
+        loaded_spectra_names.cend(),
+        spectrum.getName()
+      ) != loaded_spectra_names.cend();
+      if (adding_spectrum && !loaded_in_library)
+      {
+        const String& num_peaks { spectrum.getStringDataArrayByName("Num Peaks").front() };
+        if (spectrum.size() != std::stoul(num_peaks) )
+        {
+          throw Exception::ParseError(
+            __FILE__,
+            __LINE__,
+            OPENMS_PRETTY_FUNCTION,
+            num_peaks,
+            "Not all peaks could be parsed."
+          );
+        }
+        experiment.addSpectrum(spectrum);
+        adding_spectrum = false;
+        loaded_spectra_names.push_back(spectrum.getName());
+      }
+    };
     while (!ifs.eof())
     {
       ifs.getline(line, BUFSIZE);
       if (std::regex_search(line, m, re_name))
       {
-        LOG_DEBUG << std::endl << std::endl << "re_name ";
+        LOG_DEBUG << std::endl << std::endl << "Name: " << m[1] << std::endl;
         spectrum.clear(true);
         spectrum.setName( std::string(m[1]) );
-        LOG_DEBUG << spectrum.getName() << std::endl;
         MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
-        SDAs.resize(7);
+        SDAs.resize(8);
         // TODO: part of this info could be saved as integer instead of string
         // TODO: this number of metadata entries could vary between spectra libraries,
         //       probably will need to make these headers not hardcoded
@@ -88,6 +114,7 @@ namespace OpenMS
         SDAs[4].setName("NIST#");
         SDAs[5].setName("DB#");
         SDAs[6].setName("Comments");
+        SDAs[7].setName("Num Peaks");
         adding_spectrum = true;
       }
       else if (std::regex_search(line, m, re_synon))
@@ -121,6 +148,11 @@ namespace OpenMS
         LOG_DEBUG << "Comments: " << m[1] << std::endl;
         spectrum.getStringDataArrayByName("Comments").push_back( std::string(m[1]) );
       }
+      else if (std::regex_search(line, m, re_num_peaks))
+      {
+        LOG_DEBUG << "Num Peaks: " << m[1] << std::endl;
+        spectrum.getStringDataArrayByName("Num Peaks").push_back( std::string(m[1]) );
+      }
       else if (std::regex_search(line, m, re_points_line))
       {
         LOG_DEBUG << "re_points_line" << std::endl;
@@ -136,19 +168,12 @@ namespace OpenMS
       }
       else if (line[0] == '\r' || line[0] == '\n')
       {
-        LOG_DEBUG << std::endl << "empty_line" << std::endl;
-        LOG_DEBUG << "line: " << line << std::endl;
-        if (adding_spectrum)
-        {
-          experiment.addSpectrum(spectrum);
-          adding_spectrum = false;
-        }
+        LOG_DEBUG << std::endl << "empty_line: " << line << std::endl;
+        add_spectrum_to_experiment();
       }
     }
-    if (adding_spectrum)
-    {
-      experiment.addSpectrum(spectrum);
-    }
+    // To make sure a spectrum is added even if no empty line is present before EOF
+    add_spectrum_to_experiment();
     ifs.close();
   }
 }
