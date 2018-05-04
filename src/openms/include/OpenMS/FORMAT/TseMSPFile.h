@@ -70,5 +70,15 @@ public:
       @throw FileNotFound is thrown if the file could not be found
     */
     void load(const String& filename, MSExperiment& experiment) const;
+
+private:
+    /**
+      TODO: complete docs
+    */
+    void pushParsedInfoToNamedDataArray(
+      MSSpectrum& spectrum,
+      const String& name,
+      const String& info
+    ) const;
   };
 }
