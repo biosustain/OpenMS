@@ -168,11 +168,11 @@ namespace OpenMS
     LOG_DEBUG << name << ": " << info << std::endl;
     MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
     MSSpectrum::StringDataArrays::iterator it = getDataArrayByName(SDAs, name);
-    if (it != SDAs.end())
+    if (it != SDAs.end()) // DataArray with given name already exists
     {
       it->push_back(info);
     }
-    else
+    else // DataArray with given name does not exist, yet. Create it.
     {
       MSSpectrum::StringDataArray sda;
       sda.push_back(info);
