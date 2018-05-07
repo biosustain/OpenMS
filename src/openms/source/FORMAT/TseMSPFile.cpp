@@ -45,7 +45,7 @@ namespace OpenMS
     load(filename, experiment);
   }
 
-  void TseMSPFile::load(const String& filename, MSExperiment& experiment) const
+  void TseMSPFile::load(const String& filename, MSExperiment& experiment)
   {
     std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())
@@ -69,36 +69,6 @@ namespace OpenMS
     std::regex re_num_peaks("^Num Peaks: (.+)");
     std::regex re_points_line("^(?:\\d+ \\d+; ?)+");
     std::regex re_point("(\\d+) (\\d+); ");
-
-    // To keep track of which spectra have already been loaded and avoid duplicates
-    std::vector<String> loaded_spectra_names;
-
-    std::function<void(void)> add_spectrum_to_experiment =
-    [&experiment, &spectrum, &adding_spectrum, &loaded_spectra_names] ()
-    {
-      const bool loaded_in_library = std::find(
-        loaded_spectra_names.cbegin(),
-        loaded_spectra_names.cend(),
-        spectrum.getName()
-      ) != loaded_spectra_names.cend();
-      if (adding_spectrum && !loaded_in_library)
-      {
-        const String& num_peaks { spectrum.getStringDataArrayByName("Num Peaks").front() };
-        if (spectrum.size() != std::stoul(num_peaks) )
-        {
-          throw Exception::ParseError(
-            __FILE__,
-            __LINE__,
-            OPENMS_PRETTY_FUNCTION,
-            num_peaks,
-            "Not all peaks could be parsed."
-          );
-        }
-        experiment.addSpectrum(spectrum);
-        adding_spectrum = false;
-        loaded_spectra_names.push_back(spectrum.getName());
-      }
-    };
 
     while (!ifs.eof())
     {
@@ -155,15 +125,19 @@ namespace OpenMS
       else if (line[0] == '\r' || line[0] == '\n')
       {
         LOG_DEBUG << std::endl << "empty_line" << std::endl;
-        add_spectrum_to_experiment();
+        addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
       }
     }
     // To make sure a spectrum is added even if no empty line is present before EOF
-    add_spectrum_to_experiment();
+    addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
     ifs.close();
   }
 
-  void TseMSPFile::pushParsedInfoToNamedDataArray(MSSpectrum& spectrum, const String& name, const String& info) const
+  void TseMSPFile::pushParsedInfoToNamedDataArray(
+    MSSpectrum& spectrum,
+    const String& name,
+    const String& info
+  ) const
   {
     LOG_DEBUG << name << ": " << info << std::endl;
     MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
@@ -179,5 +153,51 @@ namespace OpenMS
       sda.setName(name);
       SDAs.push_back(sda);
     }
+  }
+
+  void TseMSPFile::addSpectrumToExperiment(
+    const MSSpectrum& spectrum,
+    bool& adding_spectrum,
+    MSExperiment& experiment
+  )
+  {
+    std::vector<String>& l = loaded_spectra_names_;
+    const bool is_duplicate = std::find(l.cbegin(), l.cend(), spectrum.getName()) != l.cend();
+
+    if (adding_spectrum && !is_duplicate)
+    {
+      const MSSpectrum::StringDataArray& sda = getStringDataArrayByName(spectrum, "Num Peaks");
+      const String& num_peaks { sda.front() };
+      if (spectrum.size() != std::stoul(num_peaks) )
+      {
+        throw Exception::ParseError(
+          __FILE__,
+          __LINE__,
+          OPENMS_PRETTY_FUNCTION,
+          num_peaks,
+          "Not all peaks could be parsed."
+        );
+      }
+      experiment.addSpectrum(spectrum);
+      adding_spectrum = false;
+      loaded_spectra_names_.push_back(spectrum.getName());
+    }
+  };
+
+  const MSSpectrum::StringDataArray& TseMSPFile::getStringDataArrayByName(
+    const MSSpectrum& spectrum,
+    const String& name
+  ) const
+  {
+    MSSpectrum::StringDataArrays::const_iterator it = std::find_if(
+      spectrum.getStringDataArrays().cbegin(),
+      spectrum.getStringDataArrays().cend(),
+      [&name] (const MSSpectrum::StringDataArray& sda) { return sda.getName() == name; }
+    );
+    if (it == spectrum.getStringDataArrays().cend())
+    {
+      throw Exception::ElementNotFound(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, name);
+    }
+    return *it;
   }
 }

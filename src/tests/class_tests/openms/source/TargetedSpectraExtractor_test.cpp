@@ -524,6 +524,7 @@ START_SECTION(matchSpectrum())
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
   params.setValue("peak_height_max", 9e10);
+  params.setValue("top_matches_to_report", 4);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
@@ -543,7 +544,20 @@ START_SECTION(matchSpectrum())
     cout << endl << "Extracted spectrum: " << spectrum.getName() << "\nMatches:" << endl;
     for (std::pair<String, double> const & match : matches)
     {
-      cout << match.first << " \t " << match.second << endl;
+      const String& match_name { match.first };
+      const double match_score { match.second };
+      cout << match_name << " \t " << match_score << endl;
+      const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
+      std::vector<MSSpectrum>::const_iterator it = std::find_if(
+        library_spectra.cbegin(),
+        library_spectra.cend(),
+        [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
+      );
+      TseMSPFile_friend msp_f;
+      for (const String& synon : msp_f.getStringDataArrayByName(*it, "Synon"))
+      {
+        cout << "    " << synon << endl;
+      }
     }
   }
 }

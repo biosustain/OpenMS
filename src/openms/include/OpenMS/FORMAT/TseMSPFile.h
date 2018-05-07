@@ -61,6 +61,9 @@ public:
     /// Destructor
     ~TseMSPFile() = default;
 
+    /// To test private and protected methods
+    friend class TseMSPFile_friend;
+
     /**
       @brief Load the file's data and metadata, and save it into a `MSExperiment`.
 
@@ -69,7 +72,7 @@ public:
 
       @throw FileNotFound is thrown if the file could not be found
     */
-    void load(const String& filename, MSExperiment& experiment) const;
+    void load(const String& filename, MSExperiment& experiment);
 
 private:
     /**
@@ -80,5 +83,42 @@ private:
       const String& name,
       const String& info
     ) const;
+
+    /**
+      TODO: complete docs
+    */
+    void addSpectrumToExperiment(
+      const MSSpectrum& spectrum,
+      bool& adding_spectrum,
+      MSExperiment& experiment
+    );
+
+    /**
+      TODO: complete docs
+    */
+    const MSSpectrum::StringDataArray& getStringDataArrayByName(
+      const MSSpectrum& spectrum,
+      const String& name
+    ) const;
+
+    /// To keep track of which spectra have already been loaded and avoid duplicates
+    std::vector<String> loaded_spectra_names_;
+  };
+
+  class TseMSPFile_friend
+  {
+public:
+    TseMSPFile_friend() = default;
+    ~TseMSPFile_friend() = default;
+
+    const MSSpectrum::StringDataArray& getStringDataArrayByName(
+      const MSSpectrum& spectrum,
+      const String& name
+    ) const
+    {
+      return msp_.getStringDataArrayByName(spectrum, name);
+    }
+
+    TseMSPFile msp_;
   };
 }
