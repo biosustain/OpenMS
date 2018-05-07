@@ -60,47 +60,21 @@ namespace OpenMS
 
     std::cmatch m;
     std::regex re_name("^Name: (.+)");
-    std::regex re_synon("^Synon: (.+)");
-    std::regex re_formula("^Formula: (.+)");
-    std::regex re_mw("^MW: (.+)");
-    std::regex re_cas_nist("^CAS#: (.+);  NIST#: (.+)");
-    std::regex re_db("^DB#: (.+)");
     std::regex re_comments("^Comments: (.+)");
     std::regex re_num_peaks("^Num Peaks: (.+)");
     std::regex re_points_line("^(?:\\d+ \\d+; ?)+");
     std::regex re_point("(\\d+) (\\d+); ");
+    std::regex re_metadatum(" *([^;\r\n]+): ([^;\r\n]+)");
 
     while (!ifs.eof())
     {
       ifs.getline(line, BUFSIZE);
-      // TODO: Should metadata all be saved as strings?
       if (std::regex_search(line, m, re_name))
       {
         LOG_DEBUG << std::endl << std::endl << "Name: " << m[1] << std::endl;
         spectrum.clear(true);
         spectrum.setName( String(m[1]) );
         adding_spectrum = true;
-      }
-      else if (std::regex_search(line, m, re_synon))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "Synon", String(m[1]));
-      }
-      else if (std::regex_search(line, m, re_formula))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "Formula", String(m[1]));
-      }
-      else if (std::regex_search(line, m, re_mw))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "MW", String(m[1]));
-      }
-      else if (std::regex_search(line, m, re_cas_nist))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "CAS#", String(m[1]));
-        pushParsedInfoToNamedDataArray(spectrum, "NIST#", String(m[2]));
-      }
-      else if (std::regex_search(line, m, re_db))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "DB#", String(m[1]));
       }
       else if (std::regex_search(line, m, re_comments))
       {
@@ -121,6 +95,14 @@ namespace OpenMS
           spectrum.push_back( Peak1D(position, intensity) );
           LOG_DEBUG << position << " " << intensity << "; ";
         } while ( std::regex_search(m[0].second, m, re_point) );
+      }
+      else if (std::regex_search(line, m, re_metadatum))
+      {
+        pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
+        while (std::regex_search(m[0].second, m, re_metadatum))
+        {
+          pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
+        }
       }
       else if (line[0] == '\r' || line[0] == '\n')
       {

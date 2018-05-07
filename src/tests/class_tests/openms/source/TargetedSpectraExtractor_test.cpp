@@ -541,11 +541,13 @@ START_SECTION(matchSpectrum())
   for (const MSSpectrum & spectrum : extracted_spectra)
   {
     tse.matchSpectrum(spectrum, library, matches);
-    cout << endl << "Extracted spectrum: " << spectrum.getName() << "\nMatches:" << endl;
+    cout << "################################################################" << endl;
+    cout << "Extracted spectrum: " << spectrum.getName() << "\nMatches:" << endl;
     for (std::pair<String, double> const & match : matches)
     {
       const String& match_name { match.first };
       const double match_score { match.second };
+      cout << "----------------------------------------------------------------" << endl;
       cout << match_name << " \t " << match_score << endl;
       const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
       std::vector<MSSpectrum>::const_iterator it = std::find_if(
@@ -559,6 +561,7 @@ START_SECTION(matchSpectrum())
         cout << "    " << synon << endl;
       }
     }
+    cout << "################################################################\n\n" << endl;
   }
 }
 END_SECTION
