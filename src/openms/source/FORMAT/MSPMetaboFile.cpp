@@ -32,7 +32,7 @@
 // $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/FORMAT/TseMSPFile.h>
+#include <OpenMS/FORMAT/MSPMetaboFile.h>
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/KERNEL/SpectrumHelper.h>
 #include <fstream>
@@ -40,12 +40,12 @@
 
 namespace OpenMS
 {
-  TseMSPFile::TseMSPFile(const String& filename, MSExperiment& experiment)
+  MSPMetaboFile::MSPMetaboFile(const String& filename, MSExperiment& experiment)
   {
     load(filename, experiment);
   }
 
-  void TseMSPFile::load(const String& filename, MSExperiment& experiment)
+  void MSPMetaboFile::load(const String& filename, MSExperiment& experiment)
   {
     std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())
@@ -133,7 +133,7 @@ namespace OpenMS
     ifs.close();
   }
 
-  void TseMSPFile::pushParsedInfoToNamedDataArray(
+  void MSPMetaboFile::pushParsedInfoToNamedDataArray(
     MSSpectrum& spectrum,
     const String& name,
     const String& info
@@ -155,7 +155,7 @@ namespace OpenMS
     }
   }
 
-  void TseMSPFile::addSpectrumToExperiment(
+  void MSPMetaboFile::addSpectrumToExperiment(
     const MSSpectrum& spectrum,
     bool& adding_spectrum,
     MSExperiment& experiment
@@ -184,7 +184,7 @@ namespace OpenMS
     }
   };
 
-  const MSSpectrum::StringDataArray& TseMSPFile::getStringDataArrayByName(
+  const MSSpectrum::StringDataArray& MSPMetaboFile::getStringDataArrayByName(
     const MSSpectrum& spectrum,
     const String& name
   ) const

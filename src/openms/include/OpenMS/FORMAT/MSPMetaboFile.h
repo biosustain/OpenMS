@@ -49,20 +49,20 @@ namespace OpenMS
     > 66 203; 67 68; 68 77; 82 63; 83 240; 
     > 136 350; 
   */
-  class OPENMS_DLLAPI TseMSPFile
+  class OPENMS_DLLAPI MSPMetaboFile
   {
 public:
     /// Default constructor
-    TseMSPFile() = default;
+    MSPMetaboFile() = default;
 
     /// Constructor with filename and output experiment
-    TseMSPFile(const String& filename, MSExperiment& experiment);
+    MSPMetaboFile(const String& filename, MSExperiment& experiment);
 
     /// Destructor
-    ~TseMSPFile() = default;
+    ~MSPMetaboFile() = default;
 
     /// To test private and protected methods
-    friend class TseMSPFile_friend;
+    friend class MSPMetaboFile_friend;
 
     /**
       @brief Load the file's data and metadata, and save it into a `MSExperiment`.
@@ -105,11 +105,11 @@ private:
     std::vector<String> loaded_spectra_names_;
   };
 
-  class TseMSPFile_friend
+  class MSPMetaboFile_friend
   {
 public:
-    TseMSPFile_friend() = default;
-    ~TseMSPFile_friend() = default;
+    MSPMetaboFile_friend() = default;
+    ~MSPMetaboFile_friend() = default;
 
     const MSSpectrum::StringDataArray& getStringDataArrayByName(
       const MSSpectrum& spectrum,
@@ -119,6 +119,6 @@ public:
       return msp_.getStringDataArrayByName(spectrum, name);
     }
 
-    TseMSPFile msp_;
+    MSPMetaboFile msp_;
   };
 }

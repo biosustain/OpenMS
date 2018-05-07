@@ -37,7 +37,7 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
-#include <OpenMS/FORMAT/TseMSPFile.h>
+#include <OpenMS/FORMAT/MSPMetaboFile.h>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -534,7 +534,7 @@ START_SECTION(matchSpectrum())
   TEST_EQUAL(extracted_spectra.size(), 18)
 
   MSExperiment library;
-  TseMSPFile mse(msp_path, library);
+  MSPMetaboFile mse(msp_path, library);
   TEST_EQUAL(library.getSpectra().size(), 2378)
   std::vector<std::pair<String,double>> matches;
 
@@ -553,7 +553,7 @@ START_SECTION(matchSpectrum())
         library_spectra.cend(),
         [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
       );
-      TseMSPFile_friend msp_f;
+      MSPMetaboFile_friend msp_f;
       for (const String& synon : msp_f.getStringDataArrayByName(*it, "Synon"))
       {
         cout << "    " << synon << endl;
