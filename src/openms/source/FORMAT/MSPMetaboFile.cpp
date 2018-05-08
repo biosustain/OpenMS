@@ -143,27 +143,40 @@ namespace OpenMS
     MSExperiment& experiment
   )
   {
+    if (!adding_spectrum)
+    {
+      return;
+    }
+
+    // Check that all required metadata (Name, Comments, Num Peaks) is present
+    // Num Peaks is checked later in the code (when verifying for the number of points parsed)
+    // getStringDataArrayByName(spectrum, "Comments"); // disabled because NIST library does not adhere
+    if (spectrum.getName().empty())
+    {
+      throw Exception::MissingInformation(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+        "The current spectrum misses the Name information.");
+    }
+
+    // Check that the spectrum is not a duplicate (i.e. already present in `experiment`)
     std::vector<String>& l = loaded_spectra_names_;
     const bool is_duplicate = std::find(l.cbegin(), l.cend(), spectrum.getName()) != l.cend();
 
-    if (adding_spectrum && !is_duplicate)
+    if (!is_duplicate)
     {
-      const MSSpectrum::StringDataArray& sda = getStringDataArrayByName(spectrum, "Num Peaks");
-      const String& num_peaks { sda.front() };
+      // Check that all expected points are parsed
+      const String& num_peaks { getStringDataArrayByName(spectrum, "Num Peaks").front() };
       if (spectrum.size() != std::stoul(num_peaks) )
       {
-        throw Exception::ParseError(
-          __FILE__,
-          __LINE__,
-          OPENMS_PRETTY_FUNCTION,
+        throw Exception::ParseError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
           num_peaks,
-          "Not all peaks could be parsed."
+          "The number of points parsed does not coincide with `Num Peaks`."
         );
       }
       experiment.addSpectrum(spectrum);
-      adding_spectrum = false;
       loaded_spectra_names_.push_back(spectrum.getName());
     }
+
+    adding_spectrum = false;
   };
 
   const MSSpectrum::StringDataArray& MSPMetaboFile::getStringDataArrayByName(
