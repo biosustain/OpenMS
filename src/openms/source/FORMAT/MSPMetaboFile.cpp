@@ -138,7 +138,7 @@ namespace OpenMS
   }
 
   void MSPMetaboFile::addSpectrumToExperiment(
-    const MSSpectrum& spectrum,
+    MSSpectrum& spectrum,
     bool& adding_spectrum,
     MSExperiment& experiment
   )
@@ -148,13 +148,22 @@ namespace OpenMS
       return;
     }
 
-    // Check that all required metadata (Name, Comments, Num Peaks) is present
+    // Check that required metadata (Name, Num Peaks) is present
     // Num Peaks is checked later in the code (when verifying for the number of points parsed)
-    // getStringDataArrayByName(spectrum, "Comments"); // disabled because NIST library does not adhere
     if (spectrum.getName().empty())
     {
       throw Exception::MissingInformation(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
         "The current spectrum misses the Name information.");
+    }
+
+    // Ensure Comments metadatum is present and, if not, set it to empty string
+    try
+    {
+      getStringDataArrayByName(spectrum, "Comments");
+    }
+    catch (const Exception::ElementNotFound& e)
+    {
+      pushParsedInfoToNamedDataArray(spectrum, "Comments", "");
     }
 
     // Check that the spectrum is not a duplicate (i.e. already present in `experiment`)

@@ -88,7 +88,7 @@ private:
       TODO: complete docs
     */
     void addSpectrumToExperiment(
-      const MSSpectrum& spectrum,
+      MSSpectrum& spectrum,
       bool& adding_spectrum,
       MSExperiment& experiment
     );
