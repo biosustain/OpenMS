@@ -72,7 +72,7 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
   MSPMetaboFile_friend msp_f;
   msp.load(input_filepath, experiment);
   const vector<MSSpectrum>& spectra = experiment.getSpectra();
-  TEST_EQUAL(spectra.size(), 2)
+  TEST_EQUAL(spectra.size(), 3)
 
   const MSSpectrum& s1 = spectra[0];
   TEST_EQUAL(s1.size(), 14)
@@ -115,6 +115,30 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
   TEST_EQUAL(s2[10].getIntensity(), 168)
   TEST_EQUAL(s2[14].getPos(), 310)
   TEST_EQUAL(s2[14].getIntensity(), 20)
+
+  const MSSpectrum& s3 = spectra[2];
+  TEST_EQUAL(s3.size(), 16)
+  TEST_EQUAL(s3.getName(), "name1 of third")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Synon")[0], "name2 of 3rd")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Synon")[1], "name3 of thirddd")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Formula")[0], "A12B12C123")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "MW")[0], "562")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "CAS#")[0], "4210-47-4")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "NIST#")[0], "749514")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "DB#")[0], "3")
+  // Verifying that Comments is present even if absent within the file
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Comments")[0], "")
+  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Num Peaks")[0], "16")
+  TEST_EQUAL(s3[0].getPos(), 27)
+  TEST_EQUAL(s3[0].getIntensity(), 29)
+  TEST_EQUAL(s3[5].getPos(), 260)
+  TEST_EQUAL(s3[5].getIntensity(), 41)
+  TEST_EQUAL(s3[10].getPos(), 290)
+  TEST_EQUAL(s3[10].getIntensity(), 168)
+  TEST_EQUAL(s3[14].getPos(), 310)
+  TEST_EQUAL(s3[14].getIntensity(), 20)
+  TEST_EQUAL(s3[15].getPos(), 111)
+  TEST_EQUAL(s3[15].getIntensity(), 44)
 }
 END_SECTION
 
