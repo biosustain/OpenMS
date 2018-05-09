@@ -145,15 +145,10 @@ namespace OpenMS
       const double rt_left_lim = spectrum_rt - rt_window_ / 2.0;
       const double rt_right_lim = spectrum_rt + rt_window_ / 2.0;
       const std::vector<Precursor> precursors = spectrum.getPrecursors();
-      if (precursors.size() < 1)
-      {
-        throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
-                                         "Spectrum does not contain precursor info.");
-      }
-      const double spectrum_mz = precursors[0].getMZ();
+      const double spectrum_mz = precursors.empty() ? 0.0 : precursors.front().getMZ();
       const double mz_tolerance = mz_unit_is_Da_ ? mz_tolerance_ : mz_tolerance_ / 1e6;
-      const double mz_left_lim = spectrum_mz - mz_tolerance;
-      const double mz_right_lim = spectrum_mz + mz_tolerance;
+      const double mz_left_lim = spectrum_mz ? spectrum_mz - mz_tolerance : std::numeric_limits<double>::min();
+      const double mz_right_lim = spectrum_mz ? spectrum_mz + mz_tolerance : std::numeric_limits<double>::max();
 
       LOG_DEBUG << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
 
