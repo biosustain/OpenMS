@@ -287,6 +287,12 @@ private:
       These will be the matches of highest scores, sorted in descending order.
     */
     Size top_matches_to_report_;
+
+    /// Bin size for binned spectral contrast angle similarity function
+    double bin_size_;
+
+    /// Peak spread for binned spectral contrast angle similarity function
+    double peak_spread_;
   };
 }
 

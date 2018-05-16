@@ -523,8 +523,8 @@ START_SECTION(matchSpectrum())
   params.setValue("GaussFilter:gaussian_width", 0.1);
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
-  params.setValue("peak_height_max", 9e10);
-  params.setValue("top_matches_to_report", 4);
+  params.setValue("peak_height_max", 100e10);
+  params.setValue("top_matches_to_report", 20);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
@@ -548,7 +548,7 @@ START_SECTION(matchSpectrum())
       const String& match_name { match.first };
       const double match_score { match.second };
       cout << "----------------------------------------------------------------" << endl;
-      cout << match_name << " \t " << match_score << endl;
+      cout << match_name << " \t " << match_score;
       const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
       std::vector<MSSpectrum>::const_iterator it = std::find_if(
         library_spectra.cbegin(),
@@ -556,9 +556,19 @@ START_SECTION(matchSpectrum())
         [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
       );
       MSPMetaboFile_friend msp_f;
-      for (const String& synon : msp_f.getStringDataArrayByName(*it, "Synon"))
+      vector<String> synonyms;
+      try
       {
-        cout << "    " << synon << endl;
+        synonyms = msp_f.getStringDataArrayByName(*it, "Synon");
+      }
+      catch (const Exception::ElementNotFound& e)
+      {
+        // do nothing
+      }
+      cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
+      for (const String& synon : synonyms)
+      {
+        cout << synon << endl;
       }
     }
     cout << "################################################################\n\n" << endl;

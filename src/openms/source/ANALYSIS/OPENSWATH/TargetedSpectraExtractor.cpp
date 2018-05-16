@@ -72,6 +72,8 @@ namespace OpenMS
     snr_weight_ = (double)param_.getValue("snr_weight");
     similarity_function_ = (String)param_.getValue("similarity_function");
     top_matches_to_report_ = (Size)param_.getValue("top_matches_to_report");
+    bin_size_ = (double)param_.getValue("bin_size");
+    peak_spread_ = (double)param_.getValue("peak_spread");
   }
 
   void TargetedSpectraExtractor::getDefaultParameters(Param& params)
@@ -143,6 +145,20 @@ namespace OpenMS
       "These will be the matches of highest scores, sorted in descending order."
     );
     params.setMinInt("top_matches_to_report", 1);
+
+    params.setValue(
+      "bin_size",
+      1.0,
+      "Bin size for binned spectral contrast angle similarity function."
+    );
+    params.setMinFloat("bin_size", 0.0); // TODO: specify a better minimum?
+
+    params.setValue(
+      "peak_spread",
+      0.0,
+      "Peak spread for binned spectral contrast angle similarity function."
+    );
+    params.setMinFloat("peak_spread", 0.0);
   }
 
   void TargetedSpectraExtractor::annotateSpectra(
@@ -451,9 +467,8 @@ namespace OpenMS
     {
       if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
       {
-        const double bin_size = (s.back().getPos() - s.front().getPos()) / s.size() / 4.0; // NOTE: magic value
-        const BinnedSpectrum bs1 (input_spectrum, bin_size, false, 2); // NOTE: magic value
-        const BinnedSpectrum bs2 (s, bin_size, false, 2); // NOTE: magic value
+        const BinnedSpectrum bs1 (input_spectrum, bin_size_, false, peak_spread_);
+        const BinnedSpectrum bs2 (s, bin_size_, false, peak_spread_);
         BinnedSpectralContrastAngle cmp;
         scores_map.insert( {s.getName(), cmp(bs1, bs2)} );
       }
@@ -482,6 +497,7 @@ namespace OpenMS
     );
 
     // Output the best matches
+    // TODO: make sure there are enough (at least top_matches_ro_report_ elements)
     matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + top_matches_to_report_);
   }
 }
