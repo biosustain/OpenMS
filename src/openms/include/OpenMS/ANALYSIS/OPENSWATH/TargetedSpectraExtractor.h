@@ -78,6 +78,15 @@ public:
     TargetedSpectraExtractor();
     virtual ~TargetedSpectraExtractor();
 
+    /** @name Constant expressions for parameters
+      
+        Constants expressions used throughout the code and tests.
+    */
+    ///@{
+    /// Similarity function: binned spectral contrast angle
+    static constexpr const char* BINNED_SPECTRAL_CONTRAST_ANGLE = "BinnedSpectralContrastAngle";
+    ///@}
+
     void getDefaultParameters(Param& params);
 
     /**
@@ -191,6 +200,20 @@ public:
       FeatureMap& extracted_features
     );
 
+    /**
+      @brief Searches the spectral library for the top scoring candidates that
+      match the input spectrum.
+
+      @param[in] input_spectrum The input spectrum for which a match is desired
+      @param[in] experiment The library with spectra information
+      @param[out] matches Pairs of spectra name and score
+    */
+    void matchSpectrum(
+      const MSSpectrum& input_spectrum,
+      const MSExperiment& experiment,
+      std::vector<std::pair<String,double>>& matches
+    ) const;
+
 protected:
     /// Overridden function from DefaultParamHandler to keep members up to date, when a parameter is changed
     void updateMembers_();
@@ -255,6 +278,21 @@ private:
       By default the Gauss filter is selected. Set to false for the Savitzky-Golay method.
     */
     bool use_gauss_;
+
+    /// Similarity function to compare spectra in `matchSpectrum()`
+    String similarity_function_;
+
+    /**
+      The number of matches to output from `matchSpectrum()`.
+      These will be the matches of highest scores, sorted in descending order.
+    */
+    Size top_matches_to_report_;
+
+    /// Bin size for binned spectral contrast angle similarity function
+    double bin_size_;
+
+    /// Peak spread for binned spectral contrast angle similarity function
+    double peak_spread_;
   };
 }
 

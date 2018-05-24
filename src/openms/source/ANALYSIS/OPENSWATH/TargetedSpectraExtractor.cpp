@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
-
-#include <boost/unordered_map.hpp> 
+#include <OpenMS/COMPARISON/SPECTRA/BinnedSpectralContrastAngle.h>
 
 namespace OpenMS
 {
@@ -71,6 +70,10 @@ namespace OpenMS
     tic_weight_ = (double)param_.getValue("tic_weight");
     fwhm_weight_ = (double)param_.getValue("fwhm_weight");
     snr_weight_ = (double)param_.getValue("snr_weight");
+    similarity_function_ = (String)param_.getValue("similarity_function");
+    top_matches_to_report_ = (Size)param_.getValue("top_matches_to_report");
+    bin_size_ = (double)param_.getValue("bin_size");
+    peak_spread_ = (double)param_.getValue("peak_spread");
   }
 
   void TargetedSpectraExtractor::getDefaultParameters(Param& params)
@@ -126,6 +129,36 @@ namespace OpenMS
     params.setMinFloat("fwhm_weight", 0.0);
     params.setValue("snr_weight", 1.0, "SNR weight when scoring spectra.");
     params.setMinFloat("snr_weight", 0.0);
+
+    params.setValue(
+      "similarity_function",
+      BINNED_SPECTRAL_CONTRAST_ANGLE,
+      "Similarity function to use when comparing the input spectrum against "
+      "spectra present in a library."
+    );
+    params.setValidStrings("similarity_function", ListUtils::create<String>(BINNED_SPECTRAL_CONTRAST_ANGLE));
+
+    params.setValue(
+      "top_matches_to_report",
+      5,
+      "The number of matches to output from `matchSpectrum()`. "
+      "These will be the matches of highest scores, sorted in descending order."
+    );
+    params.setMinInt("top_matches_to_report", 1);
+
+    params.setValue(
+      "bin_size",
+      1.0,
+      "Bin size for binned spectral contrast angle similarity function."
+    );
+    params.setMinFloat("bin_size", 0.0); // TODO: specify a better minimum?
+
+    params.setValue(
+      "peak_spread",
+      0.0,
+      "Peak spread for binned spectral contrast angle similarity function."
+    );
+    params.setMinFloat("peak_spread", 0.0);
   }
 
   void TargetedSpectraExtractor::annotateSpectra(
@@ -145,15 +178,10 @@ namespace OpenMS
       const double rt_left_lim = spectrum_rt - rt_window_ / 2.0;
       const double rt_right_lim = spectrum_rt + rt_window_ / 2.0;
       const std::vector<Precursor> precursors = spectrum.getPrecursors();
-      if (precursors.size() < 1)
-      {
-        throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
-                                         "Spectrum does not contain precursor info.");
-      }
-      const double spectrum_mz = precursors[0].getMZ();
+      const double spectrum_mz = precursors.empty() ? 0.0 : precursors.front().getMZ();
       const double mz_tolerance = mz_unit_is_Da_ ? mz_tolerance_ : mz_tolerance_ / 1e6;
-      const double mz_left_lim = spectrum_mz - mz_tolerance;
-      const double mz_right_lim = spectrum_mz + mz_tolerance;
+      const double mz_left_lim = spectrum_mz ? spectrum_mz - mz_tolerance : std::numeric_limits<double>::min();
+      const double mz_right_lim = spectrum_mz ? spectrum_mz + mz_tolerance : std::numeric_limits<double>::max();
 
       LOG_DEBUG << "[" << i << "]\trt: " << spectrum_rt << "\tmz: " << spectrum_mz << std::endl;
 
@@ -425,5 +453,51 @@ namespace OpenMS
     scoreSpectra(annotated, picked, features, scored);
 
     selectSpectra(scored, features, extracted_spectra, extracted_features);
+  }
+
+  void TargetedSpectraExtractor::matchSpectrum(
+    const MSSpectrum& input_spectrum,
+    const MSExperiment& experiment,
+    std::vector<std::pair<String,double>>& matches
+  ) const
+  {
+    matches.clear();
+    std::map<String,double> scores_map;
+    for (const MSSpectrum& s : experiment.getSpectra())
+    {
+      if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
+      {
+        const BinnedSpectrum bs1 (input_spectrum, bin_size_, false, peak_spread_);
+        const BinnedSpectrum bs2 (s, bin_size_, false, peak_spread_);
+        BinnedSpectralContrastAngle cmp;
+        scores_map.insert( {s.getName(), cmp(bs1, bs2)} );
+      }
+    }
+
+    std::vector<std::pair<String,double>> scores_vec;
+
+    // Convert from map to vector, so that we can sort the matches by their score
+    std::for_each(
+      scores_map.cbegin(),
+      scores_map.cend(),
+      [&scores_vec](const std::pair<String,double>& p)
+      {
+        scores_vec.push_back(p);
+      }
+    );
+
+    // Sort the vector of scores
+    std::sort(
+      scores_vec.begin(),
+      scores_vec.end(),
+      [](const std::pair<String,double> a, const std::pair<String,double> b)
+      {
+        return a.second > b.second;
+      }
+    );
+
+    // Output the best matches
+    // TODO: make sure there are enough (at least top_matches_ro_report_ elements)
+    matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + top_matches_to_report_);
   }
 }

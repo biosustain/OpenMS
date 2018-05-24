@@ -36,6 +36,7 @@ MRMFeatureQCFile.cpp
 MS2File.cpp
 MSNumpressCoder.cpp
 MSPFile.cpp
+MSPMetaboFile.cpp
 MascotInfile.cpp
 MascotGenericFile.cpp
 MascotRemoteQuery.cpp

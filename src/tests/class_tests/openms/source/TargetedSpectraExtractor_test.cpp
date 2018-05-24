@@ -37,6 +37,7 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
+#include <OpenMS/FORMAT/MSPMetaboFile.h>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -147,6 +148,8 @@ START_SECTION(getParameters())
   TEST_EQUAL(params.getValue("tic_weight"), 1.0)
   TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
   TEST_EQUAL(params.getValue("snr_weight"), 1.0)
+  TEST_EQUAL(params.getValue("similarity_function"), "BinnedSpectralContrastAngle")
+  TEST_EQUAL(params.getValue("top_matches_to_report"), 5)
 }
 END_SECTION
 
@@ -496,6 +499,79 @@ START_SECTION(extractSpectra())
   for (Size i=0; i<extracted_spectra.size(); ++i)
   {
     STATUS(extracted_spectra[i].getName() << "\t" << extracted_features[i].getIntensity())
+  }
+}
+END_SECTION
+
+START_SECTION(matchSpectrum())
+{
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS_fullScan.mzML");
+  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
+  MzMLFile mzml;
+  MSExperiment experiment1;
+  TransitionTSVFile tsv_reader;
+  TargetedExperiment targeted_exp;
+  mzml.load(gcms_fullscan_path, experiment1);
+  Param tsv_params = tsv_reader.getParameters();
+  tsv_params.setValue("retentionTimeInterpretation", "seconds");
+  tsv_reader.setParameters(tsv_params);
+  tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
+  TargetedSpectraExtractor tse;
+  Param params = tse.getParameters();
+  params.setValue("min_score", 0.1);
+  params.setValue("GaussFilter:gaussian_width", 0.1);
+  params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
+  params.setValue("peak_height_min", 0.0);
+  params.setValue("peak_height_max", 100e10);
+  params.setValue("top_matches_to_report", 20);
+  tse.setParameters(params);
+
+  vector<MSSpectrum> extracted_spectra;
+  FeatureMap extracted_features;
+  tse.extractSpectra(experiment1, targeted_exp, extracted_spectra, extracted_features);
+
+  TEST_EQUAL(extracted_spectra.size(), 18)
+
+  MSExperiment library;
+  MSPMetaboFile mse(msp_path, library);
+  TEST_EQUAL(library.getSpectra().size(), 2378)
+  std::vector<std::pair<String,double>> matches;
+
+  for (const MSSpectrum & spectrum : extracted_spectra)
+  {
+    tse.matchSpectrum(spectrum, library, matches);
+    cout << "################################################################" << endl;
+    cout << "Extracted spectrum: " << spectrum.getName() << "\nMatches:" << endl;
+    for (std::pair<String, double> const & match : matches)
+    {
+      const String& match_name { match.first };
+      const double match_score { match.second };
+      cout << "----------------------------------------------------------------" << endl;
+      cout << match_name << " \t " << match_score;
+      const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
+      std::vector<MSSpectrum>::const_iterator it = std::find_if(
+        library_spectra.cbegin(),
+        library_spectra.cend(),
+        [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
+      );
+      MSPMetaboFile_friend msp_f;
+      vector<String> synonyms;
+      try
+      {
+        synonyms = msp_f.getStringDataArrayByName(*it, "Synon");
+      }
+      catch (const Exception::ElementNotFound& e)
+      {
+        // do nothing
+      }
+      cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
+      for (const String& synon : synonyms)
+      {
+        cout << synon << endl;
+      }
+    }
+    cout << "################################################################\n\n" << endl;
   }
 }
 END_SECTION
