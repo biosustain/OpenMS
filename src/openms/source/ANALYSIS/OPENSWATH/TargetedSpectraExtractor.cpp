@@ -457,13 +457,13 @@ namespace OpenMS
 
   void TargetedSpectraExtractor::matchSpectrum(
     const MSSpectrum& input_spectrum,
-    const MSExperiment& experiment,
+    const MSExperiment& library,
     std::vector<std::pair<String,double>>& matches
   ) const
   {
     matches.clear();
     std::map<String,double> scores_map;
-    for (const MSSpectrum& s : experiment.getSpectra())
+    for (const MSSpectrum& s : library.getSpectra())
     {
       if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
       {
