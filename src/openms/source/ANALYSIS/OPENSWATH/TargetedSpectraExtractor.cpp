@@ -497,7 +497,7 @@ namespace OpenMS
     );
 
     // Output the best matches
-    // TODO: make sure there are enough (at least top_matches_ro_report_ elements)
-    matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + top_matches_to_report_);
+    const Size n = std::min(top_matches_to_report_, scores_vec.size());
+    matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + n);
   }
 }
