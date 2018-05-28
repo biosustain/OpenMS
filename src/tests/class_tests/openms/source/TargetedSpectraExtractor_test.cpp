@@ -43,6 +43,41 @@
 using namespace OpenMS;
 using namespace std;
 
+bool matchIsValid(const String& spectrum_name, const String& match_name)
+{
+  std::vector<std::pair<String,String>> expected
+  {
+    {"Pyruvate_174", "Propanoic acid, 2-(methoxyimino)-, trimethylsilyl ester"},
+    {"Lactate_219", "Propanoic acid, 2-[(trimethylsilyl)oxy]-, trimethylsilyl ester"},
+    {"Succinate_247", "Butanedioic acid, bis(trimethylsilyl) ester"},
+    {"Fumarate_245", "2-Butenedioic acid (E)-, bis(trimethylsilyl) ester"},
+    {"Malate_245", "Butanedioic acid, [(trimethylsilyl)oxy]-, bis(trimethylsilyl) ester"},
+    {"Erythritol_307", "meso-Erythritol, tetrakis(trimethylsilyl) ether"},
+    {"aKG_304", "Pentanedioic acid, 2-(methoxyimino)-, bis(trimethylsilyl) ester"},
+    {"PEP_370", "2-Propenoic acid, 2-[(trimethylsilyl)oxy]-, anhydride with bis(trimethylsilyl) hydrogen phosphate"},
+    {"GAP_328", "Phosphoric acid, 3-(methoxyimino)-2-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester, (±)-"},
+    {"DHAP_400", "Phosphoric acid, 2-(methoxyimino)-3-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester"},
+    {"G3P_445", "Phosphoric acid, bis(trimethylsilyl) 2,3-bis[(trimethylsilyl)oxy]propyl ester"},
+    {"3PG_459", "3,5-Dioxa-4-phospha-2-silaoctan-8-oic acid, 2,2-dimethyl-4,7-bis[(trimethylsilyl)oxy]-, trimethylsilyl ester, 4-oxide"},
+    {"Citrate_465", "1,2,3-Propanetricarboxylic acid, 2-[(trimethylsilyl)oxy]-, tris(trimethylsilyl) ester"},
+    {"E4P_217", "Phosphorimidic acid, N-methoxy-, 4-oxo-2,3-bis[(trimethylsilyl)oxy]butyl bis(trimethylsilyl) ester, ["},
+    // {"ribulose-5-phosphate", "D-erythro-2-Pentulose, 1,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
+    {"R5P_160", "D-Ribose, 2,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
+    {"F6P_217", "d-Fructose, 1,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
+    {"G6P_160", "d-Glucose, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
+    // {"6-phosphogluconate", "Gluconic acid, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, trimethylsilyl ester, bis(trimethylsilyl) phosphate, D-"},
+    {"S7P_357", "D-Altro-2-Heptulose, 1,3,4,5,6-pentakis-O-(trimethylsilyl)-, O-methyloxime, 7-[bis(trimethylsilyl) phosphate]"},
+  };
+  vector<pair<String,String>>::const_iterator it = find_if(expected.cbegin(), expected.cend(),
+    [&spectrum_name] (const pair<String,String>& p)
+    {
+      const String& expected_name = p.first;
+      return spectrum_name == expected_name;
+    });
+  if (it == expected.cend()) return false;
+  return it->second == match_name;
+}
+
 START_TEST(TargetedSpectraExtractor, "$Id$")
 
 /////////////////////////////////////////////////////////////
@@ -507,7 +542,8 @@ START_SECTION(matchSpectrum())
 {
   const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS_fullScan.mzML");
-  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
+  // const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
+  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("traML_RT.csv");
   MzMLFile mzml;
   MSExperiment experiment1;
   TransitionTSVFile tsv_reader;
@@ -519,12 +555,13 @@ START_SECTION(matchSpectrum())
   tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
+  params.setValue("rt_window", 2.0);
   params.setValue("min_score", 0.1);
   params.setValue("GaussFilter:gaussian_width", 0.1);
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
   params.setValue("peak_height_max", 100e10);
-  params.setValue("top_matches_to_report", 20);
+  params.setValue("top_matches_to_report", 2398);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
@@ -541,37 +578,44 @@ START_SECTION(matchSpectrum())
   for (const MSSpectrum & spectrum : extracted_spectra)
   {
     tse.matchSpectrum(spectrum, library, matches);
-    cout << "################################################################" << endl;
-    cout << "Extracted spectrum: " << spectrum.getName() << "\nMatches:" << endl;
-    for (std::pair<String, double> const & match : matches)
+    const String& spectrum_name = spectrum.getName();
+    bool valid { false };
+    Size i { 0 };
+    cout << "Verifying spectrum " << spectrum_name << " ... \t";
+    for (; i < matches.size() && !valid; ++i)
     {
-      const String& match_name { match.first };
-      const double match_score { match.second };
-      cout << "----------------------------------------------------------------" << endl;
-      cout << match_name << " \t " << match_score << endl;
-      const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
-      std::vector<MSSpectrum>::const_iterator it = std::find_if(
-        library_spectra.cbegin(),
-        library_spectra.cend(),
-        [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
-      );
-      MSPMetaboFile_friend msp_f;
-      vector<String> synonyms;
-      try
-      {
-        synonyms = msp_f.getStringDataArrayByName(*it, "Synon");
-      }
-      catch (const Exception::ElementNotFound& e)
-      {
-        // do nothing
-      }
-      // cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
-      for (const String& synon : synonyms)
-      {
-        cout << synon << endl;
-      }
+      // const String& match_name { match.first };
+      // const double match_score { match.second };
+      // cout << "----------------------------------------------------------------" << endl;
+      // cout << match_name << " \t " << match_score << endl;
+      // const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
+      // std::vector<MSSpectrum>::const_iterator it = std::find_if(
+      //   library_spectra.cbegin(),
+      //   library_spectra.cend(),
+      //   [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
+      // );
+      // MSPMetaboFile_friend msp_f;
+      // vector<String> synonyms;
+      // try
+      // {
+      //   synonyms = msp_f.getStringDataArrayByName(*it, "Synon");
+      // }
+      // catch (const Exception::ElementNotFound& e)
+      // {
+      //   // do nothing
+      // }
+      // // cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
+      // for (const String& synon : synonyms)
+      // {
+      //   cout << synon << endl;
+      // }
+      const String& match_name = matches[i].first;
+      valid = matchIsValid(spectrum_name, match_name);
     }
-    cout << "################################################################\n\n" << endl;
+    if (valid)
+      cout << "PASS [" << i << "] [first score: " << matches.front().second << "] [match score: " << matches[i].second << "]" << endl;
+    else
+      cout << "FAIL " << matches.front().second << endl;
   }
 }
 END_SECTION
