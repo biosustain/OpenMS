@@ -535,7 +535,7 @@ START_SECTION(matchSpectrum())
 
   MSExperiment library;
   MSPMetaboFile mse(msp_path, library);
-  TEST_EQUAL(library.getSpectra().size(), 2378)
+  TEST_EQUAL(library.getSpectra().size(), 2398)
   std::vector<std::pair<String,double>> matches;
 
   for (const MSSpectrum & spectrum : extracted_spectra)
@@ -548,7 +548,7 @@ START_SECTION(matchSpectrum())
       const String& match_name { match.first };
       const double match_score { match.second };
       cout << "----------------------------------------------------------------" << endl;
-      cout << match_name << " \t " << match_score;
+      cout << match_name << " \t " << match_score << endl;
       const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
       std::vector<MSSpectrum>::const_iterator it = std::find_if(
         library_spectra.cbegin(),
@@ -565,7 +565,7 @@ START_SECTION(matchSpectrum())
       {
         // do nothing
       }
-      cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
+      // cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
       for (const String& synon : synonyms)
       {
         cout << synon << endl;
