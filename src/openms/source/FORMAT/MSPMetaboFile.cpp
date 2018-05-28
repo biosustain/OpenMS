@@ -47,6 +47,7 @@ namespace OpenMS
 
   void MSPMetaboFile::load(const String& filename, MSExperiment& experiment)
   {
+    loaded_spectra_names_.clear();
     std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())
     {
