@@ -37,6 +37,7 @@
 #include <OpenMS/KERNEL/SpectrumHelper.h>
 #include <fstream>
 #include <regex>
+// #include <ctime>
 
 namespace OpenMS
 {
@@ -47,6 +48,9 @@ namespace OpenMS
 
   void MSPMetaboFile::load(const String& filename, MSExperiment& experiment)
   {
+    // std::clock_t start;
+    // start = std::clock();
+    LOG_INFO << "\nLoading spectra from .msp file..." << std::endl;
     loaded_spectra_names_.clear();
     std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())
@@ -70,22 +74,8 @@ namespace OpenMS
     while (!ifs.eof())
     {
       ifs.getline(line, BUFSIZE);
-      if (std::regex_search(line, m, re_name))
-      {
-        LOG_DEBUG << std::endl << std::endl << "Name: " << m[1] << std::endl;
-        spectrum.clear(true);
-        spectrum.setName( String(m[1]) );
-        adding_spectrum = true;
-      }
-      else if (std::regex_search(line, m, re_comments))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "Comments", String(m[1]));
-      }
-      else if (std::regex_search(line, m, re_num_peaks))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "Num Peaks", String(m[1]));
-      }
-      else if (std::regex_search(line, m, re_points_line))
+      // peaks
+      if (std::regex_search(line, m, re_points_line))
       {
         LOG_DEBUG << "re_points_line" << std::endl;
         std::regex_search(line, m, re_point);
@@ -97,6 +87,26 @@ namespace OpenMS
           LOG_DEBUG << position << " " << intensity << "; ";
         } while ( std::regex_search(m[0].second, m, re_point) );
       }
+      // Name
+      else if (std::regex_search(line, m, re_name))
+      {
+        addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
+        LOG_DEBUG << std::endl << std::endl << "Name: " << m[1] << std::endl;
+        spectrum.clear(true);
+        spectrum.setName( String(m[1]) );
+        adding_spectrum = true;
+      }
+      // Comments
+      else if (std::regex_search(line, m, re_comments))
+      {
+        pushParsedInfoToNamedDataArray(spectrum, "Comments", String(m[1]));
+      }
+      // Num Peaks
+      else if (std::regex_search(line, m, re_num_peaks))
+      {
+        pushParsedInfoToNamedDataArray(spectrum, "Num Peaks", String(m[1]));
+      }
+      // other metadata
       else if (std::regex_search(line, m, re_metadatum))
       {
         pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
@@ -105,15 +115,12 @@ namespace OpenMS
           pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
         }
       }
-      else if (line[0] == '\r' || line[0] == '\n')
-      {
-        LOG_DEBUG << std::endl << "empty_line" << std::endl;
-        addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
-      }
     }
     // To make sure a spectrum is added even if no empty line is present before EOF
     addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
     ifs.close();
+    LOG_INFO << "Loading spectra from .msp file completed." << std::endl;
+    // std::cout<< "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
   void MSPMetaboFile::pushParsedInfoToNamedDataArray(
@@ -184,6 +191,11 @@ namespace OpenMS
       }
       experiment.addSpectrum(spectrum);
       loaded_spectra_names_.push_back(spectrum.getName());
+      // TODO: Remove the following if
+      if (loaded_spectra_names_.size() % 10000 == 0)
+      {
+        LOG_INFO << "Loaded " << loaded_spectra_names_.size() << " spectra..." << std::endl;
+      }
     }
 
     adding_spectrum = false;
