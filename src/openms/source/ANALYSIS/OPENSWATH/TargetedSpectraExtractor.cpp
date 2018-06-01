@@ -506,18 +506,31 @@ namespace OpenMS
     const MSSpectrum& input_spectrum,
     const MSExperiment& library,
     std::vector<std::pair<String,double>>& matches
-  ) const
+  )
   {
     matches.clear();
-    std::map<String,double> scores_map;
+    std::unordered_map<std::string,double> scores_map;
+
+    // Spectral Contrast Angle
+    BinnedSpectralContrastAngle cmp_bs;
+    const BinnedSpectrum input_spectrum_bs(input_spectrum, bin_size_, false, peak_spread_);
+
     for (const MSSpectrum& s : library.getSpectra())
     {
       if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
       {
-        const BinnedSpectrum bs1 (input_spectrum, bin_size_, false, peak_spread_);
-        const BinnedSpectrum bs2 (s, bin_size_, false, peak_spread_);
-        BinnedSpectralContrastAngle cmp;
-        scores_map.insert( {s.getName(), cmp(bs1, bs2)} );
+        const String match_name_bs = s.getName() + String(bin_size_) + String(peak_spread_);
+        std::unordered_map<std::string,BinnedSpectrum>::const_iterator it = bs_library_.find(match_name_bs);
+        if (it != bs_library_.end()) // `BinnedSpectrum` representation already exists
+        {
+          scores_map.insert( {s.getName(), cmp_bs(input_spectrum_bs, it->second)} );
+        }
+        else // `BinnedSpectrum` representation doesn't exist, yet. Create it.
+        {
+          const BinnedSpectrum match_bs(s, bin_size_, false, peak_spread_);
+          bs_library_.insert( {match_name_bs, match_bs} );
+          scores_map.insert( {s.getName(), cmp_bs(input_spectrum_bs, match_bs)} );
+        }
       }
     }
 
@@ -537,7 +550,7 @@ namespace OpenMS
     std::sort(
       scores_vec.begin(),
       scores_vec.end(),
-      [](const std::pair<String,double> a, const std::pair<String,double> b)
+      [](const std::pair<String,double>& a, const std::pair<String,double>& b)
       {
         return a.second > b.second;
       }

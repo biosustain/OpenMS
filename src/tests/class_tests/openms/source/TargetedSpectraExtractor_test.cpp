@@ -37,47 +37,107 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
-#include <OpenMS/FORMAT/MSPMetaboFile.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVFile.h>
+#include <OpenMS/FORMAT/MSPMetaboFile.h>
 #include <OpenMS/FORMAT/MzMLFile.h>
+#include <OpenMS/FORMAT/TextFile.h>
 ///////////////////////////
 
 using namespace OpenMS;
 using namespace std;
 
+vector<pair<String,String>> expected_
+{
+  {"Pyruvate_174", "Propanoic acid, 2-(methoxyimino)-, trimethylsilyl ester"},
+  {"Lactate_219", "Propanoic acid, 2-[(trimethylsilyl)oxy]-, trimethylsilyl ester"},
+  {"Succinate_247", "Butanedioic acid, bis(trimethylsilyl) ester"},
+  {"Fumarate_245", "2-Butenedioic acid (E)-, bis(trimethylsilyl) ester"},
+  {"Malate_245", "Butanedioic acid, [(trimethylsilyl)oxy]-, bis(trimethylsilyl) ester"},
+  {"Erythritol_307", "meso-Erythritol, tetrakis(trimethylsilyl) ether"},
+  {"aKG_304", "Pentanedioic acid, 2-(methoxyimino)-, bis(trimethylsilyl) ester"},
+  {"PEP_370", "2-Propenoic acid, 2-[(trimethylsilyl)oxy]-, anhydride with bis(trimethylsilyl) hydrogen phosphate"},
+  {"GAP_328", "Phosphoric acid, 3-(methoxyimino)-2-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester, (.+/-.)-"},
+  {"DHAP_400", "Phosphoric acid, 2-(methoxyimino)-3-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester"},
+  {"G3P_445", "Phosphoric acid, bis(trimethylsilyl) 2,3-bis[(trimethylsilyl)oxy]propyl ester"},
+  {"3PG_459", "3,5-Dioxa-4-phospha-2-silaoctan-8-oic acid, 2,2-dimethyl-4,7-bis[(trimethylsilyl)oxy]-, trimethylsilyl ester, 4-oxide"},
+  {"Citrate_465", "1,2,3-Propanetricarboxylic acid, 2-[(trimethylsilyl)oxy]-, tris(trimethylsilyl) ester"},
+  {"E4P_217", "Phosphorimidic acid, N-methoxy-, 4-oxo-2,3-bis[(trimethylsilyl)oxy]butyl bis(trimethylsilyl) ester, [R-(R*,R*)]-"},
+  // {"ribulose-5-phosphate", "D-erythro-2-Pentulose, 1,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
+  {"R5P_160", "D-Ribose, 2,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
+  {"F6P_217", "d-Fructose, 1,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
+  {"G6P_160", "d-Glucose, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
+  // {"6-phosphogluconate", "Gluconic acid, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, trimethylsilyl ester, bis(trimethylsilyl) phosphate, D-"},
+  {"S7P_357", "D-Altro-2-Heptulose, 1,3,4,5,6-pentakis-O-(trimethylsilyl)-, O-methyloxime, 7-[bis(trimethylsilyl) phosphate]"},
+  {"Pyruvate", "Propanoic acid, 2-(methoxyimino)-, trimethylsilyl ester"},
+  {"Lactate", "Propanoic acid, 2-[(trimethylsilyl)oxy]-, trimethylsilyl ester"},
+  {"Succinate", "Butanedioic acid, bis(trimethylsilyl) ester"},
+  {"Fumarate", "2-Butenedioic acid (E)-, bis(trimethylsilyl) ester"},
+  {"Malate", "Butanedioic acid, [(trimethylsilyl)oxy]-, bis(trimethylsilyl) ester"},
+  {"Erythritol", "meso-Erythritol, tetrakis(trimethylsilyl) ether"},
+  {"aKG", "Pentanedioic acid, 2-(methoxyimino)-, bis(trimethylsilyl) ester"},
+  {"PEP", "2-Propenoic acid, 2-[(trimethylsilyl)oxy]-, anhydride with bis(trimethylsilyl) hydrogen phosphate"},
+  {"GAP", "Phosphoric acid, 3-(methoxyimino)-2-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester, (.+/-.)-"},
+  {"DHAP", "Phosphoric acid, 2-(methoxyimino)-3-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester"},
+  {"G3P", "Phosphoric acid, bis(trimethylsilyl) 2,3-bis[(trimethylsilyl)oxy]propyl ester"},
+  {"3PG", "3,5-Dioxa-4-phospha-2-silaoctan-8-oic acid, 2,2-dimethyl-4,7-bis[(trimethylsilyl)oxy]-, trimethylsilyl ester, 4-oxide"},
+  {"Citrate", "1,2,3-Propanetricarboxylic acid, 2-[(trimethylsilyl)oxy]-, tris(trimethylsilyl) ester"},
+  {"E4P", "Phosphorimidic acid, N-methoxy-, 4-oxo-2,3-bis[(trimethylsilyl)oxy]butyl bis(trimethylsilyl) ester, [R-(R*,R*)]-"},
+  {"R5P", "D-Ribose, 2,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
+  {"F6P", "d-Fructose, 1,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
+  {"G6P", "d-Glucose, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
+  {"S7P", "D-Altro-2-Heptulose, 1,3,4,5,6-pentakis-O-(trimethylsilyl)-, O-methyloxime, 7-[bis(trimethylsilyl) phosphate]"},
+};
+
 bool matchIsValid(const String& spectrum_name, const String& match_name)
 {
-  std::vector<std::pair<String,String>> expected
-  {
-    {"Pyruvate_174", "Propanoic acid, 2-(methoxyimino)-, trimethylsilyl ester"},
-    {"Lactate_219", "Propanoic acid, 2-[(trimethylsilyl)oxy]-, trimethylsilyl ester"},
-    {"Succinate_247", "Butanedioic acid, bis(trimethylsilyl) ester"},
-    {"Fumarate_245", "2-Butenedioic acid (E)-, bis(trimethylsilyl) ester"},
-    {"Malate_245", "Butanedioic acid, [(trimethylsilyl)oxy]-, bis(trimethylsilyl) ester"},
-    {"Erythritol_307", "meso-Erythritol, tetrakis(trimethylsilyl) ether"},
-    {"aKG_304", "Pentanedioic acid, 2-(methoxyimino)-, bis(trimethylsilyl) ester"},
-    {"PEP_370", "2-Propenoic acid, 2-[(trimethylsilyl)oxy]-, anhydride with bis(trimethylsilyl) hydrogen phosphate"},
-    {"GAP_328", "Phosphoric acid, 3-(methoxyimino)-2-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester, (±)-"},
-    {"DHAP_400", "Phosphoric acid, 2-(methoxyimino)-3-[(trimethylsilyl)oxy]propyl bis(trimethylsilyl) ester"},
-    {"G3P_445", "Phosphoric acid, bis(trimethylsilyl) 2,3-bis[(trimethylsilyl)oxy]propyl ester"},
-    {"3PG_459", "3,5-Dioxa-4-phospha-2-silaoctan-8-oic acid, 2,2-dimethyl-4,7-bis[(trimethylsilyl)oxy]-, trimethylsilyl ester, 4-oxide"},
-    {"Citrate_465", "1,2,3-Propanetricarboxylic acid, 2-[(trimethylsilyl)oxy]-, tris(trimethylsilyl) ester"},
-    {"E4P_217", "Phosphorimidic acid, N-methoxy-, 4-oxo-2,3-bis[(trimethylsilyl)oxy]butyl bis(trimethylsilyl) ester, ["},
-    // {"ribulose-5-phosphate", "D-erythro-2-Pentulose, 1,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
-    {"R5P_160", "D-Ribose, 2,3,4-tris-O-(trimethylsilyl)-, O-methyloxime, 5-[bis(trimethylsilyl) phosphate]"},
-    {"F6P_217", "d-Fructose, 1,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
-    {"G6P_160", "d-Glucose, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, o-methyloxime, 6-[bis(trimethylsilyl) phosphate]"},
-    // {"6-phosphogluconate", "Gluconic acid, 2,3,4,5-tetrakis-O-(trimethylsilyl)-, trimethylsilyl ester, bis(trimethylsilyl) phosphate, D-"},
-    {"S7P_357", "D-Altro-2-Heptulose, 1,3,4,5,6-pentakis-O-(trimethylsilyl)-, O-methyloxime, 7-[bis(trimethylsilyl) phosphate]"},
-  };
-  vector<pair<String,String>>::const_iterator it = find_if(expected.cbegin(), expected.cend(),
+  vector<pair<String,String>>::const_iterator it = find_if(expected_.cbegin(), expected_.cend(),
     [&spectrum_name] (const pair<String,String>& p)
     {
       const String& expected_name = p.first;
       return spectrum_name == expected_name;
     });
-  if (it == expected.cend()) return false;
+  if (it == expected_.cend()) return false;
   return it->second == match_name;
+}
+
+void createTabularSpectra(const String& filename, const vector<MSSpectrum>& spectra)
+{
+  TextFile txt;
+  Size highest_size { 0 };
+  vector<double> highest_intensities(spectra.size(), 0);
+  for (Size i = 0; i < spectra.size(); ++i)
+  {
+    if (spectra[i].size() > highest_size)
+    {
+      highest_size = spectra[i].size();
+    }
+    for (const Peak1D& p : spectra[i])
+    {
+      if (p.getIntensity() > highest_intensities[i])
+      {
+        highest_intensities[i] = p.getIntensity();
+      }
+    }
+  }
+  txt.addLine("unknown_mz\tunknown_int\texpected_mz\texpected_int\tbest_mz\tbest_int");
+  for (Size i = 0; i < highest_size; ++i)
+  {
+    String line = "";
+    for (Size j = 0; j < spectra.size(); ++j)
+    {
+      if (i < spectra[j].size())
+      {
+        line += to_string(spectra[j][i].getMZ()) + "\t" + to_string(spectra[j][i].getIntensity() / highest_intensities[j]) + "\t";
+      }
+      else
+      {
+        line += "\t\t";
+      }
+    }
+    line.pop_back();
+    txt.addLine(line);
+  }
+  txt.store(filename);
 }
 
 vector<MSSpectrum>::const_iterator findSpectrumByName(const vector<MSSpectrum>& spectra, const String& name)
@@ -770,10 +830,13 @@ END_SECTION
 
 START_SECTION(matchSpectrum())
 {
-  const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS_fullScan.mzML");
+  // const String spectra_library = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_spectra_library.mzML");
   // const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
-  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("traML_RT.csv");
+  // const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_traML_RT_reduced.csv");
+  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_traML_RT_validation.csv");
   MzMLFile mzml;
   MSExperiment experiment1;
   TransitionTSVFile tsv_reader;
@@ -790,8 +853,9 @@ START_SECTION(matchSpectrum())
   params.setValue("GaussFilter:gaussian_width", 0.1);
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
-  params.setValue("peak_height_max", 100e10);
-  params.setValue("top_matches_to_report", 2398);
+  params.setValue("peak_height_max", std::numeric_limits<double>::max());
+  params.setValue("top_matches_to_report", 212949);
+  params.setValue("bin_size", 1.0);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
@@ -802,7 +866,9 @@ START_SECTION(matchSpectrum())
 
   MSExperiment library;
   MSPMetaboFile mse(msp_path, library);
-  TEST_EQUAL(library.getSpectra().size(), 2398)
+
+  TEST_EQUAL(library.getSpectra().size(), 212949)
+  // TEST_EQUAL(library.getSpectra().size(), 2398)
   std::vector<std::pair<String,double>> matches;
 
   for (const MSSpectrum & spectrum : extracted_spectra)
@@ -811,7 +877,7 @@ START_SECTION(matchSpectrum())
     const String& spectrum_name = spectrum.getName();
     bool valid { false };
     Size i { 0 };
-    cout << "Verifying spectrum " << spectrum_name << " ... \t";
+    cout << "Verifying spectrum " << spectrum_name << " ... \t \n";
     for (; i < matches.size() && !valid; ++i)
     {
       // const String& match_name { match.first };
@@ -843,9 +909,28 @@ START_SECTION(matchSpectrum())
       valid = matchIsValid(spectrum_name, match_name);
     }
     if (valid)
-      cout << "PASS [" << i << "] [score: " << matches[i].second << "] [0th score: " << matches.front().second << endl;
+    {
+      cout << "PASS [" << i << "] [EXPECTED: score: " << matches[i].second << "]\n[PROPOSED: name: " << matches.front().first << " score: " << matches.front().second << "]\n" << endl;
+      const MSSpectrum& extracted_spectrum = spectrum;
+      vector<pair<String,String>>::const_iterator it = find_if(expected_.cbegin(), expected_.cend(),
+        [&spectrum_name] (const pair<String,String>& p)
+        {
+          const String& expected_name = p.first;
+          return spectrum_name == expected_name;
+        });
+      if (it == expected_.cend())
+      {
+        throw;
+      }
+      const MSSpectrum& expected_spectrum = *findSpectrumByName(library.getSpectra(), it->second);
+      const MSSpectrum& best_match_spectrum = *findSpectrumByName(library.getSpectra(), matches.front().first);
+      const vector<MSSpectrum> to_table { extracted_spectrum, expected_spectrum, best_match_spectrum };
+      createTabularSpectra(spectrum_name + ".csv", to_table);
+    }
     else
-      cout << "FAIL " << matches.front().second << endl;
+    {
+      cout << "FAIL [0th name: " << matches.front().first << " score: " << matches.front().second << "]\n" << endl;
+    }
   }
 }
 END_SECTION

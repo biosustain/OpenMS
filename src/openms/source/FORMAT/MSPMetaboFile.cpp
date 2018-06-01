@@ -120,7 +120,7 @@ namespace OpenMS
     addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
     ifs.close();
     LOG_INFO << "Loading spectra from .msp file completed." << std::endl;
-    // std::cout<< "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
+    // std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
   void MSPMetaboFile::pushParsedInfoToNamedDataArray(

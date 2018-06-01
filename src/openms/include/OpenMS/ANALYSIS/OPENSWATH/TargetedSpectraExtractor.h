@@ -36,9 +36,11 @@
 
 #include <OpenMS/config.h> // OPENMS_DLLAPI
 #include <OpenMS/ANALYSIS/TARGETED/TargetedExperiment.h>
+#include <OpenMS/COMPARISON/SPECTRA/BinnedSpectrum.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
+#include <unordered_map>
 
 namespace OpenMS
 {
@@ -275,7 +277,7 @@ public:
       const MSSpectrum& input_spectrum,
       const MSExperiment& experiment,
       std::vector<std::pair<String,double>>& matches
-    ) const;
+    );
 
 protected:
     /// Overridden function from DefaultParamHandler to keep members up to date, when a parameter is changed
@@ -356,6 +358,8 @@ private:
 
     /// Peak spread for binned spectral contrast angle similarity function
     double peak_spread_;
+
+    std::unordered_map<std::string,BinnedSpectrum> bs_library_;
   };
 }
 
