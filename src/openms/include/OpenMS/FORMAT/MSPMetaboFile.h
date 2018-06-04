@@ -87,7 +87,7 @@ private:
     /**
       TODO: complete docs
     */
-    void addSpectrumToExperiment(
+    void addSpectrumToLibrary(
       MSSpectrum& spectrum,
       bool& adding_spectrum,
       MSExperiment& experiment

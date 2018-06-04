@@ -40,12 +40,12 @@
 
 namespace OpenMS
 {
-  MSPMetaboFile::MSPMetaboFile(const String& filename, MSExperiment& experiment)
+  MSPMetaboFile::MSPMetaboFile(const String& filename, MSExperiment& library)
   {
-    load(filename, experiment);
+    load(filename, library);
   }
 
-  void MSPMetaboFile::load(const String& filename, MSExperiment& experiment)
+  void MSPMetaboFile::load(const String& filename, MSExperiment& library)
   {
     // TODO: remove times debug info
     std::clock_t start;
@@ -59,7 +59,7 @@ namespace OpenMS
     }
     const Size BUFSIZE { 65536 };
     char line[BUFSIZE];
-    experiment.clear(true);
+    library.clear(true);
     MSSpectrum spectrum;
     bool adding_spectrum { false }; // to avoid calling `.addSpectrum()` on empty/invalid spectra
 
@@ -90,7 +90,7 @@ namespace OpenMS
       // Name
       else if (std::regex_search(line, m, re_name))
       {
-        addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
+        addSpectrumToLibrary(spectrum, adding_spectrum, library);
         LOG_DEBUG << std::endl << std::endl << "Name: " << m[1] << std::endl;
         spectrum.clear(true);
         spectrum.setName( String(m[1]) );
@@ -117,7 +117,7 @@ namespace OpenMS
       }
     }
     // To make sure a spectrum is added even if no empty line is present before EOF
-    addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
+    addSpectrumToLibrary(spectrum, adding_spectrum, library);
     ifs.close();
     LOG_INFO << "Loading spectra from .msp file completed." << std::endl;
     std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
@@ -145,10 +145,10 @@ namespace OpenMS
     }
   }
 
-  void MSPMetaboFile::addSpectrumToExperiment(
+  void MSPMetaboFile::addSpectrumToLibrary(
     MSSpectrum& spectrum,
     bool& adding_spectrum,
-    MSExperiment& experiment
+    MSExperiment& library
   )
   {
     if (!adding_spectrum) return;
@@ -171,7 +171,7 @@ namespace OpenMS
       pushParsedInfoToNamedDataArray(spectrum, "Comments", "");
     }
 
-    // Check that the spectrum is not a duplicate (i.e. already present in `experiment`)
+    // Check that the spectrum is not a duplicate (i.e. already present in `library`)
     std::pair<std::set<String>::const_iterator,bool> inserted = loaded_spectra_names_.insert(spectrum.getName());
 
     if (inserted.second) // `true` if the insertion took place
@@ -185,7 +185,7 @@ namespace OpenMS
           "The number of points parsed does not coincide with `Num Peaks`."
         );
       }
-      experiment.addSpectrum(spectrum);
+      library.addSpectrum(spectrum);
       if (loaded_spectra_names_.size() % 10000 == 0)
       {
         LOG_INFO << "Loaded " << loaded_spectra_names_.size() << " spectra..." << std::endl;
