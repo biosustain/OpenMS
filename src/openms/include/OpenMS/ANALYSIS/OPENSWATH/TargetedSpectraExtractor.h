@@ -364,6 +364,11 @@ private:
     /// Bin offset for binned spectral contrast angle similarity function
     double bin_offset_;
 
+    /**
+      In-memory representation of the spectra library.
+      Used by `matchSpectrum()`, keeping this info in memory avoids creating the
+      `BinnedSpectrum` elements multiple times for the same spectra.
+    */
     std::unordered_map<std::string,BinnedSpectrum> bs_library_;
   };
 }
