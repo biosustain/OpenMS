@@ -78,6 +78,7 @@ namespace OpenMS
     top_matches_to_report_ = (Size)param_.getValue("top_matches_to_report");
     bin_size_ = (double)param_.getValue("bin_size");
     peak_spread_ = (double)param_.getValue("peak_spread");
+    bin_offset_ = (double)param_.getValue("bin_offset");
   }
 
   void TargetedSpectraExtractor::getDefaultParameters(Param& params) const
@@ -163,6 +164,13 @@ namespace OpenMS
       "Peak spread for binned spectral contrast angle similarity function."
     );
     params.setMinFloat("peak_spread", 0.0);
+
+    params.setValue(
+      "bin_offset",
+      0.4,
+      "Bin offset for binned spectral contrast angle similarity function."
+    );
+    params.setMinFloat("bin_offset", 0.0);
   }
 
   void TargetedSpectraExtractor::annotateSpectra(
@@ -512,18 +520,21 @@ namespace OpenMS
     std::vector<std::pair<String,double>>& matches
   )
   {
+    // TODO: remove times debug info
+    std::clock_t start;
+    start = std::clock();
     matches.clear();
     std::unordered_map<std::string,double> scores_map;
 
     // Spectral Contrast Angle
     BinnedSpectralContrastAngle cmp_bs;
-    const BinnedSpectrum input_spectrum_bs(input_spectrum, bin_size_, false, peak_spread_);
+    const BinnedSpectrum input_spectrum_bs(input_spectrum, bin_size_, false, peak_spread_, bin_offset_);
 
     for (const MSSpectrum& s : library.getSpectra())
     {
       if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
       {
-        const String match_name_bs = s.getName() + String(bin_size_) + String(peak_spread_);
+        const String match_name_bs = s.getName() + String(bin_size_) + String(peak_spread_) + String(bin_offset_);
         std::unordered_map<std::string,BinnedSpectrum>::const_iterator it = bs_library_.find(match_name_bs);
         if (it != bs_library_.end()) // `BinnedSpectrum` representation already exists
         {
@@ -531,7 +542,7 @@ namespace OpenMS
         }
         else // `BinnedSpectrum` representation doesn't exist, yet. Create it.
         {
-          const BinnedSpectrum match_bs(s, bin_size_, false, peak_spread_);
+          const BinnedSpectrum match_bs(s, bin_size_, false, peak_spread_, bin_offset_);
           bs_library_.insert( {match_name_bs, match_bs} );
           scores_map.insert( {s.getName(), cmp_bs(input_spectrum_bs, match_bs)} );
         }
@@ -563,5 +574,6 @@ namespace OpenMS
     // Output the best matches
     const Size n = std::min(top_matches_to_report_, scores_vec.size());
     matches = std::vector<std::pair<String, double>>(scores_vec.begin(), scores_vec.begin() + n);
+    std::cout << "MATCH TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 }

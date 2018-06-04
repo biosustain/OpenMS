@@ -361,6 +361,9 @@ private:
     /// Peak spread for binned spectral contrast angle similarity function
     double peak_spread_;
 
+    /// Bin offset for binned spectral contrast angle similarity function
+    double bin_offset_;
+
     std::unordered_map<std::string,BinnedSpectrum> bs_library_;
   };
 }

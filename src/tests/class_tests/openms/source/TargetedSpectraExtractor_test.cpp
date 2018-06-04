@@ -246,6 +246,9 @@ START_SECTION(const Param& getParameters() const)
   TEST_EQUAL(params.getValue("snr_weight"), 1.0)
   TEST_EQUAL(params.getValue("similarity_function"), "BinnedSpectralContrastAngle")
   TEST_EQUAL(params.getValue("top_matches_to_report"), 5)
+  TEST_EQUAL(params.getValue("bin_size"), 1.0)
+  TEST_EQUAL(params.getValue("peak_spread"), 0.0)
+  TEST_EQUAL(params.getValue("bin_offset"), 0.4)
 }
 END_SECTION
 
@@ -265,6 +268,11 @@ START_SECTION(void getDefaultParameters(Param& params) const)
   TEST_EQUAL(params.getValue("tic_weight"), 1.0)
   TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
   TEST_EQUAL(params.getValue("snr_weight"), 1.0)
+  TEST_EQUAL(params.getValue("similarity_function"), "BinnedSpectralContrastAngle")
+  TEST_EQUAL(params.getValue("top_matches_to_report"), 5)
+  TEST_EQUAL(params.getValue("bin_size"), 1.0)
+  TEST_EQUAL(params.getValue("peak_spread"), 0.0)
+  TEST_EQUAL(params.getValue("bin_offset"), 0.4)
 }
 END_SECTION
 
@@ -436,6 +444,11 @@ START_SECTION(void pickSpectrum(const MSSpectrum& spectrum, MSSpectrum& picked_s
   ++it;
   TEST_REAL_SIMILAR(it->getMZ(), 112.033)
   TEST_REAL_SIMILAR(it->getIntensity(), 21941.9)
+
+  MSSpectrum unordered;
+  unordered.emplace_back(Peak1D(10.0, 100.0));
+  unordered.emplace_back(Peak1D(9.0, 100.0));
+  TEST_EXCEPTION(Exception::IllegalArgument, tse.pickSpectrum(unordered, picked_spectrum));
 }
 END_SECTION
 
@@ -564,6 +577,9 @@ START_SECTION(void scoreSpectra(
   TEST_REAL_SIMILAR(features[19].getMetaValue("inverse_avgFWHM"), 2.02868912178847)
   TEST_REAL_SIMILAR(features[19].getMetaValue("avgSNR"), 1.94235549504842)
   TEST_REAL_SIMILAR(features[19].getMetaValue("avgFWHM"), 0.492929147822516)
+
+  features.pop_back();
+  TEST_EXCEPTION(Exception::InvalidSize, tse.scoreSpectra(annotated_spectra, picked_spectra, features, scored_spectra));
 }
 END_SECTION
 
@@ -707,6 +723,9 @@ START_SECTION(void selectSpectra(
   TEST_REAL_SIMILAR(it->getFloatDataArrays()[1][0], 16.0294418334961)
   it = findSpectrumByName(selected_spectra, "asp-L.asp-L_m2-2");
   TEST_REAL_SIMILAR(it->getFloatDataArrays()[1][0], 17.4552)
+
+  features.pop_back();
+  TEST_EXCEPTION(Exception::InvalidSize, tse.selectSpectra(scored, features, selected_spectra, selected_features));
 }
 END_SECTION
 
@@ -856,6 +875,7 @@ START_SECTION(matchSpectrum())
   params.setValue("peak_height_max", std::numeric_limits<double>::max());
   params.setValue("top_matches_to_report", 212949);
   params.setValue("bin_size", 1.0);
+  params.setValue("bin_offset", 0.4);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
