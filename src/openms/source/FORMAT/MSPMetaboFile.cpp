@@ -37,7 +37,6 @@
 #include <OpenMS/KERNEL/SpectrumHelper.h>
 #include <fstream>
 #include <regex>
-// #include <ctime>
 
 namespace OpenMS
 {
@@ -48,8 +47,9 @@ namespace OpenMS
 
   void MSPMetaboFile::load(const String& filename, MSExperiment& experiment)
   {
-    // std::clock_t start;
-    // start = std::clock();
+    // TODO: remove times debug info
+    std::clock_t start;
+    start = std::clock();
     LOG_INFO << "\nLoading spectra from .msp file..." << std::endl;
     loaded_spectra_names_.clear();
     std::ifstream ifs(filename, std::ifstream::in);
@@ -120,7 +120,7 @@ namespace OpenMS
     addSpectrumToExperiment(spectrum, adding_spectrum, experiment);
     ifs.close();
     LOG_INFO << "Loading spectra from .msp file completed." << std::endl;
-    // std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
+    std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
   void MSPMetaboFile::pushParsedInfoToNamedDataArray(
@@ -151,10 +151,7 @@ namespace OpenMS
     MSExperiment& experiment
   )
   {
-    if (!adding_spectrum)
-    {
-      return;
-    }
+    if (!adding_spectrum) return;
 
     // Check that required metadata (Name, Num Peaks) is present
     // Num Peaks is checked later in the code (when verifying for the number of points parsed)
@@ -164,7 +161,7 @@ namespace OpenMS
         "The current spectrum misses the Name information.");
     }
 
-    // Ensure Comments metadatum is present and, if not, set it to empty string
+    // Ensure Comments metadatum is present and, if not, set it to an empty string
     try
     {
       getStringDataArrayByName(spectrum, "Comments");
@@ -175,10 +172,9 @@ namespace OpenMS
     }
 
     // Check that the spectrum is not a duplicate (i.e. already present in `experiment`)
-    std::vector<String>& l = loaded_spectra_names_;
-    const bool is_duplicate = std::find(l.cbegin(), l.cend(), spectrum.getName()) != l.cend();
+    std::pair<std::set<String>::const_iterator,bool> inserted = loaded_spectra_names_.insert(spectrum.getName());
 
-    if (!is_duplicate)
+    if (inserted.second) // `true` if the insertion took place
     {
       // Check that all expected points are parsed
       const String& num_peaks { getStringDataArrayByName(spectrum, "Num Peaks").front() };
@@ -190,16 +186,18 @@ namespace OpenMS
         );
       }
       experiment.addSpectrum(spectrum);
-      loaded_spectra_names_.push_back(spectrum.getName());
-      // TODO: Remove the following if
       if (loaded_spectra_names_.size() % 10000 == 0)
       {
         LOG_INFO << "Loaded " << loaded_spectra_names_.size() << " spectra..." << std::endl;
       }
     }
+    else
+    {
+      LOG_INFO << "DUPLICATE: " << spectrum.getName() << std::endl;
+    }
 
     adding_spectrum = false;
-  };
+  }
 
   const MSSpectrum::StringDataArray& MSPMetaboFile::getStringDataArrayByName(
     const MSSpectrum& spectrum,

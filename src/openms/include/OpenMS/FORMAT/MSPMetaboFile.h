@@ -102,7 +102,7 @@ private:
     ) const;
 
     /// To keep track of which spectra have already been loaded and avoid duplicates
-    std::vector<String> loaded_spectra_names_;
+    std::set<String> loaded_spectra_names_;
   };
 
   class MSPMetaboFile_friend
