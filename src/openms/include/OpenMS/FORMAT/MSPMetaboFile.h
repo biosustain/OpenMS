@@ -55,8 +55,8 @@ public:
     /// Default constructor
     MSPMetaboFile() = default;
 
-    /// Constructor with filename and output experiment
-    MSPMetaboFile(const String& filename, MSExperiment& experiment);
+    /// Constructor with filename and output library
+    MSPMetaboFile(const String& filename, MSExperiment& library);
 
     /// Destructor
     ~MSPMetaboFile() = default;
@@ -68,11 +68,11 @@ public:
       @brief Load the file's data and metadata, and save it into a `MSExperiment`.
 
       @param[in] filename Path to the MSP input file
-      @param[out] experiment The variable into which the extracted information will be saved
+      @param[out] library The variable into which the extracted information will be saved
 
       @throw FileNotFound is thrown if the file could not be found
     */
-    void load(const String& filename, MSExperiment& experiment);
+    void load(const String& filename, MSExperiment& library);
 
 private:
     /**
@@ -90,7 +90,7 @@ private:
     void addSpectrumToLibrary(
       MSSpectrum& spectrum,
       bool& adding_spectrum,
-      MSExperiment& experiment
+      MSExperiment& library
     );
 
     /**
