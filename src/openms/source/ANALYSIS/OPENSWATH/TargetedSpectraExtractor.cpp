@@ -440,13 +440,13 @@ namespace OpenMS
       std::unordered_map<std::string,UInt>::const_iterator it = transition_best_spec.find(transition_name);
       if (it == transition_best_spec.cend())
       {
-        transition_best_spec.insert({transition_name, i});
+        transition_best_spec.emplace(transition_name, i);
       }
       else if (scored_spectra[it->second].getFloatDataArrays()[1][0] <
                scored_spectra[i].getFloatDataArrays()[1][0])
       {
         transition_best_spec.erase(transition_name);
-        transition_best_spec.insert({transition_name, i});
+        transition_best_spec.emplace(transition_name, i);
       }
     }
 
