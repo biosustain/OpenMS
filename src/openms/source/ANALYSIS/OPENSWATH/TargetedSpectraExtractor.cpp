@@ -545,7 +545,7 @@ namespace OpenMS
     {
       if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
       {
-        const double score = cmp_bs(input_spectrum_bs, extractBinnedSpectrum(s)->second);
+        const double score = cmp_bs(input_spectrum_bs, extractBinnedSpectrum(s));
         if (score >= min_match_score_)
         {
           scores_map.emplace(s.getName(), score);
@@ -579,7 +579,7 @@ namespace OpenMS
     std::cout << "MATCH TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
-  std::unordered_map<std::string,BinnedSpectrum>::const_iterator TargetedSpectraExtractor::extractBinnedSpectrum(const MSSpectrum& s)
+  const BinnedSpectrum& TargetedSpectraExtractor::extractBinnedSpectrum(const MSSpectrum& s)
   {
     const String bs_library_name = s.getName() + String(bin_size_) + String(peak_spread_) + String(bin_offset_);
     std::unordered_map<std::string,BinnedSpectrum>::const_iterator it = bs_library_.find(bs_library_name);
@@ -589,6 +589,6 @@ namespace OpenMS
         p = bs_library_.emplace(bs_library_name, BinnedSpectrum(s, bin_size_, false, peak_spread_, bin_offset_));
       it = p.first;
     }
-    return it;
+    return it->second;
   }
 }

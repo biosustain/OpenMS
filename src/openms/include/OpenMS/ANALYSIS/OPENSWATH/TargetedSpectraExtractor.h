@@ -390,11 +390,6 @@ private:
     /**
       TODO: docs
     */
-    std::unordered_map<std::string,BinnedSpectrum>::const_iterator extractBinnedSpectrum(const MSSpectrum& s);
-
-    /**
-      TODO: docs
-    */
     const BinnedSpectrum& extractBinnedSpectrum(const MSSpectrum& s);
   };
 }
