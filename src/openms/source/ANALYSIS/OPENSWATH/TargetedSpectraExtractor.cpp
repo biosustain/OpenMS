@@ -125,7 +125,7 @@ namespace OpenMS
 
     params.setValue("peak_height_min", 0.0, "Used in pickSpectrum(), a peak's intensity needs to be >= peak_height_min_ for it to be picked.");
     params.setMinFloat("peak_height_min", 0.0);
-    params.setValue("peak_height_max", 4e6, "Used in pickSpectrum(), a peak's intensity needs to be <= peak_height_max_ for it to be picked.");
+    params.setValue("peak_height_max", std::numeric_limits<double>::max(), "Used in pickSpectrum(), a peak's intensity needs to be <= peak_height_max_ for it to be picked.");
     params.setMinFloat("peak_height_max", 0.0);
     params.setValue("fwhm_threshold", 0.0, "Used in pickSpectrum(), a peak's FWHM needs to be >= fwhm_threshold_ for it to be picked.");
     params.setMinFloat("fwhm_threshold", 0.0);

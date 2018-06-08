@@ -239,7 +239,7 @@ START_SECTION(const Param& getParameters() const)
   TEST_EQUAL(params.getValue("use_gauss"), "true")
   TEST_EQUAL(params.getValue("PeakPickerHiRes:signal_to_noise"), 1.0)
   TEST_EQUAL(params.getValue("peak_height_min"), 0.0)
-  TEST_EQUAL(params.getValue("peak_height_max"), 4e6)
+  TEST_EQUAL(params.getValue("peak_height_max"), std::numeric_limits<double>::max())
   TEST_EQUAL(params.getValue("fwhm_threshold"), 0.0)
   TEST_EQUAL(params.getValue("tic_weight"), 1.0)
   TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
@@ -264,7 +264,7 @@ START_SECTION(void getDefaultParameters(Param& params) const)
   TEST_EQUAL(params.getValue("mz_unit_is_Da"), "true")
   TEST_EQUAL(params.getValue("use_gauss"), "true")
   TEST_EQUAL(params.getValue("peak_height_min"), 0.0)
-  TEST_EQUAL(params.getValue("peak_height_max"), 4e6)
+  TEST_EQUAL(params.getValue("peak_height_max"), std::numeric_limits<double>::max())
   TEST_EQUAL(params.getValue("fwhm_threshold"), 0.0)
   TEST_EQUAL(params.getValue("tic_weight"), 1.0)
   TEST_EQUAL(params.getValue("fwhm_weight"), 1.0)
@@ -849,20 +849,21 @@ START_SECTION(void extractSpectra(
 }
 END_SECTION
 
-START_SECTION(matchSpectrum())
+START_SECTION(void matchSpectrum(
+  const MSSpectrum& input_spectrum,
+  const MSExperiment& experiment,
+  std::vector<Match>& matches
+))
 {
   const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
   // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
-  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS_fullScan.mzML");
-  // const String spectra_library = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_spectra_library.mzML");
-  // const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
-  // const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_traML_RT_reduced.csv");
-  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_traML_RT_validation.csv");
+  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
+  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
   MzMLFile mzml;
-  MSExperiment experiment1;
+  MSExperiment gcms_experiment;
   TransitionTSVFile tsv_reader;
   TargetedExperiment targeted_exp;
-  mzml.load(gcms_fullscan_path, experiment1);
+  mzml.load(gcms_fullscan_path, gcms_experiment);
   Param tsv_params = tsv_reader.getParameters();
   tsv_params.setValue("retentionTimeInterpretation", "seconds");
   tsv_reader.setParameters(tsv_params);
@@ -878,11 +879,12 @@ START_SECTION(matchSpectrum())
   params.setValue("top_matches_to_report", 3);
   params.setValue("bin_size", 1.0);
   params.setValue("bin_offset", 0.4);
+  params.setValue("min_match_score", 0.7);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
   FeatureMap extracted_features;
-  tse.extractSpectra(experiment1, targeted_exp, extracted_spectra, extracted_features);
+  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
 
   TEST_EQUAL(extracted_spectra.size(), 18)
 
@@ -896,10 +898,10 @@ START_SECTION(matchSpectrum())
   for (const MSSpectrum& spectrum : extracted_spectra)
   {
     tse.matchSpectrum(spectrum, library, matches);
-    cout << "Verifying spectrum " << spectrum.getName() << " ... \t \n";
+    cout << "Verifying spectrum " << spectrum.getName() << " ...\n";
     for (const TargetedSpectraExtractor::Match& match : matches)
     {
-      cout << match.spectrum.getName() << " \t " << match.score << endl;
+      cout << match.spectrum.getName() << "\t" << match.score << "\n";
     }
     cout << endl;
   }
