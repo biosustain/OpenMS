@@ -249,6 +249,7 @@ START_SECTION(const Param& getParameters() const)
   TEST_EQUAL(params.getValue("bin_size"), 1.0)
   TEST_EQUAL(params.getValue("peak_spread"), 0.0)
   TEST_EQUAL(params.getValue("bin_offset"), 0.4)
+  TEST_EQUAL(params.getValue("min_match_score"), 0.8)
 }
 END_SECTION
 
@@ -273,6 +274,7 @@ START_SECTION(void getDefaultParameters(Param& params) const)
   TEST_EQUAL(params.getValue("bin_size"), 1.0)
   TEST_EQUAL(params.getValue("peak_spread"), 0.0)
   TEST_EQUAL(params.getValue("bin_offset"), 0.4)
+  TEST_EQUAL(params.getValue("min_match_score"), 0.8)
 }
 END_SECTION
 
@@ -873,7 +875,7 @@ START_SECTION(matchSpectrum())
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
   params.setValue("peak_height_max", std::numeric_limits<double>::max());
-  params.setValue("top_matches_to_report", 8);
+  params.setValue("top_matches_to_report", 3);
   params.setValue("bin_size", 1.0);
   params.setValue("bin_offset", 0.4);
   tse.setParameters(params);
@@ -889,20 +891,17 @@ START_SECTION(matchSpectrum())
 
   // TEST_EQUAL(library.getSpectra().size(), 212949)
   TEST_EQUAL(library.getSpectra().size(), 2398)
-  std::vector<std::pair<std::string,double>> matches;
-  // vector<TargetedSpectraExtractor::Match> matches;
 
+  vector<TargetedSpectraExtractor::Match> matches;
   for (const MSSpectrum& spectrum : extracted_spectra)
   {
     tse.matchSpectrum(spectrum, library, matches);
-    const String& spectrum_name = spectrum.getName();
-    cout << "Verifying spectrum " << spectrum_name << " ... \t \n";
-    // for (const TargetedSpectraExtractor::Match& match : matches)
-    for (const std::pair<std::string,double>& match : matches)
+    cout << "Verifying spectrum " << spectrum.getName() << " ... \t \n";
+    for (const TargetedSpectraExtractor::Match& match : matches)
     {
-      cout << match.first << " \t " << match.second << endl;
-      // cout << match.spectrum.getName() << " \t " << match.score << endl;
+      cout << match.spectrum.getName() << " \t " << match.score << endl;
     }
+    cout << endl;
   }
 }
 END_SECTION

@@ -527,7 +527,7 @@ namespace OpenMS
   void TargetedSpectraExtractor::matchSpectrum(
     const MSSpectrum& input_spectrum,
     const MSExperiment& library,
-    std::vector<std::pair<std::string,double>>& matches
+    std::vector<Match>& matches
   )
   {
     // TODO: remove times debug info
@@ -574,7 +574,19 @@ namespace OpenMS
 
     // Output the best matches
     const Size n = std::min(top_matches_to_report_, scores_vec.size());
-    matches = std::vector<std::pair<std::string, double>>(scores_vec.begin(), scores_vec.begin() + n);
+
+    // Construct the vector of `Match`es
+    for (Size i = 0; i < n; ++i)
+    {
+      std::vector<MSSpectrum>::const_iterator it = std::find_if(
+        library.getSpectra().cbegin(),
+        library.getSpectra().cend(),
+        [&scores_vec, i](const MSSpectrum& s)
+        {
+          return scores_vec[i].first == s.getName();
+        });
+      matches.emplace_back(*it, scores_vec[i].second);
+    }
 
     std::cout << "MATCH TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
