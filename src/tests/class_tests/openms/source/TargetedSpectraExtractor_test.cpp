@@ -873,7 +873,7 @@ START_SECTION(matchSpectrum())
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
   params.setValue("peak_height_max", std::numeric_limits<double>::max());
-  params.setValue("top_matches_to_report", 212949);
+  params.setValue("top_matches_to_report", 8);
   params.setValue("bin_size", 1.0);
   params.setValue("bin_offset", 0.4);
   tse.setParameters(params);
@@ -889,67 +889,19 @@ START_SECTION(matchSpectrum())
 
   TEST_EQUAL(library.getSpectra().size(), 212949)
   // TEST_EQUAL(library.getSpectra().size(), 2398)
-  std::vector<std::pair<String,double>> matches;
+  std::vector<std::pair<std::string,double>> matches;
+  // vector<TargetedSpectraExtractor::Match> matches;
 
-  for (const MSSpectrum & spectrum : extracted_spectra)
+  for (const MSSpectrum& spectrum : extracted_spectra)
   {
     tse.matchSpectrum(spectrum, library, matches);
     const String& spectrum_name = spectrum.getName();
-    bool valid { false };
-    Size i { 0 };
     cout << "Verifying spectrum " << spectrum_name << " ... \t \n";
-    for (; i < matches.size() && !valid; ++i)
+    // for (const TargetedSpectraExtractor::Match& match : matches)
+    for (const std::pair<std::string,double>& match : matches)
     {
-      // const String& match_name { match.first };
-      // const double match_score { match.second };
-      // cout << "----------------------------------------------------------------" << endl;
-      // cout << match_name << " \t " << match_score << endl;
-      // const std::vector<MSSpectrum>& library_spectra = library.getSpectra();
-      // std::vector<MSSpectrum>::const_iterator it = std::find_if(
-      //   library_spectra.cbegin(),
-      //   library_spectra.cend(),
-      //   [&match_name] (const MSSpectrum& s) { return s.getName() == match_name; }
-      // );
-      // MSPMetaboFile_friend msp_f;
-      // vector<String> synonyms;
-      // try
-      // {
-      //   synonyms = msp_f.getStringDataArrayByName(*it, "Synon");
-      // }
-      // catch (const Exception::ElementNotFound& e)
-      // {
-      //   // do nothing
-      // }
-      // // cout << " \t CAS#: " << msp_f.getStringDataArrayByName(*it, "CAS#").front() << endl;
-      // for (const String& synon : synonyms)
-      // {
-      //   cout << synon << endl;
-      // }
-      const String& match_name = matches[i].first;
-      valid = matchIsValid(spectrum_name, match_name);
-    }
-    if (valid)
-    {
-      cout << "PASS [" << i << "] [EXPECTED: score: " << matches[i].second << "]\n[PROPOSED: name: " << matches.front().first << " score: " << matches.front().second << "]\n" << endl;
-      const MSSpectrum& extracted_spectrum = spectrum;
-      vector<pair<String,String>>::const_iterator it = find_if(expected_.cbegin(), expected_.cend(),
-        [&spectrum_name] (const pair<String,String>& p)
-        {
-          const String& expected_name = p.first;
-          return spectrum_name == expected_name;
-        });
-      if (it == expected_.cend())
-      {
-        throw;
-      }
-      const MSSpectrum& expected_spectrum = *findSpectrumByName(library.getSpectra(), it->second);
-      const MSSpectrum& best_match_spectrum = *findSpectrumByName(library.getSpectra(), matches.front().first);
-      const vector<MSSpectrum> to_table { extracted_spectrum, expected_spectrum, best_match_spectrum };
-      createTabularSpectra(spectrum_name + ".csv", to_table);
-    }
-    else
-    {
-      cout << "FAIL [0th name: " << matches.front().first << " score: " << matches.front().second << "]\n" << endl;
+      cout << match.first << " \t " << match.second << endl;
+      // cout << match.spectrum.getName() << " \t " << match.score << endl;
     }
   }
 }

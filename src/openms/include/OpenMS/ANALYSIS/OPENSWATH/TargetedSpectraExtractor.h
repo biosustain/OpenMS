@@ -82,6 +82,13 @@ public:
     static constexpr const char* BINNED_SPECTRAL_CONTRAST_ANGLE = "BinnedSpectralContrastAngle";
     ///@}
 
+    struct Match
+    {
+      Match(MSSpectrum a, double b) : spectrum(a), score(b) {}
+      MSSpectrum spectrum;
+      double score;
+    };
+
     void getDefaultParameters(Param& params) const;
 
     /**
@@ -278,7 +285,13 @@ public:
     void matchSpectrum(
       const MSSpectrum& input_spectrum,
       const MSExperiment& experiment,
-      std::vector<std::pair<String,double>>& matches
+      std::vector<std::pair<std::string,double>>& matches
+    );
+
+    void matchSpectrum(
+      const MSSpectrum& input_spectrum,
+      const MSExperiment& experiment,
+      std::vector<Match>& matches
     );
 
 protected:
@@ -364,12 +377,25 @@ private:
     /// Bin offset for binned spectral contrast angle similarity function
     double bin_offset_;
 
+    /// Minimum score for a match to be considered valid in `matchSpectrum()`.
+    double min_match_score_;
+
     /**
       In-memory representation of the spectra library.
       Used by `matchSpectrum()`, keeping this info in memory avoids creating the
       `BinnedSpectrum` elements multiple times for the same spectra.
     */
     std::unordered_map<std::string,BinnedSpectrum> bs_library_;
+
+    /**
+      TODO: docs
+    */
+    std::unordered_map<std::string,BinnedSpectrum>::const_iterator extractBinnedSpectrum(const MSSpectrum& s);
+
+    /**
+      TODO: docs
+    */
+    const BinnedSpectrum& extractBinnedSpectrum(const MSSpectrum& s);
   };
 }
 
