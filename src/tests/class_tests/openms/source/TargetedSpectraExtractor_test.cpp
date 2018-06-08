@@ -230,7 +230,7 @@ START_SECTION(const Param& getParameters() const)
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
   TEST_EQUAL(params.getValue("rt_window"), 30.0)
-  TEST_EQUAL(params.getValue("min_score"), 0.7)
+  TEST_EQUAL(params.getValue("min_select_score"), 0.7)
   TEST_EQUAL(params.getValue("mz_tolerance"), 0.1)
   TEST_EQUAL(params.getValue("mz_unit_is_Da"), "true")
   TEST_EQUAL(params.getValue("SavitzkyGolayFilter:frame_length"), 15)
@@ -258,7 +258,7 @@ START_SECTION(void getDefaultParameters(Param& params) const)
   Param params;
   tse.getDefaultParameters(params);
   TEST_EQUAL(params.getValue("rt_window"), 30.0)
-  TEST_EQUAL(params.getValue("min_score"), 0.7)
+  TEST_EQUAL(params.getValue("min_select_score"), 0.7)
   TEST_EQUAL(params.getValue("mz_tolerance"), 0.1)
   TEST_EQUAL(params.getValue("mz_unit_is_Da"), "true")
   TEST_EQUAL(params.getValue("use_gauss"), "true")
@@ -671,10 +671,10 @@ START_SECTION(void selectSpectra(
   const bool compute_features = true
 ) const)
 {
-  const double min_score = 15.0;
+  const double min_select_score = 15.0;
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
-  params.setValue("min_score", min_score);
+  params.setValue("min_select_score", min_select_score);
   params.setValue("GaussFilter:gaussian_width", 0.25);
   params.setValue("peak_height_min", 15000.0);
   params.setValue("peak_height_max", 110000.0);
@@ -713,7 +713,7 @@ START_SECTION(void selectSpectra(
     TEST_NOT_EQUAL(selected_spectra[i].getName(), "")
     TEST_EQUAL(selected_spectra[i].getName(), selected_features[i].getMetaValue("transition_name"))
     TEST_EQUAL(selected_spectra[i].getFloatDataArrays()[1][0], selected_features[i].getIntensity())
-    TEST_EQUAL(selected_spectra[i].getFloatDataArrays()[1][0] >= min_score, true)
+    TEST_EQUAL(selected_spectra[i].getFloatDataArrays()[1][0] >= min_select_score, true)
   }
 
   vector<MSSpectrum>::const_iterator it;
@@ -734,10 +734,10 @@ START_SECTION(void selectSpectra(
   std::vector<MSSpectrum>& selected_spectra
 ) const)
 {
-  const double min_score = 15.0;
+  const double min_select_score = 15.0;
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
-  params.setValue("min_score", min_score);
+  params.setValue("min_select_score", min_select_score);
   params.setValue("GaussFilter:gaussian_width", 0.25);
   params.setValue("peak_height_min", 15000.0);
   params.setValue("peak_height_max", 110000.0);
@@ -770,7 +770,7 @@ START_SECTION(void selectSpectra(
   for (Size i = 0; i < selected_spectra.size(); ++i)
   {
     TEST_NOT_EQUAL(selected_spectra[i].getName(), "")
-    TEST_EQUAL(selected_spectra[i].getFloatDataArrays()[1][0] >= min_score, true)
+    TEST_EQUAL(selected_spectra[i].getFloatDataArrays()[1][0] >= min_select_score, true)
   }
 
   vector<MSSpectrum>::const_iterator it;
@@ -793,7 +793,7 @@ START_SECTION(void extractSpectra(
 {
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
-  params.setValue("min_score", 15.0);
+  params.setValue("min_select_score", 15.0);
   params.setValue("GaussFilter:gaussian_width", 0.25);
   params.setValue("peak_height_min", 15000.0);
   params.setValue("peak_height_max", 110000.0);
@@ -825,7 +825,7 @@ START_SECTION(void extractSpectra(
 {
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
-  params.setValue("min_score", 15.0);
+  params.setValue("min_select_score", 15.0);
   params.setValue("GaussFilter:gaussian_width", 0.25);
   params.setValue("peak_height_min", 15000.0);
   params.setValue("peak_height_max", 110000.0);
@@ -849,8 +849,8 @@ END_SECTION
 
 START_SECTION(matchSpectrum())
 {
-  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
-  const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS_fullScan.mzML");
   // const String spectra_library = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_spectra_library.mzML");
   // const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
@@ -868,7 +868,7 @@ START_SECTION(matchSpectrum())
   TargetedSpectraExtractor tse;
   Param params = tse.getParameters();
   params.setValue("rt_window", 2.0);
-  params.setValue("min_score", 0.1);
+  params.setValue("min_select_score", 0.1);
   params.setValue("GaussFilter:gaussian_width", 0.1);
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
   params.setValue("peak_height_min", 0.0);
@@ -887,8 +887,8 @@ START_SECTION(matchSpectrum())
   MSExperiment library;
   MSPMetaboFile mse(msp_path, library);
 
-  TEST_EQUAL(library.getSpectra().size(), 212949)
-  // TEST_EQUAL(library.getSpectra().size(), 2398)
+  // TEST_EQUAL(library.getSpectra().size(), 212949)
+  TEST_EQUAL(library.getSpectra().size(), 2398)
   std::vector<std::pair<std::string,double>> matches;
   // vector<TargetedSpectraExtractor::Match> matches;
 

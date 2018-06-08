@@ -347,10 +347,10 @@ private:
     /**
       Used in selectSpectra(), after the spectra have been assigned a score.
       Remained transitions will have at least one spectrum assigned.
-      Each spectrum needs to have a score >= min_score_ to be valid,
+      Each spectrum needs to have a score >= min_select_score_ to be valid,
       otherwise it gets filtered out.
     */
-    double min_score_;
+    double min_select_score_;
 
     /**
       Used in pickSpectrum(), it selects which filtering method is used during

@@ -65,7 +65,7 @@ namespace OpenMS
   void TargetedSpectraExtractor::updateMembers_()
   {
     rt_window_ = (double)param_.getValue("rt_window");
-    min_score_ = (double)param_.getValue("min_score");
+    min_select_score_ = (double)param_.getValue("min_select_score");
     mz_tolerance_ = (double)param_.getValue("mz_tolerance");
     mz_unit_is_Da_ = param_.getValue("mz_unit_is_Da").toBool();
     use_gauss_ = param_.getValue("use_gauss").toBool();
@@ -98,14 +98,14 @@ namespace OpenMS
     );
 
     params.setValue(
-      "min_score",
+      "min_select_score",
       0.7,
       "Used in selectSpectra(), after the spectra have been assigned a score.\n"
       "Remained transitions will have at least one spectrum assigned.\n"
-      "Each spectrum needs to have a score >= min_score_ to be valid, "
+      "Each spectrum needs to have a score >= min_select_score_ to be valid, "
       "otherwise it gets filtered out."
     );
-    params.setMinFloat("min_score", 0.0);
+    params.setMinFloat("min_select_score", 0.0);
 
     params.setValue(
       "mz_tolerance",
@@ -432,7 +432,7 @@ namespace OpenMS
     std::unordered_map<std::string,UInt> transition_best_spec;
     for (UInt i = 0; i < scored_spectra.size(); ++i)
     {
-      if (scored_spectra[i].getFloatDataArrays()[1][0] < min_score_)
+      if (scored_spectra[i].getFloatDataArrays()[1][0] < min_select_score_)
       {
         continue;
       }
