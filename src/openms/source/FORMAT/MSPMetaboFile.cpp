@@ -65,48 +65,36 @@ namespace OpenMS
 
     std::cmatch m;
     std::regex re_name("^Name: (.+)");
-    std::regex re_comments("^Comments: (.+)");
-    std::regex re_num_peaks("^Num Peaks: (.+)");
-    std::regex re_points_line("^(?:\\d+ \\d+; ?)+");
+    std::regex re_points_line("^\\d");
     std::regex re_point("(\\d+) (\\d+); ");
     std::regex re_metadatum(" *([^;\r\n]+): ([^;\r\n]+)");
 
     while (!ifs.eof())
     {
       ifs.getline(line, BUFSIZE);
-      // peaks
+      // Peaks
       if (std::regex_search(line, m, re_points_line))
       {
-        LOG_DEBUG << "re_points_line" << std::endl;
+        // LOG_DEBUG << "re_points_line\n";
         std::regex_search(line, m, re_point);
         do
         {
           const double position { std::stod(m[1]) };
           const double intensity { std::stod(m[2]) };
           spectrum.push_back( Peak1D(position, intensity) );
-          LOG_DEBUG << position << " " << intensity << "; ";
+          // LOG_DEBUG << position << " " << intensity << "; ";
         } while ( std::regex_search(m[0].second, m, re_point) );
       }
       // Name
       else if (std::regex_search(line, m, re_name))
       {
         addSpectrumToLibrary(spectrum, adding_spectrum, library);
-        LOG_DEBUG << std::endl << std::endl << "Name: " << m[1] << std::endl;
+        // LOG_DEBUG << "\n\nName: " << m[1] << "\n";
         spectrum.clear(true);
         spectrum.setName( String(m[1]) );
         adding_spectrum = true;
       }
-      // Comments
-      else if (std::regex_search(line, m, re_comments))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "Comments", String(m[1]));
-      }
-      // Num Peaks
-      else if (std::regex_search(line, m, re_num_peaks))
-      {
-        pushParsedInfoToNamedDataArray(spectrum, "Num Peaks", String(m[1]));
-      }
-      // other metadata
+      // Other metadata
       else if (std::regex_search(line, m, re_metadatum))
       {
         pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
@@ -129,7 +117,7 @@ namespace OpenMS
     const String& info
   ) const
   {
-    LOG_DEBUG << name << ": " << info << std::endl;
+    // LOG_DEBUG << name << ": " << info << "\n";
     MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
     MSSpectrum::StringDataArrays::iterator it = getDataArrayByName(SDAs, name);
     if (it != SDAs.end()) // DataArray with given name already exists
