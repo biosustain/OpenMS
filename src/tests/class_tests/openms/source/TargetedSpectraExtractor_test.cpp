@@ -855,6 +855,7 @@ START_SECTION(void matchSpectrum(
   std::vector<Match>& matches
 ))
 {
+  // TODO: use freely available .msp file
   const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
   // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
@@ -883,8 +884,7 @@ START_SECTION(void matchSpectrum(
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
-  FeatureMap extracted_features;
-  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
+  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra);
 
   TEST_EQUAL(extracted_spectra.size(), 18)
 
@@ -898,6 +898,7 @@ START_SECTION(void matchSpectrum(
   for (const MSSpectrum& spectrum : extracted_spectra)
   {
     tse.matchSpectrum(spectrum, library, matches);
+    // TODO: remove cout spam
     cout << "Verifying spectrum " << spectrum.getName() << " ...\n";
     for (const TargetedSpectraExtractor::Match& match : matches)
     {
