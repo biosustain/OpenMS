@@ -553,17 +553,14 @@ namespace OpenMS
       }
     }
 
-    std::vector<std::pair<String,double>> scores_vec;
+    std::vector<std::pair<std::string,double>> scores_vec;
 
     // Convert from map to vector, so that we can sort the matches by their score
-    std::for_each(
-      scores_map.cbegin(),
-      scores_map.cend(),
+    std::for_each(scores_map.cbegin(), scores_map.cend(),
       [&scores_vec](const std::pair<std::string,double>& p)
       {
         scores_vec.push_back(p);
-      }
-    );
+      });
 
     // Sort the vector of scores
     std::sort(scores_vec.begin(), scores_vec.end(),
@@ -572,10 +569,10 @@ namespace OpenMS
         return a.second > b.second;
       });
 
-    // Output the best matches
+    // Set the number of best matches to return
     const Size n = std::min(top_matches_to_report_, scores_vec.size());
 
-    // Construct the vector of `Match`es
+    // Construct a vector of n `Match`es
     for (Size i = 0; i < n; ++i)
     {
       std::vector<MSSpectrum>::const_iterator it = std::find_if(
