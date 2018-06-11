@@ -280,12 +280,12 @@ public:
       match the input spectrum.
 
       @param[in] input_spectrum The input spectrum for which a match is desired
-      @param[in] experiment The library with spectra information
+      @param[in] library The library with spectra information
       @param[out] matches A vector of `Match`es, containing the matched spectrum and its score
     */
     void matchSpectrum(
       const MSSpectrum& input_spectrum,
-      const MSExperiment& experiment,
+      const MSExperiment& library,
       std::vector<Match>& matches
     );
 
