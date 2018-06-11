@@ -50,7 +50,7 @@ namespace OpenMS
     // TODO: remove times debug info
     std::clock_t start;
     start = std::clock();
-    LOG_INFO << "\nLoading spectra from .msp file..." << std::endl;
+    LOG_INFO << "\nLoading spectra from .msp file. Please wait." << std::endl;
     loaded_spectra_names_.clear();
     std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())
@@ -174,7 +174,7 @@ namespace OpenMS
         );
       }
       library.addSpectrum(spectrum);
-      if (loaded_spectra_names_.size() % 10000 == 0)
+      if (loaded_spectra_names_.size() % 20000 == 0)
       {
         LOG_INFO << "Loaded " << loaded_spectra_names_.size() << " spectra..." << std::endl;
       }
