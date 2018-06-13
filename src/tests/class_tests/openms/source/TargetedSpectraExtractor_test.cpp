@@ -856,8 +856,8 @@ START_SECTION(void matchSpectrum(
 ))
 {
   // TODO: use freely available .msp file
-  const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
-  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
+  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
   const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
   MzMLFile mzml;
@@ -884,15 +884,16 @@ START_SECTION(void matchSpectrum(
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
-  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra);
+  FeatureMap extracted_features;
+  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
 
   TEST_EQUAL(extracted_spectra.size(), 18)
 
   MSExperiment library;
   MSPMetaboFile mse(msp_path, library);
 
-  // TEST_EQUAL(library.getSpectra().size(), 212949)
-  TEST_EQUAL(library.getSpectra().size(), 2398)
+  TEST_EQUAL(library.getSpectra().size(), 212949)
+  // TEST_EQUAL(library.getSpectra().size(), 2398)
 
   vector<TargetedSpectraExtractor::Match> matches;
   for (const MSSpectrum& spectrum : extracted_spectra)
@@ -906,6 +907,8 @@ START_SECTION(void matchSpectrum(
     }
     cout << endl;
   }
+
+  // tse.targetedMatching(extracted_spectra, library, extracted_features);
 }
 END_SECTION
 

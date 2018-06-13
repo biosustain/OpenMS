@@ -74,7 +74,7 @@ public:
     virtual ~TargetedSpectraExtractor() = default;
 
     /** @name Constant expressions for parameters
-      
+
         Constants expressions used throughout the code and tests.
     */
     ///@{
@@ -82,7 +82,10 @@ public:
     static constexpr const char* BINNED_SPECTRAL_CONTRAST_ANGLE = "BinnedSpectralContrastAngle";
     ///@}
 
-    /// Structure for a match against a spectral library
+    /**
+      Structure for a match against a spectral library
+      TODO: Replace with MzTab once the final implementation is done
+    */
     struct Match
     {
       Match(MSSpectrum a, double b) : spectrum(a), score(b) {}
@@ -287,6 +290,18 @@ public:
       const MSSpectrum& input_spectrum,
       const MSExperiment& library,
       std::vector<Match>& matches
+    );
+
+    void targetedMatching(
+      const std::vector<MSSpectrum>& spectra,
+      const MSExperiment& library,
+      FeatureMap& features
+    );
+
+    void untargetedMatching(
+      const MSExperiment& experiment,
+      const MSExperiment& library,
+      FeatureMap& features
     );
 
 protected:
