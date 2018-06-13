@@ -152,7 +152,7 @@ namespace OpenMS
     // Ensure Comments metadatum is present and, if not, set it to an empty string
     try
     {
-      getStringDataArrayByName(spectrum, "Comments");
+      spectrum.getStringDataArrayByName("Comments");
     }
     catch (const Exception::ElementNotFound& e)
     {
@@ -165,7 +165,7 @@ namespace OpenMS
     if (inserted.second) // `true` if the insertion took place
     {
       // Check that all expected points are parsed
-      const String& num_peaks { getStringDataArrayByName(spectrum, "Num Peaks").front() };
+      const String& num_peaks { spectrum.getStringDataArrayByName("Num Peaks").front() };
       if (spectrum.size() != std::stoul(num_peaks) )
       {
         throw Exception::ParseError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
@@ -185,22 +185,5 @@ namespace OpenMS
     }
 
     adding_spectrum = false;
-  }
-
-  const MSSpectrum::StringDataArray& MSPMetaboFile::getStringDataArrayByName(
-    const MSSpectrum& spectrum,
-    const String& name
-  ) const
-  {
-    MSSpectrum::StringDataArrays::const_iterator it = std::find_if(
-      spectrum.getStringDataArrays().cbegin(),
-      spectrum.getStringDataArrays().cend(),
-      [&name] (const MSSpectrum::StringDataArray& sda) { return sda.getName() == name; }
-    );
-    if (it == spectrum.getStringDataArrays().cend())
-    {
-      throw Exception::ElementNotFound(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, name);
-    }
-    return *it;
   }
 }

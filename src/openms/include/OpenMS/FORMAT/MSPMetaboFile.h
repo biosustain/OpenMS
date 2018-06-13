@@ -93,14 +93,6 @@ private:
       MSExperiment& library
     );
 
-    /**
-      TODO: complete docs
-    */
-    const MSSpectrum::StringDataArray& getStringDataArrayByName(
-      const MSSpectrum& spectrum,
-      const String& name
-    ) const;
-
     /// To keep track of which spectra have already been loaded and avoid duplicates
     std::set<String> loaded_spectra_names_;
   };
@@ -111,12 +103,22 @@ public:
     MSPMetaboFile_friend() = default;
     ~MSPMetaboFile_friend() = default;
 
-    const MSSpectrum::StringDataArray& getStringDataArrayByName(
-      const MSSpectrum& spectrum,
-      const String& name
+    void pushParsedInfoToNamedDataArray(
+      MSSpectrum& spectrum,
+      const String& name,
+      const String& info
     ) const
     {
-      return msp_.getStringDataArrayByName(spectrum, name);
+      return msp_.pushParsedInfoToNamedDataArray(spectrum, name, info);
+    }
+
+    void addSpectrumToLibrary(
+      MSSpectrum& spectrum,
+      bool& adding_spectrum,
+      MSExperiment& library
+    )
+    {
+      return msp_.addSpectrumToLibrary(spectrum, adding_spectrum, library);
     }
 
     MSPMetaboFile msp_;

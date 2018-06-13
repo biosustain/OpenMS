@@ -37,7 +37,6 @@
 
 ///////////////////////////
 #include <OpenMS/FORMAT/MSPMetaboFile.h>
-#include <regex>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -69,7 +68,6 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
 {
   MSPMetaboFile msp;
   MSExperiment experiment;
-  MSPMetaboFile_friend msp_f;
   msp.load(input_filepath, experiment);
   const vector<MSSpectrum>& spectra = experiment.getSpectra();
   TEST_EQUAL(spectra.size(), 3)
@@ -77,15 +75,15 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
   const MSSpectrum& s1 = spectra[0];
   TEST_EQUAL(s1.size(), 14)
   TEST_EQUAL(s1.getName(), "name1 of first")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "Synon")[0], "name2 of 1st")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "Synon")[1], "name3 of firsttt")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "Formula")[0], "A11B22C333")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "MW")[0], "156")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "CAS#")[0], "0123-45-6")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "NIST#")[0], "654321")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "DB#")[0], "1")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "Comments")[0], "Some comment")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s1, "Num Peaks")[0], "14")
+  TEST_EQUAL(s1.getStringDataArrayByName("Synon")[0], "name2 of 1st")
+  TEST_EQUAL(s1.getStringDataArrayByName("Synon")[1], "name3 of firsttt")
+  TEST_EQUAL(s1.getStringDataArrayByName("Formula")[0], "A11B22C333")
+  TEST_EQUAL(s1.getStringDataArrayByName("MW")[0], "156")
+  TEST_EQUAL(s1.getStringDataArrayByName("CAS#")[0], "0123-45-6")
+  TEST_EQUAL(s1.getStringDataArrayByName("NIST#")[0], "654321")
+  TEST_EQUAL(s1.getStringDataArrayByName("DB#")[0], "1")
+  TEST_EQUAL(s1.getStringDataArrayByName("Comments")[0], "Some comment")
+  TEST_EQUAL(s1.getStringDataArrayByName("Num Peaks")[0], "14")
   TEST_EQUAL(s1[0].getPos(), 27)
   TEST_EQUAL(s1[0].getIntensity(), 29)
   TEST_EQUAL(s1[5].getPos(), 60)
@@ -98,15 +96,15 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
   const MSSpectrum& s2 = spectra[1];
   TEST_EQUAL(s2.size(), 15)
   TEST_EQUAL(s2.getName(), "name1 of second")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "Synon")[0], "name2 of 2nd")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "Synon")[1], "name3 of seconddd")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "Formula")[0], "A44B55C666")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "MW")[0], "589")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "CAS#")[0], "3210-45-6")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "NIST#")[0], "789564")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "DB#")[0], "2")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "Comments")[0], "Some other comment")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s2, "Num Peaks")[0], "15")
+  TEST_EQUAL(s2.getStringDataArrayByName("Synon")[0], "name2 of 2nd")
+  TEST_EQUAL(s2.getStringDataArrayByName("Synon")[1], "name3 of seconddd")
+  TEST_EQUAL(s2.getStringDataArrayByName("Formula")[0], "A44B55C666")
+  TEST_EQUAL(s2.getStringDataArrayByName("MW")[0], "589")
+  TEST_EQUAL(s2.getStringDataArrayByName("CAS#")[0], "3210-45-6")
+  TEST_EQUAL(s2.getStringDataArrayByName("NIST#")[0], "789564")
+  TEST_EQUAL(s2.getStringDataArrayByName("DB#")[0], "2")
+  TEST_EQUAL(s2.getStringDataArrayByName("Comments")[0], "Some other comment")
+  TEST_EQUAL(s2.getStringDataArrayByName("Num Peaks")[0], "15")
   TEST_EQUAL(s2[0].getPos(), 27)
   TEST_EQUAL(s2[0].getIntensity(), 29)
   TEST_EQUAL(s2[5].getPos(), 260)
@@ -119,16 +117,16 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
   const MSSpectrum& s3 = spectra[2];
   TEST_EQUAL(s3.size(), 16)
   TEST_EQUAL(s3.getName(), "name1 of third")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Synon")[0], "name2 of 3rd")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Synon")[1], "name3 of thirddd")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Formula")[0], "A12B12C123")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "MW")[0], "562")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "CAS#")[0], "4210-47-4")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "NIST#")[0], "749514")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "DB#")[0], "3")
+  TEST_EQUAL(s3.getStringDataArrayByName("Synon")[0], "name2 of 3rd")
+  TEST_EQUAL(s3.getStringDataArrayByName("Synon")[1], "name3 of thirddd")
+  TEST_EQUAL(s3.getStringDataArrayByName("Formula")[0], "A12B12C123")
+  TEST_EQUAL(s3.getStringDataArrayByName("MW")[0], "562")
+  TEST_EQUAL(s3.getStringDataArrayByName("CAS#")[0], "4210-47-4")
+  TEST_EQUAL(s3.getStringDataArrayByName("NIST#")[0], "749514")
+  TEST_EQUAL(s3.getStringDataArrayByName("DB#")[0], "3")
   // Verifying that Comments is present even if absent within the file
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Comments")[0], "")
-  TEST_EQUAL(msp_f.getStringDataArrayByName(s3, "Num Peaks")[0], "16")
+  TEST_EQUAL(s3.getStringDataArrayByName("Comments")[0], "")
+  TEST_EQUAL(s3.getStringDataArrayByName("Num Peaks")[0], "16")
   TEST_EQUAL(s3[0].getPos(), 27)
   TEST_EQUAL(s3[0].getIntensity(), 29)
   TEST_EQUAL(s3[5].getPos(), 260)
