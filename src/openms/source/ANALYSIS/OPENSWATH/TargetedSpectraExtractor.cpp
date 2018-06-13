@@ -581,13 +581,17 @@ namespace OpenMS
 
   const BinnedSpectrum& TargetedSpectraExtractor::extractBinnedSpectrum(const MSSpectrum& s)
   {
-    // TODO: document why this value `for bs_library_name`
-    const String bs_library_name = s.getName() + String(bin_size_) + String(peak_spread_) + String(bin_offset_);
-    std::unordered_map<std::string,BinnedSpectrum>::const_iterator it = bs_library_.find(bs_library_name);
+    /* If the user changes settings for bin size, peak spread or bin offset, the
+       correct `BinnedSpectrum` should be returned.
+       Therefore, as a unique name (to be used as a key in `bs_library_`) we chose
+       a combination of the spectrum name plus said settings' values.
+    */
+    const String bs_key = s.getName() + String(bin_size_) + String(peak_spread_) + String(bin_offset_);
+    std::unordered_map<std::string,BinnedSpectrum>::const_iterator it = bs_library_.find(bs_key);
     if (it == bs_library_.cend())
     {
       std::pair<std::unordered_map<std::string,BinnedSpectrum>::const_iterator,bool>
-        p = bs_library_.emplace(bs_library_name, BinnedSpectrum(s, bin_size_, false, peak_spread_, bin_offset_));
+        p = bs_library_.emplace(bs_key, BinnedSpectrum(s, bin_size_, false, peak_spread_, bin_offset_));
       it = p.first;
     }
     return it->second;
