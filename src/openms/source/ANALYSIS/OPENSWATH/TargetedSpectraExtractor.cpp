@@ -597,82 +597,87 @@ namespace OpenMS
     return it->second;
   }
 
-  // void TargetedSpectraExtractor::targetedMatching(
-  //   const std::vector<MSSpectrum>& spectra,
-  //   const MSExperiment& library,
-  //   FeatureMap& features
-  // )
-  // {
-  //   if (spectra.size() != features.size())
-  //   {
-  //     throw Exception::InvalidSize(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
-  //   }
+  void TargetedSpectraExtractor::targetedMatching(
+    const std::vector<MSSpectrum>& spectra,
+    const MSExperiment& library,
+    FeatureMap& features
+  )
+  {
+    if (spectra.size() != features.size())
+    {
+      throw Exception::InvalidSize(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
+    }
 
-  //   const Size tmp = top_matches_to_report_;
-  //   top_matches_to_report_ = 1;
+    std::vector<Size> no_matches_idx; // to keep track of those features without a match
+    const Size tmp = top_matches_to_report_;
+    top_matches_to_report_ = 1;
 
-  //   for (Size i = 0; i < spectra.size(); ++i)
-  //   {
-  //     std::vector<Match> matches;
-  //     matchSpectrum(spectra[i], library, matches);
-  //     features[i].setMetaValue("spectral_library_score", matches[0].score);
-  //     const MSSpectrum::StringDataArray& sda = matches[0].spectrum.getStringDataArrayByName("Comments");
-  //     features[i].setMetaValue("spectral_library_comments", sda[0]);
-  //   }
+    for (Size i = 0; i < spectra.size(); ++i)
+    {
+      std::vector<Match> matches;
+      matchSpectrum(spectra[i], library, matches);
+      if (matches.size())
+      {
+        features[i].setMetaValue("spectral_library_name", matches[0].spectrum.getName());
+        features[i].setMetaValue("spectral_library_score", matches[0].score);
+        const MSSpectrum::StringDataArray& sda = matches[0].spectrum.getStringDataArrayByName("Comments");
+        features[i].setMetaValue("spectral_library_comments", sda[0]);
+      }
+      else
+      {
+        no_matches_idx.push_back(i);
+      }
+    }
 
-  //   top_matches_to_report_ = tmp;
-  // }
+    top_matches_to_report_ = tmp;
 
-  // void TargetedSpectraExtractor::untargetedMatching(
-  //   const MSExperiment& experiment,
-  //   const MSExperiment& library,
-  //   FeatureMap& features
-  // )
-  // {
-  //   features.clear(true);
-  //   const std::vector<MSSpectrum>& spectra = experiment.getSpectra();
+    if (no_matches_idx.size())
+    {
+      LOG_WARN << "No match was found for `Feature`s at indices: ";
+      for (Size idx : no_matches_idx)
+      {
+        LOG_WARN << idx << " ";
+      }
+    }
+  }
 
-  //   std::vector<MSSpectrum> picked(spectra.size());
-  //   for (Size i = 0; i < spectra.size(); ++i)
-  //   {
-  //     pickSpectrum(spectra[i], picked[i]);
-  //   }
+  void TargetedSpectraExtractor::untargetedMatching(
+    const std::vector<MSSpectrum>& spectra,
+    const MSExperiment& library,
+    FeatureMap& features
+  )
+  {
+    features.clear(true);
 
-  //   // remove empty picked<> spectra, and accordingly update annotated<> and features
-  //   for (Int i = spectra.size() - 1; i >= 0; --i)
-  //   {
-  //     if (picked[i].empty())
-  //     {
-  //       picked.erase(picked.begin() + i);
-  //     }
-  //   }
+    std::vector<MSSpectrum> picked(spectra.size());
+    for (Size i = 0; i < spectra.size(); ++i)
+    {
+      pickSpectrum(spectra[i], picked[i]);
+    }
 
-  //   for (const MSSpectrum& spectrum : picked)
-  //   {
-  //     const std::vector<Precursor>& precursors = spectrum.getPrecursors();
-  //     if (precursors.empty())
-  //     {
-  //       LOG_WARN << "annotateSpectra(): No precursor MZ found. Setting spectrum_mz to 0." << std::endl;
-  //     }
-  //     const double spectrum_mz = precursors.empty() ? 0.0 : precursors.front().getMZ();
-  //     Feature feature;
-  //     feature.setRT(spectrum.getRT());
-  //     feature.setMZ(spectrum_mz);
-  //     features.push_back(feature);
-  //   }
+    // remove empty picked<> spectra
+    for (Int i = spectra.size() - 1; i >= 0; --i)
+    {
+      if (picked[i].empty())
+      {
+        picked.erase(picked.begin() + i);
+      }
+    }
 
-  //   const Size tmp = top_matches_to_report_;
-  //   top_matches_to_report_ = 1;
+    for (const MSSpectrum& spectrum : picked)
+    {
+      const std::vector<Precursor>& precursors = spectrum.getPrecursors();
+      if (precursors.empty())
+      {
+        LOG_WARN << "annotateSpectra(): No precursor MZ found. Setting spectrum_mz to 0." << std::endl;
+      }
+      const double spectrum_mz = precursors.empty() ? 0.0 : precursors.front().getMZ();
+      Feature feature;
+      feature.setRT(spectrum.getRT());
+      feature.setMZ(spectrum_mz);
+      features.push_back(feature);
+    }
 
-  //   for (Size i = 0; i < spectra.size(); ++i)
-  //   {
-  //     std::vector<Match> matches;
-  //     matchSpectrum(spectra[i], library, matches);
-  //     features[i].setMetaValue("spectral_library_score", matches[0].score);
-  //     const MSSpectrum::StringDataArray& sda = matches[0].spectrum.getStringDataArrayByName("Comments");
-  //     features[i].setMetaValue("spectral_library_comments", sda[0]);
-  //   }
-
-  //   top_matches_to_report_ = tmp;
-  // }
+    targetedMatching(picked, library, features);
+  }
 }

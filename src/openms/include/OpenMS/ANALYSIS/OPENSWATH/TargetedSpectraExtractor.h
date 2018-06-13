@@ -299,7 +299,7 @@ public:
     );
 
     void untargetedMatching(
-      const MSExperiment& experiment,
+      const std::vector<MSSpectrum>& spectra,
       const MSExperiment& library,
       FeatureMap& features
     );
