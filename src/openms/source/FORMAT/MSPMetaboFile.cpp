@@ -66,8 +66,7 @@ namespace OpenMS
     std::cmatch m;
     std::regex re_name("^Name: (.+)");
     std::regex re_points_line("^\\d");
-    // std::regex re_point("(\\d+) (\\d+); ");
-    std::regex re_point("(\\d+)[: ](\\d+)[; ]+");
+    std::regex re_point("(\\d+)[: ](\\d+);? ?");
     std::regex re_metadatum(" *([^;\r\n]+): ([^;\r\n]+)");
 
     while (!ifs.eof())
