@@ -633,7 +633,7 @@ namespace OpenMS
 
     if (no_matches_idx.size())
     {
-      LOG_WARN << "No match was found for `Feature`s at indices: ";
+      LOG_WARN << "No match was found for " << no_matches_idx.size() << " `Feature`s.\nIndices: ";
       for (Size idx : no_matches_idx)
       {
         LOG_WARN << idx << " ";
