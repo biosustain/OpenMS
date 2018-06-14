@@ -124,8 +124,6 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
   TEST_EQUAL(s3.getStringDataArrayByName("CAS#")[0], "4210-47-4")
   TEST_EQUAL(s3.getStringDataArrayByName("NIST#")[0], "749514")
   TEST_EQUAL(s3.getStringDataArrayByName("DB#")[0], "3")
-  // Verifying that Comments is present even if absent within the file
-  TEST_EQUAL(s3.getStringDataArrayByName("Comments")[0], "")
   TEST_EQUAL(s3.getStringDataArrayByName("Num Peaks")[0], "16")
   TEST_EQUAL(s3[0].getPos(), 27)
   TEST_EQUAL(s3[0].getIntensity(), 29)
