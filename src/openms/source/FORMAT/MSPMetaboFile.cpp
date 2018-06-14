@@ -151,9 +151,9 @@ namespace OpenMS
     }
 
     // Check that the spectrum is not a duplicate (i.e. already present in `library`)
-    std::pair<std::set<String>::const_iterator,bool> inserted = loaded_spectra_names_.insert(spectrum.getName());
+    const Size name_found = loaded_spectra_names_.count(spectrum.getName());
 
-    if (inserted.second) // `true` if the insertion took place
+    if (!name_found)
     {
       // Check that all expected points are parsed
       const String& num_peaks { spectrum.getStringDataArrayByName("Num Peaks").front() };
@@ -165,6 +165,7 @@ namespace OpenMS
         );
       }
       library.addSpectrum(spectrum);
+      loaded_spectra_names_.insert(spectrum.getName());
       if (loaded_spectra_names_.size() % 20000 == 0)
       {
         LOG_INFO << "Loaded " << loaded_spectra_names_.size() << " spectra..." << std::endl;

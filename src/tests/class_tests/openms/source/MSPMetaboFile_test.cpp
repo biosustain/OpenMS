@@ -138,6 +138,84 @@ START_SECTION(void load(const String& filename, MSExperiment& experiment) const)
 }
 END_SECTION
 
+START_SECTION(void pushParsedInfoToNamedDataArray(
+  MSSpectrum& spectrum,
+  const String& name,
+  const String& info
+) const)
+{
+  MSPMetaboFile_friend msp_f;
+  MSSpectrum spectrum;
+
+  const String field_synon { "Synon" };
+  const String synon1 { "foo" };
+  const String synon2 { "bar" };
+  msp_f.pushParsedInfoToNamedDataArray(spectrum, field_synon, synon1);
+  TEST_EQUAL(spectrum.getStringDataArrays().size(), 1)
+  MSSpectrum::StringDataArray& sda_synon = spectrum.getStringDataArrayByName(field_synon);
+  TEST_EQUAL(sda_synon.size(), 1)
+  TEST_STRING_EQUAL(sda_synon[0], synon1)
+  msp_f.pushParsedInfoToNamedDataArray(spectrum, field_synon, synon2);
+  TEST_EQUAL(spectrum.getStringDataArrays().size(), 1)
+  TEST_EQUAL(sda_synon.size(), 2)
+  TEST_STRING_EQUAL(sda_synon[1], synon2)
+
+  const String field_comments { "Comments" };
+  const String comment { "seems to work fine" };
+  msp_f.pushParsedInfoToNamedDataArray(spectrum, field_comments, comment);
+  TEST_EQUAL(spectrum.getStringDataArrays().size(), 2)
+  MSSpectrum::StringDataArray& sda_comments = spectrum.getStringDataArrayByName(field_comments);
+  TEST_EQUAL(sda_comments.size(), 1)
+  TEST_STRING_EQUAL(sda_comments[0], comment)
+}
+END_SECTION
+
+START_SECTION(void addSpectrumToLibrary(
+  const MSSpectrum& spectrum,
+  bool& adding_spectrum,
+  MSExperiment& library
+))
+{
+  MSPMetaboFile_friend msp_f;
+  MSExperiment lib;
+  bool adding_spectrum { true };
+
+  MSSpectrum spec;
+  spec.setName(""); // empty name
+
+  TEST_EXCEPTION(Exception::MissingInformation, msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib))
+  TEST_EQUAL(lib.size(), 0)
+
+  spec.setName("foo"); // Num Peaks still absent!
+  TEST_EXCEPTION(Exception::ElementNotFound, msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib))
+  TEST_EQUAL(lib.size(), 0)
+
+  msp_f.pushParsedInfoToNamedDataArray(spec, "Num Peaks", "2");
+  // Num Peaks is set but raw data poins have not been added
+  TEST_EXCEPTION(Exception::ParseError, msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib))
+  TEST_EQUAL(lib.size(), 0)
+
+  spec.push_back(Peak1D(1.0, 2.0));
+  spec.push_back(Peak1D(3.0, 4.0)); // now the spectrum is valid
+  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib);
+  TEST_EQUAL(lib.size(), 1)
+
+  spec.setName("bar");
+  adding_spectrum = true;
+  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib);
+  TEST_EQUAL(lib.size(), 2)
+
+  adding_spectrum = true;
+  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib); // duplicate, won't be added
+  TEST_EQUAL(lib.size(), 2)
+
+  adding_spectrum = false;
+  spec.setName("not a duplicate");
+  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib);
+  TEST_EQUAL(lib.size(), 2)
+}
+END_SECTION
+
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 END_TEST
