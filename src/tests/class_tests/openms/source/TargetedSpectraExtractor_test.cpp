@@ -882,8 +882,8 @@ START_SECTION(void matchSpectrum(
 ))
 {
   // TODO: use freely available .msp file
-  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
-  const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
+  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
   // const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_GCMS_fullScan.mzML");
   const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
@@ -907,20 +907,20 @@ START_SECTION(void matchSpectrum(
   params.setValue("top_matches_to_report", 3);
   params.setValue("bin_size", 1.0);
   params.setValue("bin_offset", 0.4);
-  params.setValue("min_match_score", 0.7);
+  params.setValue("min_match_score", 0.2);
   tse.setParameters(params);
 
   vector<MSSpectrum> extracted_spectra;
   FeatureMap extracted_features;
-  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
+  // tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
 
   TEST_EQUAL(extracted_spectra.size(), 18)
 
   MSExperiment library;
   MSPMetaboFile mse(msp_path, library);
 
-  TEST_EQUAL(library.getSpectra().size(), 212949)
-  // TEST_EQUAL(library.getSpectra().size(), 2398)
+  // TEST_EQUAL(library.getSpectra().size(), 212949)
+  TEST_EQUAL(library.getSpectra().size(), 2398)
 
   // vector<TargetedSpectraExtractor::Match> matches;
   // for (const MSSpectrum& spectrum : extracted_spectra)
@@ -935,7 +935,9 @@ START_SECTION(void matchSpectrum(
   //   cout << endl;
   // }
 
-  tse.targetedMatching(extracted_spectra, library, extracted_features);
+  cout << "\nspectra: " << gcms_experiment.getSpectra().size() << endl;
+
+  // tse.targetedMatching(extracted_spectra, library, extracted_features);
   tse.untargetedMatching(gcms_experiment.getSpectra(), library, extracted_features);
   outputFeatureMapToCsv(OPENMS_GET_TEST_DATA_PATH("FeatureMap_matches.csv"), extracted_features);
 }
