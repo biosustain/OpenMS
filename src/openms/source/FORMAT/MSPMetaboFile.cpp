@@ -34,7 +34,7 @@
 
 #include <OpenMS/FORMAT/MSPMetaboFile.h>
 #include <OpenMS/CONCEPT/LogStream.h>
-#include <OpenMS/KERNEL/SpectrumHelper.h>
+// #include <OpenMS/KERNEL/SpectrumHelper.h>
 #include <fstream>
 #include <regex>
 
@@ -117,19 +117,33 @@ namespace OpenMS
     const String& info
   ) const
   {
+    // // LOG_DEBUG << name << ": " << info << "\n";
+    // MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
+    // MSSpectrum::StringDataArrays::iterator it = getDataArrayByName(SDAs, name);
+    // if (it != SDAs.end()) // DataArray with given name already exists
+    // {
+    //   it->push_back(info);
+    // }
+    // else // DataArray with given name does not exist, yet. Create it.
+    // {
+    //   MSSpectrum::StringDataArray sda;
+    //   sda.push_back(info);
+    //   sda.setName(name);
+    //   SDAs.push_back(sda);
+    // }
+
     // LOG_DEBUG << name << ": " << info << "\n";
-    MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
-    MSSpectrum::StringDataArrays::iterator it = getDataArrayByName(SDAs, name);
-    if (it != SDAs.end()) // DataArray with given name already exists
+    try // DataArray with given name already exists
     {
-      it->push_back(info);
+      MSSpectrum::StringDataArray& sda = spectrum.getStringDataArrayByName(name);
+      sda.push_back(info);
     }
-    else // DataArray with given name does not exist, yet. Create it.
+    catch (Exception::ElementNotFound& e) // DataArray with given name does not exist, yet. Create it.
     {
       MSSpectrum::StringDataArray sda;
       sda.push_back(info);
       sda.setName(name);
-      SDAs.push_back(sda);
+      spectrum.getStringDataArrays().push_back(sda);
     }
   }
 
