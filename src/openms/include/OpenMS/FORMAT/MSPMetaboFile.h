@@ -43,11 +43,25 @@ namespace OpenMS
   /**
     @brief Load MSP text file and save it into a `MSExperiment`
 
+    This class is specialized for metabolites data.
+    The required fields are: Name, Num Peaks, and the peaks data
+
+    Points (meaning x and y info) may be separated by a space or a colon.
+    Peaks may be separated by a space or a semicolon.
+
     An example of the expected format:
-    > Name: spectrum_name
-    > 35 310; 36 1230; 37 27; 38 303; 47 5240; 
-    > 66 203; 67 68; 68 77; 82 63; 83 240; 
-    > 136 350; 
+    > Name: foo
+    > Num Peaks: 11
+    > 35 310; 36 1230; 37 27; 38 303; 47 5240;
+    > 66 203; 67 68; 68 77; 82 63; 83 240;
+    > 136 350;
+
+    Another supported format:
+    > Name: bar
+    > Num Peaks: 11
+    > 35:310 36:1230 37:27 38:303 47:5240
+    > 66:203 67:68 68:77 82:63 83:240
+    > 136:350
   */
   class OPENMS_DLLAPI MSPMetaboFile
   {
@@ -76,7 +90,11 @@ public:
 
 private:
     /**
-      TODO: complete docs
+      Push a field of the MSP structure into a named `StringDataArray`
+
+      @param[in/out] spectrum The metadata will be added/updated in this `MSSpectrum`
+      @param[in] name The name of the field to add or update
+      @param[in] info The value to insert
     */
     void pushParsedInfoToNamedDataArray(
       MSSpectrum& spectrum,
@@ -85,10 +103,20 @@ private:
     ) const;
 
     /**
-      TODO: complete docs
+      Validate and add a spectrum into a spectral library
+
+      The spectrum is added to the library if all following criteria are met:
+      - `adding_spectrum` is `true`, meaning the current spectrum is newly parsed
+      - Name field is present and not empty
+      - The number of peaks parsed matches the value of Num Peaks
+      - A spectrum of the same name has not already been added
+
+      @param[in] spectrum The spectrum to be added
+      @param[in/out] adding_spectrum A flag that validates the state of the spectrum
+      @param[out] library The spectrum is added into this `MSExperiment` library
     */
     void addSpectrumToLibrary(
-      MSSpectrum& spectrum,
+      const MSSpectrum& spectrum,
       bool& adding_spectrum,
       MSExperiment& library
     );

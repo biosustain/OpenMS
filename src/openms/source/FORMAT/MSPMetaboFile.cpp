@@ -135,7 +135,7 @@ namespace OpenMS
   }
 
   void MSPMetaboFile::addSpectrumToLibrary(
-    MSSpectrum& spectrum,
+    const MSSpectrum& spectrum,
     bool& adding_spectrum,
     MSExperiment& library
   )
