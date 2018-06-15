@@ -41,7 +41,7 @@
 namespace OpenMS
 {
   /**
-    @brief Load MSP text file and save it into a `MSExperiment`
+    @brief Load MSP text file and save it into an `MSExperiment`
 
     This class is specialized for metabolites data.
     The required fields are: Name, Num Peaks, and the peaks data
@@ -79,7 +79,7 @@ public:
     friend class MSPMetaboFile_friend;
 
     /**
-      @brief Load the file's data and metadata, and save it into a `MSExperiment`.
+      @brief Load the file's data and metadata, and save it into an `MSExperiment`.
 
       @param[in] filename Path to the MSP input file
       @param[out] library The variable into which the extracted information will be saved
@@ -103,7 +103,7 @@ private:
     ) const;
 
     /**
-      Validate and add a spectrum into a spectral library
+      Validate and add a spectrum to a spectral library
 
       The spectrum is added to the library if all following criteria are met:
       - Name field is present and not empty
