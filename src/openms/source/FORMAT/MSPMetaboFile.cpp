@@ -61,7 +61,7 @@ namespace OpenMS
     char line[BUFSIZE];
     library.clear(true);
     MSSpectrum spectrum;
-    bool adding_spectrum { false }; // to avoid calling `.addSpectrum()` on empty/invalid spectra
+    spectrum.setMetaValue("is_valid", 0); // to avoid adding invalid spectra to the library
 
     std::cmatch m;
     std::regex re_name("^Name: (.+)");
@@ -89,11 +89,11 @@ namespace OpenMS
       // Name
       else if (std::regex_search(line, m, re_name))
       {
-        addSpectrumToLibrary(spectrum, adding_spectrum, library);
+        addSpectrumToLibrary(spectrum, library);
         // LOG_DEBUG << "\n\nName: " << m[1] << "\n";
         spectrum.clear(true);
         spectrum.setName( String(m[1]) );
-        adding_spectrum = true;
+        spectrum.setMetaValue("is_valid", 1);
       }
       // Other metadata
       else if (std::regex_search(line, m, re_metadatum))
@@ -106,7 +106,7 @@ namespace OpenMS
       }
     }
     // To make sure a spectrum is added even if no empty line is present before EOF
-    addSpectrumToLibrary(spectrum, adding_spectrum, library);
+    addSpectrumToLibrary(spectrum, library);
     ifs.close();
     LOG_INFO << "Loading spectra from .msp file completed." << std::endl;
     std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
@@ -135,12 +135,11 @@ namespace OpenMS
   }
 
   void MSPMetaboFile::addSpectrumToLibrary(
-    const MSSpectrum& spectrum,
-    bool& adding_spectrum,
+    MSSpectrum& spectrum,
     MSExperiment& library
   )
   {
-    if (!adding_spectrum) return;
+    if (static_cast<int>(spectrum.getMetaValue("is_valid")) == 0) return;
 
     // Check that required metadata (Name, Num Peaks) is present
     // Num Peaks is checked later in the code (when verifying for the number of points parsed)
@@ -164,6 +163,7 @@ namespace OpenMS
           "The number of points parsed does not coincide with `Num Peaks`."
         );
       }
+      spectrum.removeMetaValue("is_valid");
       library.addSpectrum(spectrum);
       loaded_spectra_names_.insert(spectrum.getName());
       if (loaded_spectra_names_.size() % 20000 == 0)
@@ -176,6 +176,6 @@ namespace OpenMS
       LOG_INFO << "DUPLICATE: " << spectrum.getName() << std::endl;
     }
 
-    adding_spectrum = false;
+    spectrum.setMetaValue("is_valid", 0);
   }
 }

@@ -106,18 +106,15 @@ private:
       Validate and add a spectrum into a spectral library
 
       The spectrum is added to the library if all following criteria are met:
-      - `adding_spectrum` is `true`, meaning the current spectrum is newly parsed
       - Name field is present and not empty
       - The number of peaks parsed matches the value of Num Peaks
       - A spectrum of the same name has not already been added
 
-      @param[in] spectrum The spectrum to be added
-      @param[in/out] adding_spectrum A flag that validates the state of the spectrum
+      @param[in/out] spectrum The spectrum to be added
       @param[out] library The spectrum is added into this `MSExperiment` library
     */
     void addSpectrumToLibrary(
-      const MSSpectrum& spectrum,
-      bool& adding_spectrum,
+      MSSpectrum& spectrum,
       MSExperiment& library
     );
 
@@ -142,11 +139,10 @@ public:
 
     void addSpectrumToLibrary(
       MSSpectrum& spectrum,
-      bool& adding_spectrum,
       MSExperiment& library
     )
     {
-      return msp_.addSpectrumToLibrary(spectrum, adding_spectrum, library);
+      return msp_.addSpectrumToLibrary(spectrum, library);
     }
 
     MSPMetaboFile msp_;

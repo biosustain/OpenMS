@@ -171,47 +171,46 @@ START_SECTION(void pushParsedInfoToNamedDataArray(
 END_SECTION
 
 START_SECTION(void addSpectrumToLibrary(
-  const MSSpectrum& spectrum,
-  bool& adding_spectrum,
+  MSSpectrum& spectrum,
   MSExperiment& library
 ))
 {
   MSPMetaboFile_friend msp_f;
   MSExperiment lib;
-  bool adding_spectrum { true };
 
   MSSpectrum spec;
   spec.setName(""); // empty name
+  spec.setMetaValue("is_valid", 1);
 
-  TEST_EXCEPTION(Exception::MissingInformation, msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib))
+  TEST_EXCEPTION(Exception::MissingInformation, msp_f.addSpectrumToLibrary(spec, lib))
   TEST_EQUAL(lib.size(), 0)
 
   spec.setName("foo"); // Num Peaks still absent!
-  TEST_EXCEPTION(Exception::ElementNotFound, msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib))
+  TEST_EXCEPTION(Exception::ElementNotFound, msp_f.addSpectrumToLibrary(spec, lib))
   TEST_EQUAL(lib.size(), 0)
 
   msp_f.pushParsedInfoToNamedDataArray(spec, "Num Peaks", "2");
   // Num Peaks is set but raw data poins have not been added
-  TEST_EXCEPTION(Exception::ParseError, msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib))
+  TEST_EXCEPTION(Exception::ParseError, msp_f.addSpectrumToLibrary(spec, lib))
   TEST_EQUAL(lib.size(), 0)
 
   spec.push_back(Peak1D(1.0, 2.0));
   spec.push_back(Peak1D(3.0, 4.0)); // now the spectrum is valid
-  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib);
+  msp_f.addSpectrumToLibrary(spec, lib);
   TEST_EQUAL(lib.size(), 1)
 
   spec.setName("bar");
-  adding_spectrum = true;
-  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib);
+  spec.setMetaValue("is_valid", 1);
+  msp_f.addSpectrumToLibrary(spec, lib);
   TEST_EQUAL(lib.size(), 2)
 
-  adding_spectrum = true;
-  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib); // duplicate, won't be added
+  spec.setMetaValue("is_valid", 1);
+  msp_f.addSpectrumToLibrary(spec, lib); // duplicate, won't be added
   TEST_EQUAL(lib.size(), 2)
 
-  adding_spectrum = false;
+  spec.setMetaValue("is_valid", 0);
   spec.setName("not a duplicate");
-  msp_f.addSpectrumToLibrary(spec, adding_spectrum, lib);
+  msp_f.addSpectrumToLibrary(spec, lib);
   TEST_EQUAL(lib.size(), 2)
 }
 END_SECTION
