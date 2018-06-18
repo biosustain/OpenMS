@@ -531,8 +531,8 @@ namespace OpenMS
   )
   {
     // TODO: remove times debug info
-    std::clock_t start;
-    start = std::clock();
+    // std::clock_t start;
+    // start = std::clock();
     matches.clear();
     std::vector<std::pair<std::string,double>> scores_vec;
 
@@ -576,7 +576,7 @@ namespace OpenMS
       matches.emplace_back(*it, scores_vec[i].second);
     }
 
-    std::cout << "MATCH TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
+    // std::cout << "MATCH TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
   const BinnedSpectrum& TargetedSpectraExtractor::extractBinnedSpectrum(const MSSpectrum& s)
