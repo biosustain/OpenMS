@@ -35,8 +35,8 @@
 #include <OpenMS/FORMAT/MSPMetaboFile.h>
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/KERNEL/SpectrumHelper.h>
+#include <boost/regex.hpp>
 #include <fstream>
-#include <regex>
 
 namespace OpenMS
 {
@@ -47,9 +47,9 @@ namespace OpenMS
 
   void MSPMetaboFile::load(const String& filename, MSExperiment& library)
   {
-    // TODO: remove times debug info
-    std::clock_t start;
-    start = std::clock();
+    // TODO: Remove following "clock" code when not necessary anymore
+    // std::clock_t start;
+    // start = std::clock();
     LOG_INFO << "\nLoading spectra from .msp file. Please wait." << std::endl;
     loaded_spectra_names_.clear();
     std::ifstream ifs(filename, std::ifstream::in);
@@ -63,20 +63,20 @@ namespace OpenMS
     MSSpectrum spectrum;
     spectrum.setMetaValue("is_valid", 0); // to avoid adding invalid spectra to the library
 
-    std::cmatch m;
-    std::regex re_name("^Name: (.+)");
-    std::regex re_points_line("^\\d");
-    std::regex re_point("(\\d+)[: ](\\d+);? ?");
-    std::regex re_metadatum(" *([^;\r\n]+): ([^;\r\n]+)");
+    boost::cmatch m;
+    boost::regex re_name("^Name: (.+)", boost::regex::no_mod_s);
+    boost::regex re_points_line("^\\d");
+    boost::regex re_point("(\\d+)[: ](\\d+);? ?");
+    boost::regex re_metadatum(" *([^;\r\n]+): ([^;\r\n]+)");
 
     while (!ifs.eof())
     {
       ifs.getline(line, BUFSIZE);
       // Peaks
-      if (std::regex_search(line, m, re_points_line))
+      if (boost::regex_search(line, m, re_points_line))
       {
         // LOG_DEBUG << "re_points_line\n";
-        std::regex_search(line, m, re_point);
+        boost::regex_search(line, m, re_point);
         do
         {
           // LOG_DEBUG << "{" << m[1] << "} {" << m[2] << "}; ";
@@ -84,10 +84,10 @@ namespace OpenMS
           const double intensity { std::stod(m[2]) };
           spectrum.push_back( Peak1D(position, intensity) );
           // LOG_DEBUG << position << " " << intensity << "; ";
-        } while ( std::regex_search(m[0].second, m, re_point) );
+        } while ( boost::regex_search(m[0].second, m, re_point) );
       }
       // Name
-      else if (std::regex_search(line, m, re_name))
+      else if (boost::regex_search(line, m, re_name))
       {
         addSpectrumToLibrary(spectrum, library);
         // LOG_DEBUG << "\n\nName: " << m[1] << "\n";
@@ -96,10 +96,10 @@ namespace OpenMS
         spectrum.setMetaValue("is_valid", 1);
       }
       // Other metadata
-      else if (std::regex_search(line, m, re_metadatum))
+      else if (boost::regex_search(line, m, re_metadatum))
       {
         pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
-        while (std::regex_search(m[0].second, m, re_metadatum))
+        while (boost::regex_search(m[0].second, m, re_metadatum))
         {
           pushParsedInfoToNamedDataArray(spectrum, String(m[1]), String(m[2]));
         }
@@ -109,7 +109,7 @@ namespace OpenMS
     addSpectrumToLibrary(spectrum, library);
     ifs.close();
     LOG_INFO << "Loading spectra from .msp file completed." << std::endl;
-    std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
+    // std::cout << "PARSE TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
   void MSPMetaboFile::pushParsedInfoToNamedDataArray(
@@ -155,13 +155,19 @@ namespace OpenMS
     if (!name_found)
     {
       // Check that all expected points are parsed
-      const String& num_peaks { spectrum.getStringDataArrayByName("Num Peaks").front() };
+      MSSpectrum::StringDataArrays& SDAs = spectrum.getStringDataArrays();
+      MSSpectrum::StringDataArrays::const_iterator it = getDataArrayByName(SDAs, "Num Peaks");
+      if (it == SDAs.cend())
+      {
+        throw Exception::MissingInformation(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+          "The current spectrum misses the Num Peaks information.");
+      }
+      const String& num_peaks { it->front() };
       if (spectrum.size() != std::stoul(num_peaks) )
       {
         throw Exception::ParseError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
           num_peaks,
-          "The number of points parsed does not coincide with `Num Peaks`."
-        );
+          "The number of points parsed does not coincide with `Num Peaks`.");
       }
       spectrum.removeMetaValue("is_valid");
       library.addSpectrum(spectrum);
