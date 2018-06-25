@@ -588,6 +588,8 @@ namespace OpenMS
       else
       {
         no_matches_idx.push_back(i);
+        // TODO: should I insert the metavalues anyway, with empty data? (similar to "Comments")
+        //       or should I keep this solution?
       }
     }
 
@@ -595,11 +597,12 @@ namespace OpenMS
 
     if (no_matches_idx.size())
     {
-      LOG_WARN << "No match was found for " << no_matches_idx.size() << " `Feature`s.\nIndices: ";
+      String warning = "No match was found for " + std::to_string(no_matches_idx.size()) + " `Feature`s. Indices: ";
       for (Size idx : no_matches_idx)
       {
-        LOG_WARN << idx << " ";
+        warning += std::to_string(idx) + " ";
       }
+      LOG_WARN << std:: endl << warning << std::endl;
     }
   }
 
@@ -631,7 +634,7 @@ namespace OpenMS
       const std::vector<Precursor>& precursors = spectrum.getPrecursors();
       if (precursors.empty())
       {
-        LOG_WARN << "annotateSpectra(): No precursor MZ found. Setting spectrum_mz to 0." << std::endl;
+        LOG_WARN << "untargetedMatching(): No precursor MZ found. Setting spectrum_mz to 0." << std::endl;
       }
       const double spectrum_mz = precursors.empty() ? 0.0 : precursors.front().getMZ();
       Feature feature;
