@@ -372,17 +372,15 @@ public:
 
     void targetedMatching(
       const std::vector<MSSpectrum>& spectra,
-      const MSExperiment& library,
       Comparator& cmp,
       FeatureMap& features
     );
 
-    // void untargetedMatching(
-    //   const std::vector<MSSpectrum>& spectra,
-    //   const MSExperiment& library,
-    //   Comparator& cmp,
-    //   FeatureMap& features
-    // );
+    void untargetedMatching(
+      const std::vector<MSSpectrum>& spectra,
+      Comparator& cmp,
+      FeatureMap& features
+    );
 
 protected:
     /// Overridden function from DefaultParamHandler to keep members up to date, when a parameter is changed

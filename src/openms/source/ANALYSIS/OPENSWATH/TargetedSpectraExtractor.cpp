@@ -560,7 +560,6 @@ namespace OpenMS
 
   void TargetedSpectraExtractor::targetedMatching(
     const std::vector<MSSpectrum>& spectra,
-    const MSExperiment& library,
     Comparator& cmp,
     FeatureMap& features
   )
@@ -577,7 +576,7 @@ namespace OpenMS
     for (Size i = 0; i < spectra.size(); ++i)
     {
       std::vector<Match> matches;
-      matchSpectrum(spectra[i], library, cmp, matches);
+      matchSpectrum(spectra[i], cmp, matches);
       if (matches.size())
       {
         features[i].setMetaValue("spectral_library_name", matches[0].spectrum.getName());
@@ -606,7 +605,7 @@ namespace OpenMS
 
   void TargetedSpectraExtractor::untargetedMatching(
     const std::vector<MSSpectrum>& spectra,
-    const MSExperiment& library,
+    Comparator& cmp,
     FeatureMap& features
   )
   {
@@ -641,6 +640,6 @@ namespace OpenMS
       features.push_back(feature);
     }
 
-    targetedMatching(picked, library, features);
+    targetedMatching(picked, cmp, features);
   }
 }

@@ -1015,7 +1015,7 @@ START_SECTION(void targetedMatching(
   };
   cmp.init(library.getSpectra(), options);
 
-  tse.targetedMatching(extracted_spectra, library, cmp, extracted_features);
+  tse.targetedMatching(extracted_spectra, cmp, extracted_features);
 }
 END_SECTION
 
