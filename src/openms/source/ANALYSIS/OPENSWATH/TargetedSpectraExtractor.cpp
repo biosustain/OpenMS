@@ -33,7 +33,6 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
-#include <OpenMS/COMPARISON/SPECTRA/BinnedSpectralContrastAngle.h>
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/FILTERING/NOISEESTIMATION/SignalToNoiseEstimatorMedian.h>
@@ -77,9 +76,9 @@ namespace OpenMS
     snr_weight_ = (double)param_.getValue("snr_weight");
     similarity_function_ = (String)param_.getValue("similarity_function");
     top_matches_to_report_ = (Size)param_.getValue("top_matches_to_report");
-    bin_size_ = (double)param_.getValue("bin_size");
-    peak_spread_ = (double)param_.getValue("peak_spread");
-    bin_offset_ = (double)param_.getValue("bin_offset");
+    // bin_size_ = (double)param_.getValue("bin_size");
+    // peak_spread_ = (double)param_.getValue("peak_spread");
+    // bin_offset_ = (double)param_.getValue("bin_offset");
     min_match_score_ = (double)param_.getValue("min_match_score");
   }
 
@@ -153,26 +152,26 @@ namespace OpenMS
     );
     params.setMinInt("top_matches_to_report", 1);
 
-    params.setValue(
-      "bin_size",
-      1.0,
-      "Bin size for binned spectral contrast angle similarity function."
-    );
-    params.setMinFloat("bin_size", 0.0); // TODO: specify a better minimum?
+    // params.setValue(
+    //   "bin_size",
+    //   1.0,
+    //   "Bin size for binned spectral contrast angle similarity function."
+    // );
+    // params.setMinFloat("bin_size", 0.0); // TODO: specify a better minimum?
 
-    params.setValue(
-      "peak_spread",
-      0.0,
-      "Peak spread for binned spectral contrast angle similarity function."
-    );
-    params.setMinFloat("peak_spread", 0.0);
+    // params.setValue(
+    //   "peak_spread",
+    //   0.0,
+    //   "Peak spread for binned spectral contrast angle similarity function."
+    // );
+    // params.setMinFloat("peak_spread", 0.0);
 
-    params.setValue(
-      "bin_offset",
-      0.4,
-      "Bin offset for binned spectral contrast angle similarity function."
-    );
-    params.setMinFloat("bin_offset", 0.0);
+    // params.setValue(
+    //   "bin_offset",
+    //   0.4,
+    //   "Bin offset for binned spectral contrast angle similarity function."
+    // );
+    // params.setMinFloat("bin_offset", 0.0);
 
     params.setValue(
       "min_match_score",
@@ -527,6 +526,7 @@ namespace OpenMS
   void TargetedSpectraExtractor::matchSpectrum(
     const MSSpectrum& input_spectrum,
     const MSExperiment& library,
+    Comparator& cmp,
     std::vector<Match>& matches
   )
   {
@@ -534,72 +534,35 @@ namespace OpenMS
     // std::clock_t start;
     // start = std::clock();
     matches.clear();
-    std::vector<std::pair<std::string,double>> scores_vec;
+    std::vector<std::pair<Size,double>> scores;
 
-    // Spectral Contrast Angle comparison initialization
-    BinnedSpectralContrastAngle cmp_bs;
-    const BinnedSpectrum input_spectrum_bs(input_spectrum, bin_size_, false, peak_spread_, bin_offset_);
-    // Other comparison techniques would follow here
-
-    for (const MSSpectrum& s : library.getSpectra())
-    {
-      if (similarity_function_ == BINNED_SPECTRAL_CONTRAST_ANGLE)
-      {
-        const double score = cmp_bs(input_spectrum_bs, extractBinnedSpectrum(s));
-        if (score >= min_match_score_)
-        {
-          scores_vec.emplace_back(s.getName(), score);
-        }
-      }
-    }
+    cmp.generateScores(input_spectrum, scores, min_match_score_);
 
     // Sort the vector of scores
-    std::sort(scores_vec.begin(), scores_vec.end(),
-      [](const std::pair<std::string,double>& a, const std::pair<std::string,double>& b)
+    std::sort(scores.begin(), scores.end(),
+      [](const std::pair<Size,double>& a, const std::pair<Size,double>& b)
       {
         return a.second > b.second;
       });
 
     // Set the number of best matches to return
-    const Size n = std::min(top_matches_to_report_, scores_vec.size());
+    const Size n = std::min(top_matches_to_report_, scores.size());
 
     // Construct a vector of n `Match`es
     for (Size i = 0; i < n; ++i)
     {
-      std::vector<MSSpectrum>::const_iterator it = std::find_if(
-        library.getSpectra().cbegin(),
-        library.getSpectra().cend(),
-        [&scores_vec, i](const MSSpectrum& s)
-        {
-          return scores_vec[i].first == s.getName();
-        });
-      matches.emplace_back(*it, scores_vec[i].second);
+      const Size spec_idx { scores[i].first };
+      const double spec_score { scores[i].second };
+      matches.emplace_back(library.getSpectra()[spec_idx], spec_score);
     }
 
     // std::cout << "MATCH TIME: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << std::endl;
   }
 
-  const BinnedSpectrum& TargetedSpectraExtractor::extractBinnedSpectrum(const MSSpectrum& s)
-  {
-    /* If the user changes settings for bin size, peak spread or bin offset, the
-       correct `BinnedSpectrum` should be returned.
-       Therefore, as a unique name (to be used as a key in `bs_library_`) we chose
-       a combination of the spectrum name plus said settings' values.
-    */
-    const String bs_key = s.getName() + String(bin_size_) + String(peak_spread_) + String(bin_offset_);
-    std::unordered_map<std::string,BinnedSpectrum>::const_iterator it = bs_library_.find(bs_key);
-    if (it == bs_library_.cend())
-    {
-      std::pair<std::unordered_map<std::string,BinnedSpectrum>::const_iterator,bool>
-        p = bs_library_.emplace(bs_key, BinnedSpectrum(s, bin_size_, false, peak_spread_, bin_offset_));
-      it = p.first;
-    }
-    return it->second;
-  }
-
   void TargetedSpectraExtractor::targetedMatching(
     const std::vector<MSSpectrum>& spectra,
     const MSExperiment& library,
+    Comparator& cmp,
     FeatureMap& features
   )
   {
@@ -615,13 +578,14 @@ namespace OpenMS
     for (Size i = 0; i < spectra.size(); ++i)
     {
       std::vector<Match> matches;
-      matchSpectrum(spectra[i], library, matches);
+      matchSpectrum(spectra[i], library, cmp, matches);
       if (matches.size())
       {
         features[i].setMetaValue("spectral_library_name", matches[0].spectrum.getName());
         features[i].setMetaValue("spectral_library_score", matches[0].score);
-        const MSSpectrum::StringDataArray& sda = matches[0].spectrum.getStringDataArrayByName("Comments");
-        features[i].setMetaValue("spectral_library_comments", sda[0]);
+        const String& comments = matches[0].spectrum.metaValueExists("Comments") ?
+          matches[0].spectrum.getMetaValue("Comments") : "";
+        features[i].setMetaValue("spectral_library_comments", comments);
       }
       else
       {

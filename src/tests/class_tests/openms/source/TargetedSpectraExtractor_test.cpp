@@ -38,7 +38,7 @@
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/TargetedSpectraExtractor.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVFile.h>
-#include <OpenMS/FORMAT/MSPMetaboFile.h>
+#include <OpenMS/FORMAT/MSPGenericFile.h>
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/FORMAT/TextFile.h>
 ///////////////////////////
@@ -272,9 +272,9 @@ START_SECTION(const Param& getParameters() const)
   TEST_EQUAL(params.getValue("snr_weight"), 1.0)
   TEST_EQUAL(params.getValue("similarity_function"), "BinnedSpectralContrastAngle")
   TEST_EQUAL(params.getValue("top_matches_to_report"), 5)
-  TEST_EQUAL(params.getValue("bin_size"), 1.0)
-  TEST_EQUAL(params.getValue("peak_spread"), 0.0)
-  TEST_EQUAL(params.getValue("bin_offset"), 0.4)
+  // TEST_EQUAL(params.getValue("bin_size"), 1.0)
+  // TEST_EQUAL(params.getValue("peak_spread"), 0.0)
+  // TEST_EQUAL(params.getValue("bin_offset"), 0.4)
   TEST_EQUAL(params.getValue("min_match_score"), 0.8)
 }
 END_SECTION
@@ -297,9 +297,9 @@ START_SECTION(void getDefaultParameters(Param& params) const)
   TEST_EQUAL(params.getValue("snr_weight"), 1.0)
   TEST_EQUAL(params.getValue("similarity_function"), "BinnedSpectralContrastAngle")
   TEST_EQUAL(params.getValue("top_matches_to_report"), 5)
-  TEST_EQUAL(params.getValue("bin_size"), 1.0)
-  TEST_EQUAL(params.getValue("peak_spread"), 0.0)
-  TEST_EQUAL(params.getValue("bin_offset"), 0.4)
+  // TEST_EQUAL(params.getValue("bin_size"), 1.0)
+  // TEST_EQUAL(params.getValue("peak_spread"), 0.0)
+  // TEST_EQUAL(params.getValue("bin_offset"), 0.4)
   TEST_EQUAL(params.getValue("min_match_score"), 0.8)
 }
 END_SECTION
@@ -875,80 +875,10 @@ START_SECTION(void extractSpectra(
 }
 END_SECTION
 
-// START_SECTION(void matchSpectrum(
-//   const MSSpectrum& input_spectrum,
-//   const MSExperiment& experiment,
-//   std::vector<Match>& matches
-// ))
-// {
-//   // TODO: use freely available .msp file
-//   // const String msp_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_mainLib.MSP");
-//   // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
-//   const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra.msp");
-//   // const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra_cut.msp");
-//   // const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
-//   const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_GCMS_fullScan.mzML");
-//   const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
-//   MzMLFile mzml;
-//   MSExperiment gcms_experiment;
-//   TransitionTSVFile tsv_reader;
-//   TargetedExperiment targeted_exp;
-//   mzml.load(gcms_fullscan_path, gcms_experiment);
-//   Param tsv_params = tsv_reader.getParameters();
-//   tsv_params.setValue("retentionTimeInterpretation", "seconds");
-//   tsv_reader.setParameters(tsv_params);
-//   tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
-//   TargetedSpectraExtractor tse;
-//   Param params = tse.getParameters();
-//   params.setValue("rt_window", 2.0);
-//   params.setValue("min_select_score", 0.1);
-//   params.setValue("GaussFilter:gaussian_width", 0.1);
-//   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
-//   params.setValue("peak_height_min", 0.0);
-//   params.setValue("peak_height_max", std::numeric_limits<double>::max());
-//   params.setValue("top_matches_to_report", 3);
-//   params.setValue("bin_size", 1.0);
-//   params.setValue("bin_offset", 0.4);
-//   params.setValue("min_match_score", 0.2);
-//   tse.setParameters(params);
-
-//   vector<MSSpectrum> extracted_spectra;
-//   FeatureMap extracted_features;
-//   // tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
-
-//   // TEST_EQUAL(extracted_spectra.size(), 18)
-
-//   MSExperiment library;
-//   MSPMetaboFile mse(msp_path, library);
-
-//   // TEST_EQUAL(library.getSpectra().size(), 212949)
-//   // TEST_EQUAL(library.getSpectra().size(), 2398)
-//   TEST_EQUAL(library.getSpectra().size(), 11556)
-
-//   // vector<TargetedSpectraExtractor::Match> matches;
-//   // for (const MSSpectrum& spectrum : extracted_spectra)
-//   // {
-//   //   tse.matchSpectrum(spectrum, library, matches);
-//   //   // TODO: remove cout spam
-//   //   cout << "Verifying spectrum " << spectrum.getName() << " ...\n";
-//   //   for (const TargetedSpectraExtractor::Match& match : matches)
-//   //   {
-//   //     cout << match.spectrum.getName() << "\t" << match.score << "\n";
-//   //   }
-//   //   cout << endl;
-//   // }
-
-//   // cout << "\nspectra: " << gcms_experiment.getSpectra().size() << endl;
-
-//   tse.targetedMatching(extracted_spectra, library, extracted_features);
-//   // tse.untargetedMatching(gcms_experiment.getSpectra(), library, extracted_features);
-//   // outputFeatureMapToCsv(OPENMS_GET_TEST_DATA_PATH("FeatureMap_matches.csv"), extracted_features);
-// }
-// END_SECTION
-
 START_SECTION(void matchSpectrum(
   const MSSpectrum& input_spectrum,
-  const MSExperiment& experiment,
+  const MSExperiment& library,
+  Comparator& cmp,
   std::vector<Match>& matches
 ))
 {
@@ -956,16 +886,10 @@ START_SECTION(void matchSpectrum(
   // Title: GC-MS Spectra
   // http://mona.fiehnlab.ucdavis.edu/downloads
   // https://creativecommons.org/licenses/by/4.0/legalcode
-  // No changes were made to the content
-  // TODO: reduced version?
+  // Changes made: Only a very small subset of spectra is reproduced
 
-  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("full.msp");
-  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra.msp");
-  // const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra_cut.msp");
-  const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra_reduced.msp");
-
-  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML"); // reduced experiment
-  // const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_GCMS_fullScan.mzML"); // full experiment
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra_reduced_TSE_matchSpectrum.msp");
+  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
   const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
   MzMLFile mzml;
   MSExperiment gcms_experiment;
@@ -982,12 +906,8 @@ START_SECTION(void matchSpectrum(
   params.setValue("min_select_score", 0.1);
   params.setValue("GaussFilter:gaussian_width", 0.1);
   params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
-  params.setValue("peak_height_min", 0.0);
-  params.setValue("peak_height_max", std::numeric_limits<double>::max());
   params.setValue("top_matches_to_report", 2);
-  params.setValue("bin_size", 1.0);
-  params.setValue("bin_offset", 0.5);
-  params.setValue("min_match_score", 0.7);
+  params.setValue("min_match_score", 0.51);
   tse.setParameters(params);
 
   TEST_EQUAL(gcms_experiment.getSpectra().size(), 11)
@@ -999,53 +919,103 @@ START_SECTION(void matchSpectrum(
   TEST_EQUAL(extracted_spectra.size(), 18)
 
   MSExperiment library;
-  MSPMetaboFile mse(msp_path, library);
+  MSPGenericFile mse(msp_path, library);
 
-  // TEST_EQUAL(library.getSpectra().size(), 11556)
-  TEST_EQUAL(library.getSpectra().size(), 24)
+  TEST_EQUAL(library.getSpectra().size(), 21)
 
   vector<TargetedSpectraExtractor::Match> matches;
 
-  // for (const MSSpectrum& spectrum : extracted_spectra)
-  // {
-  //   tse.matchSpectrum(spectrum, library, matches);
-  //   cout << "Verifying spectrum " << spectrum.getName() << " ...\n";
-  //   for (const TargetedSpectraExtractor::Match& match : matches)
-  //   {
-  //     cout << match.spectrum.getName() << "\t" << match.score << "\n";
-  //     // cout << "\"" << match.spectrum.getName() << "\", ";
-  //   }
-  //   cout << endl;
-  // }
+  TargetedSpectraExtractor::BinnedSpectrumComparator cmp;
+  std::map<String,DataValue> options = {
+    {"bin_size", 1.0},
+    {"peak_spread", 0.0},
+    {"bin_offset", 0.4}
+  };
+  cmp.init(library.getSpectra(), options);
 
-  tse.matchSpectrum(extracted_spectra[0], library, matches);
-  TEST_STRING_EQUAL(matches[0].spectrum.getName(), "L-Tryptophane")
-  TEST_STRING_EQUAL(matches[1].spectrum.getName(), "tryptophol")
+  tse.matchSpectrum(extracted_spectra[0], library, cmp, matches);
+  TEST_EQUAL(matches.size() >= 2, true)
+  TEST_EQUAL(matches[0].score >= matches[1].score, true)
 
-  tse.matchSpectrum(extracted_spectra[4], library, matches);
-  TEST_STRING_EQUAL(matches[0].spectrum.getName(), "Uridine 5'-diphospho-N-acetylglucosamine")
-  TEST_STRING_EQUAL(matches[1].spectrum.getName(), "L-Ascorbic acid")
+  tse.matchSpectrum(extracted_spectra[4], library, cmp, matches);
+  TEST_EQUAL(matches.size() >= 2, true)
+  TEST_EQUAL(matches[0].score >= matches[1].score, true)
 
-  tse.matchSpectrum(extracted_spectra[8], library, matches);
-  TEST_STRING_EQUAL(matches[0].spectrum.getName(), "beta-D-(+)-Glucose")
-  TEST_STRING_EQUAL(matches[1].spectrum.getName(), "Adonitol")
+  tse.matchSpectrum(extracted_spectra[8], library, cmp, matches);
+  TEST_EQUAL(matches.size() >= 2, true)
+  TEST_EQUAL(matches[0].score >= matches[1].score, true)
 
-  tse.matchSpectrum(extracted_spectra[9], library, matches);
-  TEST_STRING_EQUAL(matches[0].spectrum.getName(), "(S)-(+)-2-(anilinomethyl)pyrrolidine")
-  TEST_STRING_EQUAL(matches[1].spectrum.getName(), "gamma-Amino-n-butyric acid")
+  tse.matchSpectrum(extracted_spectra[9], library, cmp, matches);
+  TEST_EQUAL(matches.size() >= 2, true)
+  TEST_EQUAL(matches[0].score >= matches[1].score, true)
 
-  tse.matchSpectrum(extracted_spectra[13], library, matches);
-  TEST_STRING_EQUAL(matches[0].spectrum.getName(), "beta-Ketoadipic acid")
-  TEST_STRING_EQUAL(matches[1].spectrum.getName(), "2-(TRIMETHYLSILYL)OXYBUTANEDIOIC ACID BIS(TRIMETHYLSILYL) ESTER")
+  tse.matchSpectrum(extracted_spectra[13], library, cmp, matches);
+  TEST_EQUAL(matches.size() >= 2, true)
+  TEST_EQUAL(matches[0].score >= matches[1].score, true)
 
-  tse.matchSpectrum(extracted_spectra[17], library, matches);
-  TEST_STRING_EQUAL(matches[0].spectrum.getName(), "Uridine 5'-diphospho-N-acetylglucosamine")
-  TEST_STRING_EQUAL(matches[1].spectrum.getName(), "beta-Ketoadipic acid")
-  // cout << "\nspectra: " << gcms_experiment.getSpectra().size() << endl;
+  tse.matchSpectrum(extracted_spectra[17], library, cmp, matches);
+  TEST_EQUAL(matches.size() >= 2, true)
+  TEST_EQUAL(matches[0].score >= matches[1].score, true)
+}
+END_SECTION
 
-  // tse.targetedMatching(extracted_spectra, library, extracted_features);
-  // tse.untargetedMatching(gcms_experiment.getSpectra(), library, extracted_features);
-  // outputFeatureMapToCsv(OPENMS_GET_TEST_DATA_PATH("FeatureMap_matches.csv"), extracted_features);
+START_SECTION(void targetedMatching(
+  const std::vector<MSSpectrum>& spectra,
+  const MSExperiment& library,
+  Comparator& cmp,
+  FeatureMap& features
+))
+{
+  // MS Library offered by: MoNa - MassBank of North America
+  // Title: GC-MS Spectra
+  // http://mona.fiehnlab.ucdavis.edu/downloads
+  // https://creativecommons.org/licenses/by/4.0/legalcode
+  // Changes made: Only a very small subset of spectra is reproduced
+
+  const String msp_path = OPENMS_GET_TEST_DATA_PATH("MoNA-export-GC-MS_Spectra_reduced_TSE_matchSpectrum.msp");
+  const String gcms_fullscan_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_GCMS.mzML");
+  const String target_list_path = OPENMS_GET_TEST_DATA_PATH("TargetedSpectraExtractor_matchSpectrum_traML.csv");
+  MzMLFile mzml;
+  MSExperiment gcms_experiment;
+  TransitionTSVFile tsv_reader;
+  TargetedExperiment targeted_exp;
+  mzml.load(gcms_fullscan_path, gcms_experiment);
+  Param tsv_params = tsv_reader.getParameters();
+  tsv_params.setValue("retentionTimeInterpretation", "seconds");
+  tsv_reader.setParameters(tsv_params);
+  tsv_reader.convertTSVToTargetedExperiment(target_list_path.c_str(), FileTypes::CSV, targeted_exp);
+  TargetedSpectraExtractor tse;
+  Param params = tse.getParameters();
+  params.setValue("rt_window", 2.0);
+  params.setValue("min_select_score", 0.1);
+  params.setValue("GaussFilter:gaussian_width", 0.1);
+  params.setValue("PeakPickerHiRes:signal_to_noise", 0.01);
+  params.setValue("top_matches_to_report", 2);
+  params.setValue("min_match_score", 0.51);
+  tse.setParameters(params);
+
+  TEST_EQUAL(gcms_experiment.getSpectra().size(), 11)
+
+  vector<MSSpectrum> extracted_spectra;
+  FeatureMap extracted_features;
+  tse.extractSpectra(gcms_experiment, targeted_exp, extracted_spectra, extracted_features);
+
+  TEST_EQUAL(extracted_spectra.size(), 18)
+
+  MSExperiment library;
+  MSPGenericFile mse(msp_path, library);
+
+  TEST_EQUAL(library.getSpectra().size(), 21)
+
+  TargetedSpectraExtractor::BinnedSpectrumComparator cmp;
+  std::map<String,DataValue> options = {
+    {"bin_size", 1.0},
+    {"peak_spread", 0.0},
+    {"bin_offset", 0.4}
+  };
+  cmp.init(library.getSpectra(), options);
+
+  tse.targetedMatching(extracted_spectra, library, cmp, extracted_features);
 }
 END_SECTION
 
