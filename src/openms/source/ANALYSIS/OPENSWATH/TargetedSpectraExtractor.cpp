@@ -525,7 +525,7 @@ namespace OpenMS
 
   void TargetedSpectraExtractor::matchSpectrum(
     const MSSpectrum& input_spectrum,
-    Comparator& cmp,
+    const Comparator& cmp,
     std::vector<Match>& matches
   )
   {
@@ -560,7 +560,7 @@ namespace OpenMS
 
   void TargetedSpectraExtractor::targetedMatching(
     const std::vector<MSSpectrum>& spectra,
-    Comparator& cmp,
+    const Comparator& cmp,
     FeatureMap& features
   )
   {
@@ -588,8 +588,9 @@ namespace OpenMS
       else
       {
         no_matches_idx.push_back(i);
-        // TODO: should I insert the metavalues anyway, with empty data? (similar to "Comments")
-        //       or should I keep this solution?
+        features[i].setMetaValue("spectral_library_name", "");
+        features[i].setMetaValue("spectral_library_score", 0.0);
+        features[i].setMetaValue("spectral_library_comments", "");
       }
     }
 
@@ -608,7 +609,7 @@ namespace OpenMS
 
   void TargetedSpectraExtractor::untargetedMatching(
     const std::vector<MSSpectrum>& spectra,
-    Comparator& cmp,
+    const Comparator& cmp,
     FeatureMap& features
   )
   {

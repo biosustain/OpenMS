@@ -1077,6 +1077,10 @@ START_SECTION(void untargetedMatching(
   FeatureMap features;
   tse.untargetedMatching(gcms_experiment.getSpectra(), cmp, features);
 
+  TEST_STRING_EQUAL(features[0].getMetaValue("spectral_library_name"), "")
+  TEST_REAL_SIMILAR(features[0].getMetaValue("spectral_library_score"), 0.0)
+  TEST_STRING_EQUAL(features[0].getMetaValue("spectral_library_comments"), "")
+
   TEST_STRING_EQUAL(features[1].getMetaValue("spectral_library_name"), "D-Glucose-6-phosphate")
   TEST_REAL_SIMILAR(features[1].getMetaValue("spectral_library_score"), 0.691226)
   String comments = "\"accession=PR010050\" \"author=Kusano M, Fukushima A, Plant Science Center, RIKEN.\" \"license=CC BY-SA\" \"exact mass=260.02972\" \"instrument=Pegasus III TOF-MS system, Leco; GC 6890, Agilent Technologies\" \"instrument type=GC-EI-TOF\" \"ms level=MS1\" \"retention index=2300.2\" \"retention time=538.069 sec\" \"derivative formula=C25H64NO9PSi6\" \"derivative mass=721.29343\" \"derivatization type=6 TMS; 1 MEOX\" \"ionization mode=positive\" \"compound class=Natural Product\" \"SMILES=OC(O1)[C@H](O)[C@@H](O)[C@H](O)[C@H]1COP(O)(O)=O\" \"cas=54010-71-8\" \"InChI=InChI=1S/C6H13O9P/c7-3-2(1-14-16(11,12)13)15-6(10)5(9)4(3)8/h2-10H,1H2,(H2,11,12,13)/t2-,3-,4+,5-,6?/m1/s1\" \"molecular formula=C6H13O9P\" \"total exact mass=260.029718626\" \"SMILES=C(C1C(C(C(C(O)O1)O)O)O)OP(O)(O)=O\" \"InChIKey=NBSCHQHZLSJFNQ-GASJEMHNSA-N\"";
