@@ -285,9 +285,6 @@ protected:
   // helper struct to facilitate parsing of parameters (modifications, nucleotide adducts, ...)
   struct RNPxlParameterParsing
   {
-    /// Query ResidueModifications (given as strings) from ModificationsDB
-    static vector<ResidueModification> getModifications(StringList modNames);
-
     // Map a nucleotide (e.g. U to all possible fragment adducts)
     using NucleotideToFragmentAdductMap = map<char, set<FragmentAdductDefinition_> >;
     // @brief Parse tool parameter to create map from target nucleotide to all its fragment adducts
@@ -546,8 +543,8 @@ protected:
                       vector<vector<AnnotatedHit> >& annotated_hits, 
                       Size top_hits, 
                       const RNPxlModificationMassesResult& mm, 
-                      const vector<ResidueModification>& fixed_modifications, 
-                      const vector<ResidueModification>& variable_modifications, 
+                      const ModifiedPeptideGenerator::MapToResidueType& fixed_modifications, 
+                      const ModifiedPeptideGenerator::MapToResidueType& variable_modifications, 
                       Size max_variable_mods_per_peptide, 
                       const TheoreticalSpectrumGenerator& partial_loss_spectrum_generator, 
                       double fragment_mass_tolerance, bool fragment_mass_tolerance_unit_ppm, 
@@ -641,8 +638,8 @@ protected:
 
         // reapply modifications (because for memory reasons we only stored the index and recreation is fast)
         vector<AASequence> all_modified_peptides;
-        ModifiedPeptideGenerator::applyFixedModifications(fixed_modifications.begin(), fixed_modifications.end(), aas);
-        ModifiedPeptideGenerator::applyVariableModifications(variable_modifications.begin(), variable_modifications.end(), aas, max_variable_mods_per_peptide, all_modified_peptides);
+        ModifiedPeptideGenerator::applyFixedModifications(fixed_modifications, aas);
+        ModifiedPeptideGenerator::applyVariableModifications(variable_modifications, aas, max_variable_mods_per_peptide, all_modified_peptides);
 
         // sequence with modifications - note: reannotated version requires much more memory heavy AASequence object
         const AASequence& fixed_and_variable_modified_peptide = all_modified_peptides[a.peptide_mod_index];
@@ -1292,8 +1289,8 @@ protected:
     vector<PeptideIdentification>& peptide_ids, 
     Size top_hits, 
     const RNPxlModificationMassesResult& mm, 
-    const vector<ResidueModification>& fixed_modifications, 
-    const vector<ResidueModification>& variable_modifications, 
+    const ModifiedPeptideGenerator::MapToResidueType& fixed_modifications, 
+    const ModifiedPeptideGenerator::MapToResidueType& variable_modifications, 
     Size max_variable_mods_per_peptide,
     const vector<PrecursorPurity::PurityScores>& purities)
   {
@@ -1343,8 +1340,8 @@ protected:
 
           // reapply modifications (because for memory reasons we only stored the index and recreation is fast)
           vector<AASequence> all_modified_peptides;
-          ModifiedPeptideGenerator::applyFixedModifications(fixed_modifications.begin(), fixed_modifications.end(), aas);
-          ModifiedPeptideGenerator::applyVariableModifications(variable_modifications.begin(), variable_modifications.end(), aas, max_variable_mods_per_peptide, all_modified_peptides);
+          ModifiedPeptideGenerator::applyFixedModifications(fixed_modifications, aas);
+          ModifiedPeptideGenerator::applyVariableModifications(variable_modifications, aas, max_variable_mods_per_peptide, all_modified_peptides);
 
           // reannotate much more memory heavy AASequence object
           AASequence fixed_and_variable_modified_peptide = all_modified_peptides[ah.peptide_mod_index]; 
@@ -1625,8 +1622,8 @@ protected:
       return ILLEGAL_PARAMETERS;
     }
 
-    vector<ResidueModification> fixed_modifications = RNPxlParameterParsing::getModifications(fixedModNames);
-    vector<ResidueModification> variable_modifications = RNPxlParameterParsing::getModifications(varModNames);
+    ModifiedPeptideGenerator::MapToResidueType fixed_modifications = ModifiedPeptideGenerator::getModifications(fixedModNames);
+    ModifiedPeptideGenerator::MapToResidueType variable_modifications = ModifiedPeptideGenerator::getModifications(varModNames);
     Size max_variable_mods_per_peptide = getIntOption_("modifications:variable_max_per_peptide");
 
     size_t report_top_hits = (size_t)getIntOption_("report:top_hits");
@@ -1642,7 +1639,7 @@ protected:
     // read list of nucleotides that can directly cross-link
     // these are responsible for shifted fragment ions. Their fragment adducts thus determine which shifts will be observed on b-,a-,y-ions
     String can_cross_link = getStringOption_("RNPxl:can_cross_link");
-    for (auto c : can_cross_link) { can_xl_.insert(c); }
+    for (const auto& c : can_cross_link) { can_xl_.insert(c); }
 
     StringList modifications = getStringList_("RNPxl:modifications");
 
@@ -1855,8 +1852,8 @@ protected:
           if (unmodified_sequence.find_first_of("XBZ") == std::string::npos)
           {
             AASequence aas = AASequence::fromString(unmodified_sequence);
-            ModifiedPeptideGenerator::applyFixedModifications(fixed_modifications.begin(), fixed_modifications.end(), aas);
-            ModifiedPeptideGenerator::applyVariableModifications(variable_modifications.begin(), variable_modifications.end(), aas, max_variable_mods_per_peptide, all_modified_peptides);
+            ModifiedPeptideGenerator::applyFixedModifications(fixed_modifications, aas);
+            ModifiedPeptideGenerator::applyVariableModifications(variable_modifications, aas, max_variable_mods_per_peptide, all_modified_peptides);
           }
         }
 
@@ -1932,7 +1929,7 @@ protected:
               if (precursor_rna_adduct == "none")
               {
                 // score peptide without RNA (same method as fast scoring)
-                for (auto l = low_it; l != up_it; ++l)
+                for (auto l = low_it; l != up_it; ++l) // OMS_CODING_TEST_EXCLUDE
                 {
                   //const double exp_pc_mass = l->first;
                   const Size & scan_index = l->second.first;
@@ -2075,7 +2072,7 @@ protected:
                     marker_ions_sub_score_spectrum_z1.getIntegerDataArrays()[0],
                     marker_ions_sub_score_spectrum_z1.getStringDataArrays()[0]);
 
-                  for (auto l = low_it; l != up_it; ++l)
+                  for (auto l = low_it; l != up_it; ++l) // OMS_CODING_TEST_EXCLUDE
                   {
                     //const double exp_pc_mass = l->first;
                     const Size& scan_index = l->second.first;
@@ -2167,7 +2164,7 @@ protected:
             }
             else // fast scoring
             {
-              for (auto l = low_it; l != up_it; ++l)
+              for (auto l = low_it; l != up_it; ++l) // OMS_CODING_TEST_EXCLUDE
               {
                 //const double exp_pc_mass = l->first;
                 const Size &scan_index = l->second.first;
@@ -2496,33 +2493,6 @@ protected:
 
 };
 
-vector<ResidueModification> RNPxlSearch::RNPxlParameterParsing::getModifications(StringList modNames) {
-  vector<ResidueModification> modifications;
-
-  // iterate over modification names and add to vector
-  for (String modification : modNames)
-  {
-    ResidueModification rm;
-    if (modification.hasSubstring(" (N-term)"))
-    {
-      modification.substitute(" (N-term)", "");
-      rm = ModificationsDB::getInstance()->getModification(modification, "", ResidueModification::N_TERM);
-    }
-    else if (modification.hasSubstring(" (C-term)"))
-    {
-      modification.substitute(" (C-term)", "");
-      rm = ModificationsDB::getInstance()->getModification(modification, "", ResidueModification::C_TERM);
-    }
-    else
-    {
-      rm = ModificationsDB::getInstance()->getModification(modification);
-    }
-    modifications.push_back(rm);
-  }
-
-  return modifications;
-}
-
 RNPxlSearch::RNPxlParameterParsing::PrecursorsToMS2Adducts
 RNPxlSearch::RNPxlParameterParsing::getAllFeasibleFragmentAdducts(
   const RNPxlModificationMassesResult &precursor_adducts,
@@ -2625,7 +2595,7 @@ RNPxlSearch::RNPxlParameterParsing::getTargetNucleotideToFragmentAdducts(StringL
     // register all fragment adducts as N- and C-terminal modification (if not already registered)
     if (!ModificationsDB::getInstance()->has(name))
     {
-      ResidueModification * c_term = new ResidueModification();
+      ResidueModification* c_term = new ResidueModification();
       c_term->setId(name);
       c_term->setName(name);
       c_term->setFullId(name + " (C-term)");
@@ -2633,7 +2603,7 @@ RNPxlSearch::RNPxlParameterParsing::getTargetNucleotideToFragmentAdducts(StringL
       c_term->setDiffMonoMass(fad.mass);
       ModificationsDB::getInstance()->addModification(c_term);
 
-      ResidueModification * n_term = new ResidueModification();
+      ResidueModification* n_term = new ResidueModification();
       n_term->setId(name);
       n_term->setName(name);
       n_term->setFullId(name + " (N-term)");

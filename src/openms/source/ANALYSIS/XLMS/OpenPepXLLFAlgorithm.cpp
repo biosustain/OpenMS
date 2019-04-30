@@ -215,8 +215,8 @@ using namespace OpenMS;
       LOG_DEBUG << "duplicate variable modification provided." << endl;
       return ExitCodes::ILLEGAL_PARAMETERS;
     }
-    vector<ResidueModification> fixed_modifications = OPXLHelper::getModificationsFromStringList(fixedModNames_);
-    vector<ResidueModification> variable_modifications = OPXLHelper::getModificationsFromStringList(varModNames_);
+    ModifiedPeptideGenerator::MapToResidueType fixed_modifications = ModifiedPeptideGenerator::getModifications(fixedModNames_);
+    ModifiedPeptideGenerator::MapToResidueType variable_modifications = ModifiedPeptideGenerator::getModifications(varModNames_);
 
     // Precursor Purity precalculation
     progresslogger.startProgress(0, 1, "Computing precursor purities...");
@@ -997,5 +997,7 @@ using namespace OpenMS;
     pep_indexing.run(fasta_db, protein_ids, peptide_ids);
 
     OPXLHelper::addProteinPositionMetaValues(peptide_ids);
+    OPXLHelper::addBetaAccessions(peptide_ids);
+    OPXLHelper::addXLTargetDecoyMV(peptide_ids);
     return OpenPepXLLFAlgorithm::ExitCodes::EXECUTION_OK;
   }
