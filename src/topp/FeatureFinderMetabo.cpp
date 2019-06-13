@@ -246,6 +246,7 @@ protected:
       std::vector<MassTrace> splitted_mtraces;
       epd_param.remove("enabled"); // artificially added above
       epd_param.insert("", common_param);
+      epd_param.remove("noise_threshold_int");
       ElutionPeakDetection epdet;
       epdet.setParameters(epd_param);
       // fill mass traces with smoothed data as well .. bad design..
@@ -300,7 +301,7 @@ protected:
 
     if (trace_count != m_traces_final.size())
     {
-      if (ffm_param.getValue("remove_single_traces").toBool() == false)
+      if (!ffm_param.getValue("remove_single_traces").toBool())
       { 
         OPENMS_LOG_ERROR << "FF-Metabo: Internal error. Not all mass traces have been assembled to features! Aborting." << std::endl;
         return UNEXPECTED_RESULT;
@@ -314,6 +315,10 @@ protected:
     OPENMS_LOG_INFO << "-- FF-Metabo stats --\n"
              << "Input traces:    " << m_traces_final.size() << "\n"
              << "Output features: " << feat_map.size() << " (total trace count: " << trace_count << ")" << std::endl;
+
+    // filter features with zero intensity (this can happen if the FWHM is zero (bc of overly skewed shape) and no peaks end up being summed up)
+    auto intensity_zero = [&](Feature& f) { return f.getIntensity() == 0; };
+    feat_map.erase(remove_if(feat_map.begin(),feat_map.end(),intensity_zero),feat_map.end());
 
     // store chromatograms
     if (!out_chrom.empty())
@@ -338,7 +343,7 @@ protected:
     }
 
     // store ionization mode of spectra (useful for post-processing by AccurateMassSearch tool)
-    if (feat_map.size() > 0)
+    if (!feat_map.empty())
     {
       set<IonSource::Polarity> pols;
       for (Size i = 0; i < ms_peakmap.size(); ++i)
