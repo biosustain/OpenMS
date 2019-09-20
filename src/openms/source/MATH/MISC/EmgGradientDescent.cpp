@@ -108,7 +108,7 @@ namespace OpenMS
       }
     }
     const double result = std::accumulate(diffs.begin(), diffs.end(), 0.0);
-    if (print_debug_ == 2)
+    if (print_debug_ >= 2)
     {
       std::cout << std::endl << "E_wrt_h() diffs:" << std::endl;
       for (const double d : diffs)
@@ -153,7 +153,7 @@ namespace OpenMS
       }
     }
     const double result = std::accumulate(diffs.begin(), diffs.end(), 0.0);
-    if (print_debug_ == 2)
+    if (print_debug_ >= 2)
     {
       std::cout << std::endl << "E_wrt_mu() diffs:" << std::endl;
       for (const double d : diffs)
@@ -198,7 +198,7 @@ namespace OpenMS
       }
     }
     const double result = std::accumulate(diffs.begin(), diffs.end(), 0.0);
-    if (print_debug_ == 2)
+    if (print_debug_ >= 2)
     {
       std::cout << std::endl << "E_wrt_sigma() diffs:" << std::endl;
       for (const double d : diffs)
@@ -244,7 +244,7 @@ namespace OpenMS
       }
     }
     const double result = std::accumulate(diffs.begin(), diffs.end(), 0.0);
-    if (print_debug_ == 2)
+    if (print_debug_ >= 2)
     {
       std::cout << std::endl << "E_wrt_tau() diffs:" << std::endl;
       for (const double d : diffs)
@@ -272,7 +272,7 @@ namespace OpenMS
       diffs[i] = std::pow(emg_point(xs[i], h, mu, sigma, tau) - ys[i], 2.0) / xs.size();
     }
     const double result = std::accumulate(diffs.begin(), diffs.end(), 0.0);
-    if (print_debug_ == 2)
+    if (print_debug_ >= 2)
     {
       std::cout << std::endl << "Loss_function() diffs:" << std::endl;
       for (const double d : diffs)
@@ -624,7 +624,7 @@ namespace OpenMS
     Size last_few_Es_idx = 0;
     const double Es_std_dev_min = 1.0; // NOTE: magic value
 
-    if (print_debug_ == 1)
+    if (print_debug_ >= 1)
     {
       std::cout << "GRADIENT DESCENT\nInput vectors size: " << xs.size() << "; Training set size: " << TrX.size() << std::endl;
       std::cout << "The possible mu range is [" << mu_left_boundary << " " << mu_right_boundary << "]" << std::endl;
@@ -673,7 +673,7 @@ namespace OpenMS
       double diff_E_tau = E_wrt_tau(TrX, TrY, h, mu, sigma, tau);
 
       // Logging info to the terminal
-      if (print_debug_ == 1 && iter_idx % info_iter_threshold == 0)
+      if (print_debug_ >= 1 && iter_idx % info_iter_threshold == 0)
       {
         std::cout << std::endl << "[" << iter_idx << "] [prev. E=" << current_E << "]" << std::endl;
         std::cout << "[diff_E_h=" << diff_E_h << "] [diff_E_mu=" << diff_E_mu << "] [diff_E_sigma=" << diff_E_sigma << "] [diff_E_tau=" << diff_E_tau << "]" << std::endl;
@@ -697,7 +697,7 @@ namespace OpenMS
         const double Es_std_dev = std::sqrt(squared_diffs / static_cast<double>(last_few_Es_dim));
         if (Es_std_dev < Es_std_dev_min)
         {
-          if (print_debug_ == 1)
+          if (print_debug_ >= 1)
           {
             std::cout << std::endl << "[" << iter_idx << "] The cost function is not changing enough, anymore. Breaking.";
             std::cout << std::endl << "[" << iter_idx << "] [mean=" << mean << "] [Es_std_dev=" << Es_std_dev << "]" << std::endl;
@@ -728,7 +728,7 @@ namespace OpenMS
       prev_diff_E_tau = diff_E_tau;
       previous_E = current_E;
     }
-    if (print_debug_ == 1)
+    if (print_debug_ >= 1)
     {
       std::cout << std::endl << "[" << best_iter << "] RESULT: best_E=" << best_E << std::endl;
       // TODO: Remove the following "GEOGEBRA" line
@@ -789,7 +789,7 @@ namespace OpenMS
     fda.push_back(tau);
     output_peak.getFloatDataArrays().push_back(fda);
 
-    if (print_debug_ == 1)
+    if (print_debug_ >= 1)
     {
       std::cout << std::endl << "Input size: " << input_peak.size() << ". ";
       std::cout << "Number of additional points: " << (output_peak.size() - input_peak.size()) << "\n\n" << std::endl;
