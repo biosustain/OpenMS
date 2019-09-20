@@ -119,6 +119,9 @@ public:
     /**
       @brief The implementation of the gradient descent algorithm for the EMG peak model
 
+      @throw Exception::Precondition Input vectors should have the same size
+      @throw Exception::SizeUnderflow If input vectors are empty
+
       @param[in] xs Positions
       @param[in] ys Intensities
       @param[out] best_h `h` (amplitude) parameter
@@ -179,7 +182,8 @@ protected:
       The goal is to limit the inclusion of saturated or spurious points near the
       peak apex during training.
 
-      @throw Exception::SizeUnderflow if the input has less than 2 elements
+      @throw Exception::Precondition Input vectors should have the same size
+      @throw Exception::SizeUnderflow If input vectors have less than 2 elements
 
       @param[in] xs Positions
       @param[in] ys Intensities
@@ -213,7 +217,8 @@ protected:
       The method computes the middle point on different levels of intensity of the peak.
       The returned mean is the average of these middle points.
 
-      @throw Exception::SizeUnderflow if the input is empty
+      @throw Exception::Precondition Input vectors should have the same size
+      @throw Exception::SizeUnderflow If input vectors are empty
 
       @param[in] xs Positions
       @param[in] ys Intensities

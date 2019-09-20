@@ -355,10 +355,15 @@ namespace OpenMS
     const std::vector<double>& ys
   ) const
   {
-    if (xs.size() == 0)
+    if (xs.size() != ys.size())
+    {
+      throw Exception::Precondition(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Input vectors should have the same size.");
+    }
+    if (xs.empty())
     {
       throw Exception::SizeUnderflow(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, 0);
     }
+
     const double max_intensity = *std::max_element(ys.begin(), ys.end());
     // The intensity levels at which the mean candidates are computed
     const std::vector<double> percentages = { 0.6, 0.65, 0.7, 0.75, 0.8, 0.85 };
@@ -465,6 +470,10 @@ namespace OpenMS
     std::vector<double>& TrY
   ) const
   {
+    if (xs.size() != ys.size())
+    {
+      throw Exception::Precondition(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Input vectors should have the same size.");
+    }
     if (xs.size() < 2) // A valid training set cannot be computed
     {
       throw Exception::SizeUnderflow(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, xs.size());
@@ -573,6 +582,15 @@ namespace OpenMS
     double& best_tau
   ) const
   {
+    if (xs.size() != ys.size())
+    {
+      throw Exception::Precondition(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Input vectors should have the same size.");
+    }
+    if (xs.empty())
+    {
+      throw Exception::SizeUnderflow(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, 0);
+    }
+
     // Initial parameters
     double h { *std::max_element(ys.begin(), ys.end()) };
     double mu { computeInitialMean(xs, ys) };
